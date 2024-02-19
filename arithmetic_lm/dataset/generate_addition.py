@@ -142,6 +142,7 @@ def generate_addition(out_dir: str | Path, num_digits: int, num_examples: int):
     - add_Ndigit_Mk_test.txt: M thousand uniformly sampled without overlap with train set
     """
 
+    out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     kn = k_notation(num_examples)
