@@ -175,7 +175,7 @@ if __name__ == "__main__":
         outfile = DATA_DIR / "add_3digit" / f"add_3digit_{kn}_bal.txt"
         logger.info(f"Generating {num_examples} subset to {outfile}")
         create_subset_dataset(
-            input_filepath=DATA_DIR / "add_3digit" / f"add_3digit_10k_bal.txt",
+            input_filepath=DATA_DIR / "add_3digit" / "add_3digit_10k_bal.txt",
             output_filepath=outfile,
             num_samples=num_examples,
         )
