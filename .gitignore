@@ -10,6 +10,12 @@
 # Hydra output dir
 /outputs/
 
+# Obsidian
+.obsidian/
+
+# Logbook (publish later)
+/logbook/
+
 # ======================
 
 # Byte-compiled / optimized / DLL files
