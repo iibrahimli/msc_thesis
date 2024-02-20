@@ -1,2 +1,5 @@
-defaults:
-  dataset: dataset
+train:
+  dataset: data/add_3digit/add_3digit_1k_bal.txt
+
+eval:
+  dataset: data/add_3digit/add_3digit_1k_test.txt
