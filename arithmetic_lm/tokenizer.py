@@ -1,8 +1,8 @@
 import string
 
 
-class VocabTokenizer:
-    """Vocab-based tokenizer, char tokenizer by default"""
+class CharTokenizer:
+    """Character tokenizer, using printable chars by default"""
 
     CHAR_VOCAB = list(string.printable)
     PLAIN_ADD_VOCAB = list("0123456789+=\n")
