@@ -28,10 +28,13 @@ def k_notation(number: int) -> str:
 
 # for train set
 def generate_balanced(
-    filepath: str | Path, num_examples: int = 10_000, num_digits: int = 3
+    filepath: str | Path,
+    num_examples: int = 10_000,
+    num_digits: int = 3,
+    seed: int = 42,
 ) -> None:
     """Generate addition problems with balanced number of digits and carries"""
-    set_seed(42)
+    set_seed(seed)
 
     num_digit_2 = int(900 * num_examples / 10000)
     num_digit_list = [100, num_digit_2, num_examples - 100 - num_digit_2]
@@ -90,11 +93,12 @@ def generate_uniform_exclude(
     exclude: set[str],
     num_digits: int,
     num_examples: int,
+    seed: int = 42,
 ) -> None:
     """
     Uniformly sample addition problems, excluding the given examples and without answer
     """
-    set_seed(42)
+    set_seed(seed)
 
     c = 0
     max_val = 10**num_digits - 1
@@ -116,10 +120,13 @@ def generate_uniform_exclude(
 
 # for smaller datasets
 def create_subset_dataset(
-    input_filepath: str | Path, output_filepath: str | Path, num_samples: int
+    input_filepath: str | Path,
+    output_filepath: str | Path,
+    num_samples: int,
+    seed: int = 42,
 ) -> None:
     """Generate a subset of given dataset, given we have 10k dataset"""
-    set_seed(42)
+    set_seed(seed)
 
     with open(input_filepath, "r") as f:
         lines = f.readlines()
@@ -169,7 +176,7 @@ if __name__ == "__main__":
     # generate 10k 3-digit addition problems
     generate_addition(DATA_DIR / "add_3digit", num_digits=3, num_examples=10_000)
 
-    # generate smaller datasets
+    # generate smaller train datasets
     for num_examples in [1000, 2000, 5000]:
         kn = k_notation(num_examples)
         outfile = DATA_DIR / "add_3digit" / f"add_3digit_{kn}_bal.txt"
@@ -178,4 +185,20 @@ if __name__ == "__main__":
             input_filepath=DATA_DIR / "add_3digit" / "add_3digit_10k_bal.txt",
             output_filepath=outfile,
             num_samples=num_examples,
+        )
+
+    # generate smaller test datasets
+    for num_examples in [1000]:
+        kn = k_notation(num_examples)
+        outfile = DATA_DIR / "add_3digit" / f"add_3digit_{kn}_test.txt"
+        with open(DATA_DIR / "add_3digit" / "add_3digit_10k_bal.txt", "r") as f:
+            lines = f.readlines()
+            exclude = set(lines)
+        logger.info(f"Generating {num_examples} uniform test dataset to {outfile}")
+        generate_uniform_exclude(
+            outfile,
+            exclude=exclude,
+            num_digits=3,
+            num_examples=num_examples,
+            seed=num_examples,
         )
