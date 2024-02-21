@@ -1,4 +1,17 @@
 import string
+from abc import ABC, abstractmethod
+
+
+class Tokenizer(ABC):
+    """Abstract tokenizer class"""
+
+    @abstractmethod
+    def encode(self, text: str) -> list[int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def decode(self, tokens: list[int]) -> str:
+        raise NotImplementedError
 
 
 class CharTokenizer:
