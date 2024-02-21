@@ -6,4 +6,7 @@ Input formatting types for arithmetic tasks:
  - Detailed Scratchpad: provides explicit details of intermediate steps of addition.
 """
 
+PLAIN_FORMAT_STR = "{a}{op}{b}={ans}\n"
+PAD_FORMAT_STR = "${a}{op}{b}={ans}$\n"
+
 # TODO
