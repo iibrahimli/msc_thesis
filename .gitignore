@@ -7,8 +7,8 @@
 # Wandb
 /wandb/
 
-# Hydra output dir
-/outputs/
+# model checkpoints
+/checkpoints/
 
 # Obsidian
 .obsidian/
