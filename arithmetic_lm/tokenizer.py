@@ -1,4 +1,17 @@
 import string
+from abc import ABC, abstractmethod
+
+
+class Tokenizer(ABC):
+    """Abstract tokenizer class"""
+
+    @abstractmethod
+    def encode(self, text: str) -> list[int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def decode(self, tokens: list[int]) -> str:
+        raise NotImplementedError
 
 
 class CharTokenizer:
@@ -9,7 +22,8 @@ class CharTokenizer:
 
     def __init__(self, vocab: list | str = CHAR_VOCAB):
         self.vocab = vocab if isinstance(vocab, list) else list(vocab)
-        self.vocab_len = len(self.vocab)
+        self.vocab_size = len(self.vocab)
+        self.pad_token = self.vocab.index("\n")
         self.stoi = {char: i for i, char in enumerate(self.vocab)}
         self.itos = {i: char for i, char in enumerate(self.vocab)}
 
