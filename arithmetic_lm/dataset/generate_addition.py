@@ -254,17 +254,32 @@ def main():
     for num_digits in [1, 2, 3, 4, 5, 6, 7]:
         n_examples = 10_000
         kn = k_notation(n_examples)
-        test = False  # whether to include answer in the dataset (test = no answer)
-        suffix = "_test" if test else ""
-        subdir = DATA_DIR / "add_digits"
+        subdir = DATA_DIR / "add_digits" / f"only{num_digits}digit"
         subdir.mkdir(parents=True, exist_ok=True)
-        outfile = subdir / f"add_only{num_digits}digit_{kn}{suffix}.txt"
+        outfile = subdir / f"add_only{num_digits}digit_{kn}.txt"
         logger.info(f"Generating {n_examples} {num_digits}-digit dataset to {outfile}")
         generate_only_digit(
             outfile,
             num_digits=num_digits,
             num_examples=n_examples,
-            include_ans=not test,
+            include_ans=True,
+        )
+
+    # generate N-digit test datasets
+    for num_digits in [2, 3, 4, 5, 6, 7]:
+        n_examples = 10_000
+        kn = k_notation(n_examples)
+        subdir = DATA_DIR / "add_digits" / f"only{num_digits}digit"
+        subdir.mkdir(parents=True, exist_ok=True)
+        outfile = subdir / f"add_only{num_digits}digit_{kn}_test.txt"
+        logger.info(
+            f"Generating {n_examples} {num_digits}-digit test dataset to {outfile}"
+        )
+        generate_only_digit(
+            outfile,
+            num_digits=num_digits,
+            num_examples=n_examples,
+            include_ans=False,
         )
 
 
