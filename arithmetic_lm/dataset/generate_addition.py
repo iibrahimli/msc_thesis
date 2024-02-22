@@ -130,6 +130,7 @@ def generate_only_digit(
     num_digits: int,
     num_examples: int,
     include_ans: bool = True,
+    exclude: set[str] = None,
     seed: int = 42,
 ):
     """Generate addition problems with given number of digits"""
@@ -157,6 +158,8 @@ def generate_only_digit(
             b = random.randint(min_val, max_val)
             c = a + b
             example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c)
+            if exclude and example in exclude:
+                continue
             if not include_ans:
                 example = example.split("=")[0] + "=\n"
             f.write(example)
@@ -240,11 +243,11 @@ def main():
         outfile = DATA_DIR / "add_3digit_bal" / f"add_3digit_{kn}_test.txt"
         with open(DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt", "r") as f:
             lines = f.readlines()
-            exclude = set(lines)
+            exclude_3digit_10k_bal = set(lines)
         logger.info(f"Generating {num_examples} uniform test dataset to {outfile}")
         generate_uniform_exclude(
             outfile,
-            exclude=exclude,
+            exclude=exclude_3digit_10k_bal,
             num_digits=3,
             num_examples=num_examples,
             seed=num_examples,
@@ -280,6 +283,8 @@ def main():
             num_digits=num_digits,
             num_examples=n_examples,
             include_ans=False,
+            exclude=exclude_3digit_10k_bal,
+            seed=n_examples + num_digits,  # different seed to avoid overlap
         )
 
 
