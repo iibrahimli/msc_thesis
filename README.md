@@ -15,4 +15,4 @@ To generate the datasets, run the following command:
 poetry run python -m arithmetic_lm.dataset.generate_addition
 ```
 
-which will generate the datasets in the `data/addition` directory in the project root.
+which will generate the datasets in the `data/` directory in the project root.
