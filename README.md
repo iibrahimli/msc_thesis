@@ -1,9 +1,9 @@
 ## Dependencies
 
-Dependencies are managed using [Poetry](https://python-poetry.org/). To install the dependencies, run the following command:
+The code has been tested on Python 3.12. To install the dependencies, run the following command:
 
 ```bash
-poetry install --with dev
+pip install -r requirements.txt
 ```
 
 ## Generating datasets
@@ -12,7 +12,7 @@ To generate the datasets, run the following command:
 
 ```bash
 # addition
-poetry run python -m arithmetic_lm.dataset.generate_addition
+python -m arithmetic_lm.dataset.generate_addition
 ```
 
 which will generate the datasets in the `data/` directory in the project root.
