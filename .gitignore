@@ -16,6 +16,9 @@
 # Logbook (publish later)
 /logbook/
 
+# venv
+/venv/
+
 # ======================
 
 # Byte-compiled / optimized / DLL files
