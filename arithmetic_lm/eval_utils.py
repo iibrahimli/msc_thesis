@@ -5,16 +5,10 @@ import lightning as L
 from arithmetic_lm.tokenizer import Tokenizer
 
 
-def eval_sample(prompt: str, pred_answer: str, answer: str = None) -> bool:
+def eval_sample(pred_answer: str, answer: str = None) -> bool:
     """Evaluate a single example, true if correct"""
 
-    if answer is None:
-        prompt = prompt.strip()
-        if "=" in prompt:
-            prompt = prompt.split("=")[0]
-        answer = eval(prompt)
-    # return str(answer) == pred_answer.strip()
-    return answer.strip().startswith(pred_answer)
+    return answer.strip().startswith(pred_answer.strip())
 
 
 def eval_on_batch(model, tokenizer: Tokenizer, batch: list, **gen_kwargs) -> dict:
@@ -29,7 +23,6 @@ def eval_on_batch(model, tokenizer: Tokenizer, batch: list, **gen_kwargs) -> dic
             prompt, max_new_tokens=answer.numel(), **gen_kwargs
         )
         correct += eval_sample(
-            tokenizer.decode(prompt.squeeze().tolist()),
             tokenizer.decode(pred_answer.squeeze().tolist()),
             tokenizer.decode(answer.squeeze().tolist()),
         )
