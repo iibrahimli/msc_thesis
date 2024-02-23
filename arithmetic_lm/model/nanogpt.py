@@ -5,8 +5,8 @@ import torch
 from torch import Tensor, nn
 
 from arithmetic_lm.eval_utils import eval_on_batch
-from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 from arithmetic_lm.tokenizer import Tokenizer
+from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
 
 # from https://pytorch.org/tutorials/beginner/transformer_tutorial.html
@@ -247,7 +247,7 @@ class LightningNanoGPT(L.LightningModule):
         res = eval_on_batch(
             self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
         )
-        self.log("test_acc": res["accuracy"])
+        self.log("test_acc", res["accuracy"])
 
     def configure_optimizers(self):
         # separate out all parameters to those that will and won't experience regularizing weight decay
