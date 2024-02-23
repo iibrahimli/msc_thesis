@@ -322,7 +322,7 @@ class LightningNanoGPT(L.LightningModule):
         use_fused = torch.cuda.is_available()
         extra_args = dict(fused=True) if use_fused else dict()
         optimizer = torch.optim.AdamW(
-            optim_groups, lr=self.lr, betas=self.betas, **extra_args
+            optim_groups, lr=1, betas=self.betas, **extra_args
         )
         lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer,
