@@ -1,3 +1,5 @@
+"""Main training script"""
+
 from pathlib import Path
 
 import lightning as L
@@ -25,6 +27,8 @@ WEIGHT_DECAY = 0.1
 WARMUP_ITERS = 100
 MAX_ITERS = 5000
 NUM_DL_WORKERS = 4
+VAL_INTERVAL = 10
+# N_TEST_BATCHES = 10
 
 WANDB = False
 WANDB_PROJECT = "msc-thesis-pilot"
@@ -93,15 +97,18 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
             ),
         )
 
-    test_callback = TestCallback()
+    # test_callback = TestCallback()
 
     trainer = L.Trainer(
         logger=loggers,
-        callbacks=[checkpoint_callback, test_callback],
+        callbacks=[
+            checkpoint_callback,
+            # test_callback,
+        ],
         max_steps=MAX_ITERS,
-        val_check_interval=10,
+        val_check_interval=VAL_INTERVAL,
         check_val_every_n_epoch=None,
-        limit_test_batches=100,
+        # limit_test_batches=N_TEST_BATCHES,
         log_every_n_steps=1,
         gradient_clip_val=1.0,
         devices=DEVICES,

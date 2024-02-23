@@ -100,26 +100,36 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
 
     def val_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.val_ds,
-            batch_size=self.batch_size,
-            pin_memory=True,
-            num_workers=self.num_workers,
-        )
+        return [
+            torch.utils.data.DataLoader(
+                self.val_ds,
+                batch_size=self.batch_size,
+                pin_memory=True,
+                num_workers=self.num_workers,
+            ),
+            torch.utils.data.DataLoader(
+                self.test_ds,
+                batch_size=self.batch_size,
+                shuffle=False,
+                pin_memory=True,
+                collate_fn=self.test_ds.collate_fn,
+                num_workers=self.num_workers,
+            ),
+        ]
 
-    def test_dataloader(self):
-        """
-        Test dataloader returns batches of list of (prompt, answer) where prompt
-        and answer are tensors.
-        """
-        return torch.utils.data.DataLoader(
-            self.test_ds,
-            batch_size=self.batch_size,
-            shuffle=False,
-            pin_memory=True,
-            collate_fn=self.test_ds.collate_fn,
-            num_workers=self.num_workers,
-        )
+    # def test_dataloader(self):
+    #     """
+    #     Test dataloader returns batches of list of (prompt, answer) where prompt
+    #     and answer are tensors.
+    #     """
+    #     return torch.utils.data.DataLoader(
+    #         self.test_ds,
+    #         batch_size=self.batch_size,
+    #         shuffle=False,
+    #         pin_memory=True,
+    #         collate_fn=self.test_ds.collate_fn,
+    #         num_workers=self.num_workers,
+    #     )
 
     def transfer_batch_to_device(self, batch, device, dataloader_idx):
         """Move batch to device since tensors are wrapped in lists"""

@@ -1,3 +1,5 @@
+"""Training utility functions"""
+
 import math
 
 

@@ -233,22 +233,42 @@ class LightningNanoGPT(L.LightningModule):
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
-    def validation_step(self, batch: Tensor, batch_idx: int) -> Tensor:
-        # evaluate language modeling loss on sequence
-        x, y = batch[:, :-1], batch[:, 1:]
-        logits = self.model(x)
-        loss = nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)), y.reshape(-1)
-        )
-        self.log("val_loss", loss, prog_bar=True)
-        return loss
+    def validation_step(
+        self, batch: Tensor | list, batch_idx: int, dataloader_idx: int = 0
+    ) -> Tensor:
+        if dataloader_idx == 0:
+            # evaluate language modeling loss on sequence
+            x, y = batch[:, :-1], batch[:, 1:]
+            logits = self.model(x)
+            loss = nn.functional.cross_entropy(
+                logits.view(-1, logits.size(-1)), y.reshape(-1)
+            )
+            self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
+            return loss
+        elif dataloader_idx == 1:
+            # evaluate accuracy on TEST set (it's the second dataloader)
+            res = eval_on_batch(
+                self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
+            )
+            self.log_dict(
+                {
+                    "test_acc": res["accuracy"],
+                },
+                batch_size=len(batch),
+                add_dataloader_idx=False,
+                prog_bar=True,
+            )
 
-    def test_step(self, batch: list, batch_idx: int) -> Tensor:
-        res = eval_on_batch(
-            self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
-        )
-        self.log("test_acc", res["accuracy"], batch_size=len(batch))
-        return {"loss": 0, "test_acc": res["accuracy"]}
+    # def test_step(self, batch: list, batch_idx: int) -> Tensor:
+    #     res = eval_on_batch(
+    #         self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
+    #     )
+    #     self.log_dict(
+    #         {
+    #             "test_acc": res["accuracy"],
+    #         },
+    #         batch_size=len(batch),
+    #     )
 
     def configure_optimizers(self):
         # separate out all parameters to those that will and won't experience regularizing weight decay
