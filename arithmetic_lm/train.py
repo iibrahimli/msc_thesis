@@ -24,7 +24,7 @@ LR = 0.001
 BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
 WARMUP_ITERS = 100
-MAX_ITERS = 5000
+MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 50
 VAL_RATIO = 0.2
@@ -101,6 +101,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
                 "train_dataset": train_dataset,
                 "test_dataset": test_dataset,
                 "val_ratio": VAL_RATIO,
+                "n_val_batches": N_VAL_BATCHES,
             }
         )
 
