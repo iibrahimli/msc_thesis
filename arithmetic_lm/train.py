@@ -147,8 +147,11 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
 
 if __name__ == "__main__":
+    exp_dir = DATA_DIR / "experiment_1"
     train(
-        train_data_path=DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt",
-        test_data_dict={""},
+        train_data_path=exp_dir / "train_add_1-3digit.txt",
+        test_data_dict={
+            f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
+        },
         run_name=RUN_NAME,
     )
