@@ -10,7 +10,6 @@ from arithmetic_lm.dataset import (
     ArithmeticEvalDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.eval_utils import TestCallback
 from arithmetic_lm.model.nanogpt import LightningNanoGPT
 from arithmetic_lm.tokenizer import CharTokenizer
 from arithmetic_lm.utils import set_seed
@@ -97,13 +96,10 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
             ),
         )
 
-    # test_callback = TestCallback()
-
     trainer = L.Trainer(
         logger=loggers,
         callbacks=[
             checkpoint_callback,
-            # test_callback,
         ],
         max_steps=MAX_ITERS,
         val_check_interval=VAL_INTERVAL,

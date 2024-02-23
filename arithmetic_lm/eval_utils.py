@@ -36,8 +36,3 @@ def eval_on_batch(model, tokenizer: Tokenizer, batch: list, **gen_kwargs) -> dic
         total += 1
 
     return {"accuracy": correct / total, "correct": correct, "total": total}
-
-
-class TestCallback(L.Callback):
-    def on_validation_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule):
-        trainer.test(pl_module, datamodule=trainer.datamodule)
