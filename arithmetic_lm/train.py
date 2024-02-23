@@ -29,17 +29,18 @@ WARMUP_ITERS = 100
 MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
-VAL_RATIO = 0.2
-N_VAL_BATCHES = 50  # also test batches
+VAL_RATIO = 0.1
+LIMIT_VAL_BATCHES = None  # also test batches
 
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "nanogpt_add_3digit_10k_bal"
+RUN_NAME = "exp1_nanogpt_1-3digit"
 
 DEVICES = [0]  # only use one GPU
 
 
-def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str):
+def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
+    """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
     # tokenizer
@@ -54,14 +55,17 @@ def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str
         reverse_ans=REVERSE_ANS,
     )
 
-    # test dataset
-    test_ds = ArithmeticEvalDataset(
-        test_data_path,
+    # test datasets
+    test_ds_names = list(test_data_dict.keys()) # extract names to pass to lmodule
+    test_ds_paths = list(test_data_dict.values())
+    test_ds = [
+        ArithmeticEvalDataset(
+        test_path,
         tokenizer=tokenizer,
         seq_len=SEQ_LEN,
         pad=PAD,
         reverse_ans=REVERSE_ANS,
-    )
+    ) for test_path in test_ds_paths]
 
     print("train + val:", len(train_val_ds), "sequences")
     print("test:", len(test_ds), "examples")
@@ -78,6 +82,7 @@ def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str
 
     lmodel = LightningNanoGPT(
         tokenizer=tokenizer,
+        test_dataloader_names=test_ds_names
         context_len=SEQ_LEN,
         n_embd=N_EMBD,
         n_head=N_HEAD,
@@ -111,9 +116,9 @@ def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str
         wandb_logger.experiment.config.update(
             {
                 "train_dataset": train_data_path,
-                "test_dataset": test_data_path,
+                "test_datasets": test_data_dict,
                 "max_iters": MAX_ITERS,
-                "n_val_batches": N_VAL_BATCHES,
+                "limit_val_batches": LIMIT_VAL_BATCHES,
                 "val_ratio": VAL_RATIO,
                 "pad": PAD,
                 "reverse_ans": REVERSE_ANS,
@@ -129,7 +134,7 @@ def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str
         max_steps=MAX_ITERS,
         val_check_interval=VAL_INTERVAL,
         check_val_every_n_epoch=None,
-        limit_val_batches=N_VAL_BATCHES,
+        limit_val_batches=LIMIT_VAL_BATCHES,
         # limit_test_batches=N_TEST_BATCHES,
         log_every_n_steps=1,
         gradient_clip_val=1.0,
@@ -141,7 +146,7 @@ def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str
 
 if __name__ == "__main__":
     train(
-        train_dataset=DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt",
-        test_dataset=DATA_DIR / "add_3digit_bal" / "add_3digit_10k_test.txt",
+        train_data_path=DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt",
+        test_data_dict={""},
         run_name=RUN_NAME,
     )

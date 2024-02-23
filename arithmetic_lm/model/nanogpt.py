@@ -188,6 +188,7 @@ class LightningNanoGPT(L.LightningModule):
     def __init__(
         self,
         tokenizer: Tokenizer,
+        test_dataloader_names: list,
         context_len: int,
         n_embd: int,
         n_head: int,
@@ -215,6 +216,7 @@ class LightningNanoGPT(L.LightningModule):
         self.weight_decay = weight_decay
         self.warmup_iters = warmup_iters
         self.tokenizer = tokenizer
+        self.test_dataloader_names = test_dataloader_names
         self.save_hyperparameters()
 
     def forward(self, x: Tensor) -> Tensor:
@@ -236,6 +238,7 @@ class LightningNanoGPT(L.LightningModule):
     def validation_step(
         self, batch: Tensor | list, batch_idx: int, dataloader_idx: int = 0
     ) -> Tensor:
+        """Dataloader 0 is the val split, others are from test data (see self.test_dataloader_names)"""
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
             x, y = batch[:, :-1], batch[:, 1:]
@@ -245,14 +248,16 @@ class LightningNanoGPT(L.LightningModule):
             )
             self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
             return loss
-        elif dataloader_idx == 1:
+        else:
             # evaluate accuracy on TEST set (it's the second dataloader)
             res = eval_on_batch(
                 self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
             )
+            # index - 1 coz 0 is val
+            test_dl_name = self.test_dataloader_names[dataloader_idx - 1]
             self.log_dict(
                 {
-                    "test_acc": res["accuracy"],
+                    f"test_acc_{test_dl_name}": res["accuracy"],
                 },
                 batch_size=len(batch),
                 add_dataloader_idx=False,

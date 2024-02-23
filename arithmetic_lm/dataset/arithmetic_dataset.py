@@ -106,7 +106,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
     def __init__(
         self,
         train_ds: Dataset,
-        test_ds: Dataset,
+        test_ds: Dataset | list[Dataset],
         tokenizer: Tokenizer,
         batch_size: int,
         val_ratio: float = 0.2,
@@ -136,22 +136,24 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
 
     def val_dataloader(self):
-        return [
+        dls = [
             torch.utils.data.DataLoader(
                 self.val_ds,
                 batch_size=self.batch_size,
                 pin_memory=True,
                 num_workers=self.num_workers,
             ),
+        ]
+        tds = [self.test_ds] if isinstance(self.test_ds, Dataset) else self.test_ds
+        for td in tds:
             torch.utils.data.DataLoader(
-                self.test_ds,
+                td,
                 batch_size=self.batch_size,
                 shuffle=False,
                 pin_memory=True,
-                collate_fn=self.test_ds.collate_fn,
+                collate_fn=td.collate_fn,
                 num_workers=self.num_workers,
             ),
-        ]
 
     # def test_dataloader(self):
     #     """
