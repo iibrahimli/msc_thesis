@@ -156,6 +156,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                     num_workers=self.num_workers,
                 )
             )
+        return dls
 
     # def test_dataloader(self):
     #     """
