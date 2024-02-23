@@ -197,7 +197,8 @@ def create_subset_dataset(
 
 def generate_experiment_1(out_dir: str | Path):
     """
-    Generate data for experiment 1:
+    Generate data for Experiment 1 (Trying to replicate length generalization,
+    Figure 22(a) from Lee 2023 "Teaching Arithmetic to Small Transformers"):
      1. generate 1,2,3 digit balanced 10k examples dataset `add_1-2-3digit_10k_bal.txt`
      2. from that, remove examples featuring 2 digit operands to get `train_add_1-3digit.txt`
      3. generate {1,2,3,4} digit test datasets of 100 examples each `test_Xdigit_100.txt`
