@@ -28,7 +28,7 @@ MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 50
 VAL_RATIO = 0.2
-N_VAL_BATCHES = 25  # also test batches
+N_VAL_BATCHES = 50  # also test batches
 
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
@@ -102,6 +102,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
                 "test_dataset": test_dataset,
                 "val_ratio": VAL_RATIO,
                 "n_val_batches": N_VAL_BATCHES,
+                "n_test_examples": N_VAL_BATCHES * BATCH_SIZE,
             }
         )
 
