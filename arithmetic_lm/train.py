@@ -102,7 +102,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         log_every_n_steps=1,
         gradient_clip_val=1.0,
         devices=DEVICES,
-        fast_dev_run=True,
+        # fast_dev_run=True,
     )
     trainer.fit(lmodel, ldm)
 
