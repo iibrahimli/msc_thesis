@@ -205,6 +205,7 @@ def generate_experiment_1(out_dir: str | Path):
     """
 
     out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Generating data for experiment {out_dir}")
 
     # 1. generate balanced dataset
@@ -239,9 +240,7 @@ def generate_experiment_1(out_dir: str | Path):
 
 
 def main():
-    exp_dir = DATA_DIR / "experiment_1"
-    exp_dir.mkdir(parents=True, exist_ok=True)
-    generate_experiment_1(exp_dir)
+    generate_experiment_1(DATA_DIR / "experiment_1")
 
 
 if __name__ == "__main__":
