@@ -38,4 +38,4 @@ def eval_on_batch(
 
 class TestCallback(L.Callback):
     def on_validation_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule):
-        trainer.test(pl_module, datamodule=pl_module)
+        trainer.test(pl_module, datamodule=trainer.datamodule)
