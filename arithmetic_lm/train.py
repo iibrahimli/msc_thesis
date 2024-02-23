@@ -26,10 +26,10 @@ WEIGHT_DECAY = 0.1
 WARMUP_ITERS = 100
 MAX_ITERS = 5000
 NUM_DL_WORKERS = 4
-VAL_INTERVAL = 10
+VAL_INTERVAL = 50
 # N_TEST_BATCHES = 10
 
-WANDB = False
+WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "nanogpt_add_3digit_10k_bal_with_lr_sched"
 
@@ -108,7 +108,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         log_every_n_steps=1,
         gradient_clip_val=1.0,
         devices=DEVICES,
-        fast_dev_run=True,
+        # fast_dev_run=True,
     )
     trainer.fit(lmodel, ldm)
 
