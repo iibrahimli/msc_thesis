@@ -90,10 +90,18 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
 
     loggers = []
     if WANDB:
-        loggers.append(
+        wandb_logger = (
             L.pytorch.loggers.WandbLogger(
                 project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
             ),
+        )
+        loggers.append(wandb_logger)
+        # add experiment hparams
+        wandb_logger.experiment.config.update(
+            {
+                "train_dataset": train_dataset,
+                "test_dataset": test_dataset,
+            }
         )
 
     trainer = L.Trainer(
