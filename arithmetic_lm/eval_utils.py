@@ -1,3 +1,5 @@
+import lightning as L
+
 from arithmetic_lm.tokenizer import Tokenizer
 
 
@@ -32,3 +34,8 @@ def eval_on_batch(
         total += 1
 
     return {"accuracy": correct / total}
+
+
+class TestCallback(L.Callback):
+    def on_validation_end(trainer: L.Trainer, pl_module: L.LightningModule):
+        trainer.test()
