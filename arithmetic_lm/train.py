@@ -95,11 +95,12 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
             project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
         )
         loggers.append(wandb_logger)
-        # add experiment hparams
+        # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
             {
                 "train_dataset": train_dataset,
                 "test_dataset": test_dataset,
+                "max_iters": MAX_ITERS,
                 "val_ratio": VAL_RATIO,
                 "n_val_batches": N_VAL_BATCHES,
                 "n_test_examples": N_VAL_BATCHES * BATCH_SIZE,
