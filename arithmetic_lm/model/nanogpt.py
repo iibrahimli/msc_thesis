@@ -4,6 +4,7 @@ import lightning as L
 import torch
 from torch import Tensor, nn
 
+from arithmetic_lm.eval_utils import eval_on_batch
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
 
@@ -123,7 +124,7 @@ class NanoGPT(nn.Module):
         idx: Tensor,
         max_new_tokens: int,
         temperature: float = 1.0,
-        top_k: int = None,
+        top_k: int = 1,
         stop_token: int = None,
         seed: int = 42,
     ) -> Tensor:
@@ -240,8 +241,10 @@ class LightningNanoGPT(L.LightningModule):
         return loss
 
     def test_step(self, batch: Tensor, batch_idx: int) -> Tensor:
-        # TODO accuracy
-        raise NotImplementedError("Test step not implemented")
+        res = eval_on_batch(
+            self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
+        )
+        self.log("test_acc": res["accuracy"])
 
     def configure_optimizers(self):
         # separate out all parameters to those that will and won't experience regularizing weight decay

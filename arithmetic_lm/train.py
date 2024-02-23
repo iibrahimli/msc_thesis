@@ -85,14 +85,6 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         filename="{step}-{train_loss:.4f}-{val_loss:.4f}",
     )
 
-    test_callback = ArithmeticTestCallback(
-        temperature=0.8,
-        top_k=1,
-        stop_token=tokenizer.encode("\n"),
-        max_new_tokens=5,
-        seed=42,
-    )
-
     loggers = []
     if WANDB:
         loggers.append(
@@ -103,7 +95,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
 
     trainer = L.Trainer(
         logger=loggers,
-        callbacks=[checkpoint_callback, test_callback],
+        callbacks=[checkpoint_callback],
         max_steps=MAX_ITERS,
         val_check_interval=10,
         check_val_every_n_epoch=None,
