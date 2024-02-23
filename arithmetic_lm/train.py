@@ -26,6 +26,7 @@ WEIGHT_DECAY = 0.1
 WARMUP_ITERS = 100
 MAX_ITERS = 5000
 
+WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "nanogpt_add_3digit_10k_bal_with_lr_sched"
 
@@ -86,10 +87,16 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         seed=42,
     )
 
+    loggers = []
+    if WANDB:
+        loggers.append(
+            L.pytorch.loggers.WandbLogger(
+                project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
+            ),
+        )
+
     trainer = L.Trainer(
-        logger=L.pytorch.loggers.WandbLogger(
-            project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
-        ),
+        logger=loggers,
         callbacks=[checkpoint_callback, test_callback],
         max_steps=MAX_ITERS,
         val_check_interval=10,
