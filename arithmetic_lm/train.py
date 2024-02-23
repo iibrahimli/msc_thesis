@@ -32,7 +32,7 @@ N_VAL_BATCHES = 25  # also test batches
 
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "nanogpt_add_3digit_10k_bal_with_lr_sched"
+RUN_NAME = "nanogpt_add_3digit_10k_bal"
 
 DEVICES = [0]  # only use one GPU
 
