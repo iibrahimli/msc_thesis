@@ -69,9 +69,6 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         for test_path in test_ds_paths
     ]
 
-    print("train + val:", len(train_val_ds), "sequences")
-    print("test:", len(test_ds), "examples")
-
     ldm = LightningArithmeticDataModule(
         train_val_ds,
         test_ds,
