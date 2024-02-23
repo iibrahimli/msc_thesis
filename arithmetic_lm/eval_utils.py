@@ -1,8 +1,3 @@
-import lightning as L
-import torch
-from torch import nn
-from torch.utils.data import DataLoader
-
 from arithmetic_lm.tokenizer import Tokenizer
 
 
@@ -18,7 +13,9 @@ def eval_sample(prompt: str, pred_answer: str, answer: str = None) -> bool:
     return answer.strip().startswith(pred_answer)
 
 
-def eval_on_batch(model, tokenizer, batch, **gen_kwargs) -> tuple[int, int]:
+def eval_on_batch(
+    model, tokenizer: Tokenizer, batch: list, **gen_kwargs
+) -> tuple[int, int]:
     """Returns correct, total"""
     correct = 0
     total = 0

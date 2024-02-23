@@ -6,6 +6,7 @@ from torch import Tensor, nn
 
 from arithmetic_lm.eval_utils import eval_on_batch
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
+from arithmetic_lm.tokenizer import Tokenizer
 
 
 # from https://pytorch.org/tutorials/beginner/transformer_tutorial.html
@@ -186,6 +187,7 @@ class NanoGPT(nn.Module):
 class LightningNanoGPT(L.LightningModule):
     def __init__(
         self,
+        tokenizer: Tokenizer,
         context_len: int,
         n_embd: int,
         n_head: int,
@@ -212,6 +214,7 @@ class LightningNanoGPT(L.LightningModule):
         self.betas = betas
         self.weight_decay = weight_decay
         self.warmup_iters = warmup_iters
+        self.tokenizer = tokenizer
         self.save_hyperparameters()
 
     def forward(self, x: Tensor) -> Tensor:
