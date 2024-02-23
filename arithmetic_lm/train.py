@@ -98,6 +98,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         max_steps=MAX_ITERS,
         val_check_interval=10,
         check_val_every_n_epoch=None,
+        limit_test_batches=100,
         log_every_n_steps=1,
         gradient_clip_val=1.0,
         devices=DEVICES,

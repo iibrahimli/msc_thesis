@@ -8,6 +8,9 @@ def lr_cosine_annealing_with_warmup(
     lr_decay_iters: int,
     min_lr: float = None,
 ):
+    if min_lr is None:
+        min_lr = learning_rate / 10
+
     # 1) linear warmup for warmup_iters steps
     if it < warmup_iters:
         return learning_rate * it / warmup_iters
