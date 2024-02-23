@@ -25,7 +25,9 @@ def eval_on_batch(
     for prompt, answer in batch:
         if prompt.ndim == 1:
             prompt = prompt.unsqueeze(0).to(model.device)
-        pred_answer = model.generate(prompt, **gen_kwargs)
+        pred_answer = model.generate(
+            prompt, max_new_tokens=answer.numel(), **gen_kwargs
+        )
         correct += eval_sample(
             tokenizer.decode(prompt.squeeze().tolist()),
             tokenizer.decode(pred_answer.squeeze().tolist()),
