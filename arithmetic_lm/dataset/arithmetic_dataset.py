@@ -9,7 +9,7 @@ from arithmetic_lm.tokenizer import Tokenizer
 
 
 class ArithmeticDataset(Dataset):
-    """Concatenate lines in file and split into sequences of length seq_len."""
+    """Concatenate lines in file and split into sequences of length seq_len + 1 (for shifted targets)."""
 
     # TODO transforms (adding $, formatting, reversing)
     def __init__(self, txtfile: str | Path, tokenizer: Tokenizer, seq_len: int):
@@ -20,8 +20,10 @@ class ArithmeticDataset(Dataset):
         self.n_examples = text.count("\n")
         tokens = self.tokenizer.encode(text)
         # make seqs of same length (truncate if necessary)
-        n_seqs = len(tokens) // seq_len
-        self.seqs = [tokens[i * seq_len : (i + 1) * seq_len] for i in range(n_seqs)]
+        self.seqs = [
+            tokens[i : i + seq_len + 1]
+            for i in range(0, len(tokens) - seq_len, seq_len)
+        ]
 
     def __len__(self) -> int:
         return len(self.seqs)
