@@ -81,8 +81,8 @@ class ArithmeticEvalDataset(Dataset):
         self.answers = []
         for line in lines:
             prompt, ans = line.split("=")
-            self.prompts.append(prompt)
-            self.answers.append(ans)
+            self.prompts.append(self.tokenizer.encode(prompt))
+            self.answers.append(self.tokenizer.encode(ans))
 
         assert len(self.prompts) == len(
             self.answers
