@@ -266,7 +266,7 @@ class LightningNanoGPT(L.LightningModule):
 
     def configure_optimizers(self):
         # start with all of the candidate parameters
-        param_dict = {pn: p for pn, p in self.named_parameters()}
+        param_dict = {pn: p for pn, p in self.model.named_parameters()}
 
         # filter out those that do not require grad
         param_dict = {pn: p for pn, p in param_dict.items() if p.requires_grad}
