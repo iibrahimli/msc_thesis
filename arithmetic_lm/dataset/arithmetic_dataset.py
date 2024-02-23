@@ -146,14 +146,16 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         ]
         tds = [self.test_ds] if isinstance(self.test_ds, Dataset) else self.test_ds
         for td in tds:
-            torch.utils.data.DataLoader(
-                td,
-                batch_size=self.batch_size,
-                shuffle=False,
-                pin_memory=True,
-                collate_fn=td.collate_fn,
-                num_workers=self.num_workers,
-            ),
+            dls.append(
+                torch.utils.data.DataLoader(
+                    td,
+                    batch_size=self.batch_size,
+                    shuffle=False,
+                    pin_memory=True,
+                    collate_fn=td.collate_fn,
+                    num_workers=self.num_workers,
+                )
+            )
 
     # def test_dataloader(self):
     #     """
