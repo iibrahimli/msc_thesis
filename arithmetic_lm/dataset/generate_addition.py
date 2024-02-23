@@ -25,6 +25,11 @@ def num_carry_ops(a: int, b: int) -> int:
     return int((digit_sum(a) + digit_sum(b) - digit_sum(a + b)) / 9)
 
 
+def get_set_from_file(filepath: str | Path) -> set[str]:
+    with open(filepath, "r") as f:
+        return set(f.readlines())
+
+
 def k_notation(number: int) -> str:
     """Convert number to k notation"""
     return f"{number // 1000}k" if number >= 1000 else f"{number}"
@@ -57,8 +62,8 @@ def generate_balanced(
         # generate all 1 digit examples
         for a in range(10):
             for b in range(10):
-                c = a + b
-                f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c))
+                ans = str(a + b)
+                f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
                 num_example += 1
                 num_carry = num_carry_ops(a, b)
                 num_carry_list[num_carry] += 1
@@ -73,13 +78,13 @@ def generate_balanced(
                 # generate a random number between 0 and 10^(i+1) - 1
                 a = random.randint(0, 10 ** (num_digit) - 1)
                 b = random.randint(0, 10 ** (num_digit) - 1)
-                c = a + b
+                ans = str(a + b)
 
-                # count number of carries in c
+                # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
                 if num_carry_list[num_carry] < target_num_carry_examples:
                     # write the example to file
-                    f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c))
+                    f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
 
                     # increment num_carry_list[num_carry]
                     num_carry_list[num_carry] += 1
@@ -112,15 +117,15 @@ def generate_uniform_exclude(
 
             a = random.randint(0, max_val)
             b = random.randint(0, max_val)
+            ans = str(a + b)
 
-            example_with_ans = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c)
+            example_with_ans = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
 
             if example_with_ans in exclude:
                 continue
 
-            # remove answer and write to file
-            example = example_with_ans.split("=")[0] + "=\n"
-            f.write(example)
+            # example = example_with_ans.split("=")[0] + "=\n"
+            f.write(example_with_ans)
             c += 1
 
 
@@ -129,8 +134,8 @@ def generate_only_digit(
     filepath: str | Path,
     num_digits: int,
     num_examples: int,
-    include_ans: bool = True,
     exclude: set[str] = None,
+    include_ans: bool = True,
     seed: int = 42,
 ):
     """Generate addition problems with given number of digits"""
@@ -141,8 +146,8 @@ def generate_only_digit(
         with open(filepath, "w") as f:
             for a in range(10 ** (num_digits - 1), 10**num_digits):
                 for b in range(10 ** (num_digits - 1), 10**num_digits):
-                    c = a + b
-                    example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c)
+                    ans = str(a + b)
+                    example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
                     if not include_ans:
                         example = example.split("=")[0] + "=\n"
                     f.write(example)
@@ -156,8 +161,8 @@ def generate_only_digit(
         while count < num_examples:
             a = random.randint(min_val, max_val)
             b = random.randint(min_val, max_val)
-            c = a + b
-            example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=c)
+            ans = str(a + b)
+            example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
             if exclude and example in exclude:
                 continue
             if not include_ans:
@@ -190,102 +195,53 @@ def create_subset_dataset(
         f.writelines(selected_lines)
 
 
-def generate_addition(out_dir: str | Path, num_digits: int, num_examples: int):
+def generate_experiment_1(out_dir: str | Path):
     """
-    Generate dataset for addition task. Writes 2 files:
-    - add_Ndigit_Mk_bal.txt: M (thousand) balanced addition problems up to N digits
-    - add_Ndigit_Mk_test.txt: M thousand uniformly sampled without overlap with train set
+    Generate data for experiment 1:
+     1. generate 1,2,3 digit balanced 10k examples dataset `add_1-2-3digit_10k_bal.txt`
+     2. from that, remove examples featuring 2 digit operands to get `train_add_1-3digit.txt`
+     3. generate {1,2,3,4} digit test datasets of 100 examples each `test_Xdigit_100.txt`
+    (the test data should have no overlap with train file)
     """
 
     out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Generating data for experiment {out_dir}")
 
-    kn = k_notation(num_examples)
-    train = out_dir / f"add_{num_digits}digit_{kn}_bal.txt"
-    test = out_dir / f"add_{num_digits}digit_{kn}_test.txt"
-
-    logger.info(f"Generating {num_examples} samples to {train}")
-    generate_balanced(train, num_digits=3, num_examples=num_examples)
-
-    # create set of excluded train examples for generating test set
-    with open(train, "r") as f:
-        lines = f.readlines()
-        exclude = set(lines)
-
-    logger.info(f"Generating {num_examples} samples to {test}")
-    generate_uniform_exclude(
-        test, exclude=exclude, num_digits=3, num_examples=num_examples
+    # 1. generate balanced dataset
+    bal_path = out_dir / "add_1-2-3digit_10k_bal.txt"
+    n_bal_examples = 10_000
+    logger.info(f"Generating {bal_path}")
+    generate_balanced(
+        filepath=bal_path,
+        num_examples=n_bal_examples,
+        num_digits=3,
     )
+
+    def _does_not_feature_2_digit_operand(line: str) -> bool:
+        a, bc = line.split(OPERATOR)
+        b, _ = bc.split("=")
+        return len(a.strip()) != 2 and len(b.strip()) != 2
+
+    # 2. remove 2 digit examples
+    logger.info("Removing 2 digit examples")
+    with open(bal_path, "r") as f:
+        lines = f.readlines()
+    lines = list(filter(_does_not_feature_2_digit_operand, lines))
+    with open(out_dir / "train_add_1-3digit.txt", "w") as f:
+        f.writelines(lines)
+
+    # 3. generate test datasets
+    n_test_examples = 100
+    for n_digits in (1, 2, 3, 4):
+        digit_path = out_dir / f"test_{n_digits}digit_{n_test_examples}.txt"
+        logger.info(f"Generating {digit_path}")
+        generate_only_digit(digit_path, num_digits=n_digits, num_examples=100)
 
 
 def main():
-
-    # generate 10k 3-digit addition problems
-    # this is the main, largest training dataset, smaller train datasets
-    # are subsets of this, and test datasets are generated to not have
-    # overlap with this dataset
-    generate_addition(DATA_DIR / "add_3digit_bal", num_digits=3, num_examples=10_000)
-
-    # generate smaller train datasets
-    for num_examples in [1000, 2000, 5000]:
-        kn = k_notation(num_examples)
-        outfile = DATA_DIR / "add_3digit_bal" / f"add_3digit_{kn}_bal.txt"
-        logger.info(f"Generating {num_examples} subset to {outfile}")
-        create_subset_dataset(
-            input_filepath=DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt",
-            output_filepath=outfile,
-            num_samples=num_examples,
-        )
-
-    # generate smaller test datasets
-    for num_examples in [1000]:
-        kn = k_notation(num_examples)
-        outfile = DATA_DIR / "add_3digit_bal" / f"add_3digit_{kn}_test.txt"
-        with open(DATA_DIR / "add_3digit_bal" / "add_3digit_10k_bal.txt", "r") as f:
-            lines = f.readlines()
-            exclude_3digit_10k_bal = set(lines)
-        logger.info(f"Generating {num_examples} uniform test dataset to {outfile}")
-        generate_uniform_exclude(
-            outfile,
-            exclude=exclude_3digit_10k_bal,
-            num_digits=3,
-            num_examples=num_examples,
-            seed=num_examples,
-        )
-
-    # generate N-digit datasets
-    for num_digits in [1, 2, 3, 4, 5, 6, 7]:
-        n_examples = 10_000
-        kn = k_notation(n_examples)
-        subdir = DATA_DIR / "add_digits" / f"only{num_digits}digit"
-        subdir.mkdir(parents=True, exist_ok=True)
-        outfile = subdir / f"add_only{num_digits}digit_{kn}.txt"
-        logger.info(f"Generating {n_examples} {num_digits}-digit dataset to {outfile}")
-        generate_only_digit(
-            outfile,
-            num_digits=num_digits,
-            num_examples=n_examples,
-            include_ans=True,
-        )
-
-    # generate N-digit test datasets
-    for num_digits in [2, 3, 4, 5, 6, 7]:
-        n_examples = 10_000
-        kn = k_notation(n_examples)
-        subdir = DATA_DIR / "add_digits" / f"only{num_digits}digit"
-        subdir.mkdir(parents=True, exist_ok=True)
-        outfile = subdir / f"add_only{num_digits}digit_{kn}_test.txt"
-        logger.info(
-            f"Generating {n_examples} {num_digits}-digit test dataset to {outfile}"
-        )
-        generate_only_digit(
-            outfile,
-            num_digits=num_digits,
-            num_examples=n_examples,
-            include_ans=False,
-            exclude=exclude_3digit_10k_bal,
-            seed=n_examples + num_digits,  # different seed to avoid overlap
-        )
+    exp_dir = DATA_DIR / "experiment_1"
+    exp_dir.mkdir(parents=True, exist_ok=True)
+    generate_experiment_1(exp_dir)
 
 
 if __name__ == "__main__":
