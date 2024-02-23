@@ -150,7 +150,7 @@ class NanoGPT(nn.Module):
             if idx.size(1) > self.context_len:
                 idx_cond = idx[:, -self.context_len :]
                 # can only move by 1, since 1 token is generated
-                gen_start_idx -= max(0, gen_start_idx - 1)
+                gen_start_idx = max(0, gen_start_idx - 1)
             else:
                 idx_cond = idx
 
