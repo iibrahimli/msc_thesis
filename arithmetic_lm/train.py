@@ -14,6 +14,8 @@ from arithmetic_lm.model.nanogpt import LightningNanoGPT
 from arithmetic_lm.tokenizer import CharTokenizer
 from arithmetic_lm.utils import set_seed
 
+PAD = "$"
+REVERSE_ANS = True
 SEQ_LEN = 256
 BATCH_SIZE = 128
 N_LAYERS = 6
@@ -37,7 +39,7 @@ RUN_NAME = "nanogpt_add_3digit_10k_bal"
 DEVICES = [0]  # only use one GPU
 
 
-def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
+def train(train_data_path: str | Path, test_data_path: str | Path, run_name: str):
     set_seed(42)
 
     # tokenizer
@@ -45,11 +47,21 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
 
     # 10k balanced dataset
     train_val_ds = ArithmeticDataset(
-        train_dataset, tokenizer=tokenizer, seq_len=SEQ_LEN
+        train_data_path,
+        tokenizer=tokenizer,
+        seq_len=SEQ_LEN,
+        pad=PAD,
+        reverse_ans=REVERSE_ANS,
     )
 
     # test dataset
-    test_ds = ArithmeticEvalDataset(test_dataset, tokenizer=tokenizer, seq_len=SEQ_LEN)
+    test_ds = ArithmeticEvalDataset(
+        test_data_path,
+        tokenizer=tokenizer,
+        seq_len=SEQ_LEN,
+        pad=PAD,
+        reverse_ans=REVERSE_ANS,
+    )
 
     print("train + val:", len(train_val_ds), "sequences")
     print("test:", len(test_ds), "examples")
@@ -98,12 +110,13 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
             {
-                "train_dataset": train_dataset,
-                "test_dataset": test_dataset,
+                "train_dataset": train_data_path,
+                "test_dataset": test_data_path,
                 "max_iters": MAX_ITERS,
-                "val_ratio": VAL_RATIO,
                 "n_val_batches": N_VAL_BATCHES,
-                "n_test_examples": N_VAL_BATCHES * BATCH_SIZE,
+                "val_ratio": VAL_RATIO,
+                "pad": PAD,
+                "reverse_ans": REVERSE_ANS,
             }
         )
 

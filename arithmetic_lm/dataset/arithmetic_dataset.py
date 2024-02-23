@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 
 import lightning as L
@@ -5,19 +6,39 @@ import torch
 from torch import Tensor
 from torch.utils.data import Dataset
 
+from arithmetic_lm.formatting import format_line
 from arithmetic_lm.tokenizer import Tokenizer
+
+
+def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str]:
+    return list(map(partial(format_line, **kwargs), lines))
 
 
 class ArithmeticDataset(Dataset):
     """Concatenate lines in file and split into sequences of length seq_len + 1 (for shifted targets)."""
 
-    # TODO transforms (adding $, formatting, reversing)
-    def __init__(self, txtfile: str | Path, tokenizer: Tokenizer, seq_len: int):
+    def __init__(
+        self,
+        txtfile: str | Path,
+        tokenizer: Tokenizer,
+        seq_len: int,
+        pad: str,
+        reverse_ans: bool,
+    ):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         with open(txtfile, "r") as f:
-            text = f.read()
-        self.n_examples = text.count("\n")
+            lines = f.readlines()
+        lines = _format_lines(
+            format_line,
+            lines,
+            pad=pad,
+            reverse_ans=reverse_ans,
+            prepend_newline=prepend_newline,
+        )
+        self.n_examples = len(lines)
+        # merge lines into one string
+        text = ""
         tokens = self.tokenizer.encode(text)
         # make seqs of same length (truncate if necessary)
         self.seqs = [
@@ -36,18 +57,33 @@ class ArithmeticDataset(Dataset):
 class ArithmeticEvalDataset(Dataset):
     """Dataset but instead of pure language modeling, we want to evaluate each example (line)"""
 
-    # TODO transforms (adding $, formatting, reversing)
-    def __init__(self, txtfile: str | Path, tokenizer: Tokenizer, seq_len: int):
+    def __init__(
+        self,
+        txtfile: str | Path,
+        tokenizer: Tokenizer,
+        seq_len: int,
+        pad: str,
+        reverse_ans: bool,
+    ):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         with open(txtfile, "r") as f:
-            text = f.readlines()
-        self.n_examples = len(text)
-        # generate answers
-        answers = [eval(l.split("=")[0]) for l in text]
-        lines = ["\n" + l.strip() for l in text]
-        self.prompts = [self.tokenizer.encode(l)[:seq_len] for l in lines]
-        self.answers = [self.tokenizer.encode(str(a))[:seq_len] for a in answers]
+            lines = f.readlines()
+        self.n_examples = len(lines)
+        lines = _format_lines(
+            format_line,
+            lines,
+            pad=pad,
+            reverse_ans=reverse_ans,
+            prepend_newline=True,  # prompt with starting \n
+        )
+        self.prompts = []
+        self.answers = []
+        for line in lines:
+            prompt, ans = line.split("=")
+            self.prompts.append(prompt)
+            self.answers.append(ans)
+
         assert len(self.prompts) == len(
             self.answers
         ), "prompts and answers length mismatch"
