@@ -259,17 +259,6 @@ class LightningNanoGPT(L.LightningModule):
                 prog_bar=True,
             )
 
-    # def test_step(self, batch: list, batch_idx: int) -> Tensor:
-    #     res = eval_on_batch(
-    #         self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
-    #     )
-    #     self.log_dict(
-    #         {
-    #             "test_acc": res["accuracy"],
-    #         },
-    #         batch_size=len(batch),
-    #     )
-
     def configure_optimizers(self):
         # separate out all parameters to those that will and won't experience regularizing weight decay
         decay = set()
