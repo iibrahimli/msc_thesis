@@ -34,11 +34,11 @@ class ArithmeticDataset(Dataset):
             lines,
             pad=pad,
             reverse_ans=reverse_ans,
-            prepend_newline=prepend_newline,
+            prepend_newline=False,
         )
         self.n_examples = len(lines)
         # merge lines into one string
-        text = ""
+        text = "".join(lines)
         tokens = self.tokenizer.encode(text)
         # make seqs of same length (truncate if necessary)
         self.seqs = [
