@@ -15,7 +15,7 @@ from arithmetic_lm.tokenizer import CharTokenizer
 from arithmetic_lm.utils import set_seed
 
 SEQ_LEN = 256
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 N_LAYERS = 6
 N_HEAD = 6
 N_EMBD = 384
@@ -25,8 +25,9 @@ BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
 WARMUP_ITERS = 100
 MAX_ITERS = 5000
+NUM_DL_WORKERS = 4
 
-WANDB = True
+WANDB = False
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "nanogpt_add_3digit_10k_bal_with_lr_sched"
 
@@ -51,7 +52,12 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
     print("test:", len(test_ds), "examples")
 
     ldm = LightningArithmeticDataModule(
-        train_val_ds, test_ds, BATCH_SIZE, val_ratio=0.2
+        train_val_ds,
+        test_ds,
+        tokenizer,
+        BATCH_SIZE,
+        val_ratio=0.2,
+        num_workers=NUM_DL_WORKERS,
     )
     del train_val_ds
 

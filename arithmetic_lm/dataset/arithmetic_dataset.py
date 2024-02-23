@@ -69,8 +69,10 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self,
         train_ds: Dataset,
         test_ds: Dataset,
+        tokenizer: Tokenizer,
         batch_size: int,
         val_ratio: float = 0.2,
+        num_workers: int = 0,
         seed: int = 42,
     ):
         super().__init__()
@@ -83,15 +85,24 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self.val_ds = val_ds
         self.test_ds = test_ds
         self.batch_size = batch_size
+        self.tokenizer = tokenizer
+        self.num_workers = num_workers
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
-            self.train_ds, batch_size=self.batch_size, shuffle=True, pin_memory=True
+            self.train_ds,
+            batch_size=self.batch_size,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=self.num_workers,
         )
 
     def val_dataloader(self):
         return torch.utils.data.DataLoader(
-            self.val_ds, batch_size=self.batch_size, shuffle=True, pin_memory=True
+            self.val_ds,
+            batch_size=self.batch_size,
+            pin_memory=True,
+            num_workers=self.num_workers,
         )
 
     def test_dataloader(self):
@@ -105,6 +116,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             shuffle=False,
             pin_memory=True,
             collate_fn=self.test_ds.collate_fn,
+            num_workers=self.num_workers,
         )
 
     def transfer_batch_to_device(self, batch, device, dataloader_idx):
