@@ -27,6 +27,7 @@ WARMUP_ITERS = 100
 MAX_ITERS = 5000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 50
+VAL_RATIO = 0.2
 N_VAL_BATCHES = 25  # also test batches
 
 WANDB = True
@@ -58,7 +59,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         test_ds,
         tokenizer,
         BATCH_SIZE,
-        val_ratio=0.2,
+        val_ratio=VAL_RATIO,
         num_workers=NUM_DL_WORKERS,
     )
     del train_val_ds
@@ -99,6 +100,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
             {
                 "train_dataset": train_dataset,
                 "test_dataset": test_dataset,
+                "val_ratio": VAL_RATIO,
             }
         )
 
@@ -106,6 +108,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         logger=loggers,
         callbacks=[
             checkpoint_callback,
+            L.pytorch.callbacks.LearningRateMonitor(),
         ],
         max_steps=MAX_ITERS,
         val_check_interval=VAL_INTERVAL,
