@@ -56,16 +56,18 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     )
 
     # test datasets
-    test_ds_names = list(test_data_dict.keys()) # extract names to pass to lmodule
+    test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
     test_ds_paths = list(test_data_dict.values())
     test_ds = [
         ArithmeticEvalDataset(
-        test_path,
-        tokenizer=tokenizer,
-        seq_len=SEQ_LEN,
-        pad=PAD,
-        reverse_ans=REVERSE_ANS,
-    ) for test_path in test_ds_paths]
+            test_path,
+            tokenizer=tokenizer,
+            seq_len=SEQ_LEN,
+            pad=PAD,
+            reverse_ans=REVERSE_ANS,
+        )
+        for test_path in test_ds_paths
+    ]
 
     print("train + val:", len(train_val_ds), "sequences")
     print("test:", len(test_ds), "examples")
@@ -82,7 +84,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
     lmodel = LightningNanoGPT(
         tokenizer=tokenizer,
-        test_dataloader_names=test_ds_names
+        test_dataloader_names=test_ds_names,
         context_len=SEQ_LEN,
         n_embd=N_EMBD,
         n_head=N_HEAD,
