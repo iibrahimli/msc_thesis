@@ -243,11 +243,12 @@ class LightningNanoGPT(L.LightningModule):
         self.log("val_loss", loss, prog_bar=True)
         return loss
 
-    def test_step(self, batch: Tensor, batch_idx: int) -> Tensor:
+    def test_step(self, batch: list, batch_idx: int) -> Tensor:
         res = eval_on_batch(
             self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
         )
-        self.log("test_acc", res["accuracy"], prog_bar=True)
+        self.log("test_acc", res["accuracy"], batch_size=len(batch))
+        return {"loss": 0, "test_acc": res["accuracy"]}
 
     def configure_optimizers(self):
         # separate out all parameters to those that will and won't experience regularizing weight decay

@@ -15,10 +15,8 @@ def eval_sample(prompt: str, pred_answer: str, answer: str = None) -> bool:
     return answer.strip().startswith(pred_answer)
 
 
-def eval_on_batch(
-    model, tokenizer: Tokenizer, batch: list, **gen_kwargs
-) -> tuple[int, int]:
-    """Returns correct, total"""
+def eval_on_batch(model, tokenizer: Tokenizer, batch: list, **gen_kwargs) -> dict:
+    """Returns dict"""
     correct = 0
     total = 0
 
@@ -35,7 +33,7 @@ def eval_on_batch(
         )
         total += 1
 
-    return {"accuracy": correct / total}
+    return {"accuracy": correct / total, "correct": correct, "total": total}
 
 
 class TestCallback(L.Callback):
