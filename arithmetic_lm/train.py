@@ -27,7 +27,7 @@ WARMUP_ITERS = 100
 MAX_ITERS = 5000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 50
-# N_TEST_BATCHES = 10
+N_VAL_BATCHES = 25  # also test batches
 
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
@@ -110,6 +110,7 @@ def train(train_dataset: str | Path, test_dataset: str | Path, run_name: str):
         max_steps=MAX_ITERS,
         val_check_interval=VAL_INTERVAL,
         check_val_every_n_epoch=None,
+        limit_val_batches=N_VAL_BATCHES,
         # limit_test_batches=N_TEST_BATCHES,
         log_every_n_steps=1,
         gradient_clip_val=1.0,
