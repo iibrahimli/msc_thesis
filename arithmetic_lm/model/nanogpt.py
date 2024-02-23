@@ -110,7 +110,7 @@ class NanoGPT(nn.Module):
             x,
             is_causal=True,
             mask=nn.Transformer.generate_square_subsequent_mask(
-                self.context_len, device=x.device
+                x.size(1), device=x.device
             ),
         )
         x = self.lm_head(x)
