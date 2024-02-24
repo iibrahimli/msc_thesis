@@ -79,7 +79,8 @@ class SampleCallback(L.Callback):
         pl_module.train(m_training)
 
         # generate monospace html for samples
-        out = "<pre>"
+        out = "<pre>\n"
+        out += f"step: {trainer.global_step}\n"
         out += f"{'dataset':^14}|{'prompt':^15}|{'answer':^12}|{'pred_answer':^12}|{'correct':^3}\n"
         for row in rows:
             correct = " " if row[4] else "-"
