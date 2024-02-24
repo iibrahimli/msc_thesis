@@ -133,7 +133,7 @@ class SampleCallback(L.Callback):
             for idx in test_idxs:
                 prompt, ans = test_ds[idx]
                 ds_labels.append(f"test_{ds_name}")
-                prompt.to(pl_module.device)
-                ans.to(pl_module.device)
+                prompts.append(prompt.to(pl_module.device))
+                answers.append(ans.to(pl_module.device))
 
         self._log(trainer, pl_module, ds_labels, prompts, answers)
