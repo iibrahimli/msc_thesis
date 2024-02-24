@@ -31,4 +31,6 @@ class CharTokenizer(Tokenizer):
         return [self.stoi[char] for char in text]
 
     def decode(self, tokens: list[int]) -> str:
+        if isinstance(tokens, int):
+            tokens = [tokens]
         return "".join([self.itos[token] for token in tokens])
