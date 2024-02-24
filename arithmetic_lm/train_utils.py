@@ -128,3 +128,5 @@ class SampleCallback(L.Callback):
                 ds_labels.append(f"test_{ds_name}")
                 prompt.to(pl_module.device)
                 ans.to(pl_module.device)
+
+        self._log(pl_module, trainer.global_step, ds_labels, prompts, answers)
