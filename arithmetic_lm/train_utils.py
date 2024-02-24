@@ -4,7 +4,7 @@ import math
 import random
 
 import lightning as L
-from torch import Tensor
+import torch
 
 from arithmetic_lm.eval_utils import eval_sample
 from arithmetic_lm.tokenizer import Tokenizer
@@ -49,8 +49,8 @@ class SampleCallback(L.Callback):
         self,
         pl_module: L.LightningModule,
         dset: str,
-        prompt: Tensor,
-        ans: Tensor,
+        prompt: torch.Tensor,
+        ans: torch.Tensor,
     ):
         cols = ["dataset", "prompt", "answer", "pred_answer", "correct"]
 
@@ -94,13 +94,17 @@ class SampleCallback(L.Callback):
         train_samples = train_seq.split("\n")[1:-1]
         train_samples = random.sample(train_samples, self.n_samples)
         for sample in train_samples:
-            prompt, ans = sample.split("=")
+            prompt_str, ans_str = sample.split("=")
             prompt = prompt + "="
             self._log(
                 pl_module,
                 "train",
-                pl_module.tokenizer.encode(prompt),
-                pl_module.tokenizer.encode(ans),
+                torch.tensor(
+                    pl_module.tokenizer.encode(prompt_str), device=pl_module.device
+                ),
+                torch.tensor(
+                    pl_module.tokenizer.encode(ans_str), device=pl_module.device
+                ),
             )
 
         # test
@@ -109,4 +113,6 @@ class SampleCallback(L.Callback):
         )
         for idx in test_idxs:
             prompt, ans = trainer.datamodule.test_ds[idx]
-            self._log(pl_module, "test", prompt, ans)
+            self._log(
+                pl_module, "test", prompt.to(pl_module.device), ans.to(pl_module.device)
+            )
