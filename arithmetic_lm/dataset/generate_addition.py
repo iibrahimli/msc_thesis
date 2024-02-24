@@ -124,7 +124,6 @@ def generate_uniform_exclude(
             if example_with_ans in exclude:
                 continue
 
-            # example = example_with_ans.split("=")[0] + "=\n"
             f.write(example_with_ans)
             c += 1
 
