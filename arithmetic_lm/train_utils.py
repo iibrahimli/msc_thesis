@@ -6,6 +6,7 @@ import random
 import lightning as L
 import torch
 
+import wandb
 from arithmetic_lm.eval_utils import eval_sample
 
 
@@ -76,10 +77,8 @@ class SampleCallback(L.Callback):
             )
         pl_module.train(m_training)
 
-        trainer.logger.experiment.log_text(
-            key="generated_samples",
-            columns=cols,
-            data=rows,
+        trainer.logger.experiment.log(
+            {"samples": wandb.Table(columns=cols, data=rows)},
             step=trainer.global_step,
         )
 
