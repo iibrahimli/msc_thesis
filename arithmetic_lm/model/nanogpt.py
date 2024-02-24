@@ -80,6 +80,7 @@ class NanoGPT(nn.Module):
             dim_feedforward=n_embd * ff_factor,
             dropout=dropout,
             batch_first=True,
+            activation="gelu",
         )
         self.transformer_encoder = nn.TransformerEncoder(
             self.layer,
