@@ -63,13 +63,14 @@ class SampleCallback(L.Callback):
                 prompt, **self.gen_kwargs, max_new_tokens=ans.numel()
             )
 
-            pred_ans_str = pl_module.tokenizer.decode(pred_ans.squeeze().tolist())
-            ans_str = pl_module.tokenizer.decode(ans.squeeze().tolist())
+            prompt_str = repr(pl_module.tokenizer.decode(prompt.squeeze().tolist()))
+            pred_ans_str = repr(pl_module.tokenizer.decode(pred_ans.squeeze().tolist()))
+            ans_str = repr(pl_module.tokenizer.decode(ans.squeeze().tolist()))
 
             rows.append(
                 [
                     dset,
-                    pl_module.tokenizer.decode(prompt.squeeze().tolist()),
+                    prompt_str,
                     ans_str,
                     pred_ans_str,
                     eval_sample(pred_ans_str, ans_str),
