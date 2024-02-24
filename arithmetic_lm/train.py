@@ -147,7 +147,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
                 n_samples=3,
                 temperature=GEN_TEMP,
                 top_k=GEN_TOP_K,
-                stop_token=tokenizer.encode("\n"),
+                stop_token=tokenizer.encode("\n")[0],
             )
         )
 
