@@ -84,7 +84,7 @@ class SampleCallback(L.Callback):
         out += f"{'dataset':^14}|{'prompt':^15}|{'answer':^12}|{'pred_answer':^12}|{'correct':^3}\n"
         for row in rows:
             correct = " " if row[4] else "-"
-            out += f"{row[0]:^14}{row[1]:^15}{row[2]:^12}{row[3]:^12}|{correct:^3}\n"
+            out += f"{row[0]:^14} {row[1]:^15} {row[2]:^12} {row[3]:^12} {correct:^3}\n"
         out += "</pre>"
 
         trainer.logger.experiment.log(
