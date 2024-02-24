@@ -89,7 +89,7 @@ class SampleCallback(L.Callback):
             random.randint(0, len(trainer.datamodule.train_ds) - 1)
         ]
         # decode and split by newline
-        train_seq = pl_module.tokenizer.decode(train_seq)
+        train_seq = pl_module.tokenizer.decode(train_seq.squeeze().tolist())
         # get rid of potentially incomplete lines
         train_samples = train_seq.split("\n")[1:-1]
         train_samples = random.sample(train_samples, self.n_samples)
