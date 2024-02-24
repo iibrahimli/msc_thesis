@@ -108,7 +108,7 @@ class SampleCallback(L.Callback):
             )
 
         # test
-        assert False, (range(len(trainer.datamodule.test_ds)), self.n_samples)
+        assert False, (len(trainer.datamodule.test_ds), trainer.datamodule.test_ds)
         test_idxs = random.sample(
             range(len(trainer.datamodule.test_ds)), self.n_samples
         )
