@@ -36,7 +36,7 @@ MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
 VAL_RATIO = 0.1
-LIMIT_VAL_BATCHES = 5  # also test batches
+LIMIT_VAL_BATCHES = None  # also test batches
 DEVICES = [0]  # only use one GPU
 
 # sampling
@@ -46,7 +46,7 @@ GEN_TOP_K = 1
 # wandb
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp1_nanogpt_1-3digit_overfit"
+RUN_NAME = "exp1_nanogpt_1-3digit"
 
 
 def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
@@ -158,7 +158,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         check_val_every_n_epoch=None,
         limit_val_batches=LIMIT_VAL_BATCHES,
         # limit_test_batches=N_TEST_BATCHES,
-        log_every_n_steps=10,
+        log_every_n_steps=5,
         gradient_clip_val=1.0,
         devices=DEVICES,
         # fast_dev_run=True,
@@ -171,9 +171,7 @@ if __name__ == "__main__":
     train(
         train_data_path=exp_dir / "train_add_1-3digit.txt",
         test_data_dict={
-            # f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
-            "train": exp_dir
-            / "train_add_1-3digit.txt",
+            f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
         },
         run_name=RUN_NAME,
     )
