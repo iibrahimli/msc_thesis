@@ -34,7 +34,7 @@ LIMIT_VAL_BATCHES = None  # also test batches
 
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp1_nanogpt_1-3digit"
+RUN_NAME = "exp1_nanogpt_1-3digit_overfit"
 
 DEVICES = [0]  # only use one GPU
 
@@ -148,7 +148,9 @@ if __name__ == "__main__":
     train(
         train_data_path=exp_dir / "train_add_1-3digit.txt",
         test_data_dict={
-            f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
+            # f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
+            "train": exp_dir
+            / "train_add_1-3digit.txt",
         },
         run_name=RUN_NAME,
     )
