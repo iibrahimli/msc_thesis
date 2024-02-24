@@ -38,9 +38,8 @@ def lr_cosine_annealing_with_warmup(
 class SampleCallback(L.Callback):
     """Sample from the model and log to wandb"""
 
-    def __init__(self, wandb_logger, n_samples: int = 5, **gen_kwargs):
+    def __init__(self, n_samples: int = 5, **gen_kwargs):
         super().__init__()
-        self.wandb_logger = wandb_logger
         self.n_samples = n_samples
         self.gen_kwargs = gen_kwargs
 
@@ -77,7 +76,7 @@ class SampleCallback(L.Callback):
             )
         pl_module.train(m_training)
 
-        self.wandb_logger.log_text(
+        pl_module.logger.experiment.log_text(
             key="generated_samples",
             columns=cols,
             data=rows,

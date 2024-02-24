@@ -143,7 +143,6 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         # sampler callback
         callbacks.append(
             SampleCallback(
-                wandb_logger,
                 n_samples=3,
                 temperature=GEN_TEMP,
                 top_k=GEN_TOP_K,
