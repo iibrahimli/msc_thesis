@@ -144,8 +144,10 @@ def generate_only_digit(
     # if <= 2 digits and enough num_examples, generate all possible examples
     if num_digits <= 2 and num_examples >= 100**num_digits:
         with open(filepath, "w") as f:
-            for a in range(10 ** (num_digits - 1), 10**num_digits):
-                for b in range(10 ** (num_digits - 1), 10**num_digits):
+            start = 10 ** (num_digits - 1) if num_digits > 1 else 0
+            end = 10**num_digits
+            for a in range(start, end):
+                for b in range(start, end):
                     ans = str(a + b)
                     example = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
                     if not include_ans:
