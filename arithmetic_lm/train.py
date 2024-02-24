@@ -12,10 +12,14 @@ from arithmetic_lm.dataset import (
 )
 from arithmetic_lm.model.nanogpt import LightningNanoGPT
 from arithmetic_lm.tokenizer import CharTokenizer
+from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
 
+# example formatting
 PAD = "$"
 REVERSE_ANS = True
+
+# model
 SEQ_LEN = 256
 BATCH_SIZE = 128
 N_LAYERS = 6
@@ -25,18 +29,24 @@ DROPOUT = 0.2
 LR = 0.001
 BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
+
+# training
 WARMUP_ITERS = 100
 MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
 VAL_RATIO = 0.1
 LIMIT_VAL_BATCHES = None  # also test batches
+DEVICES = [0]  # only use one GPU
 
+# sampling
+GEN_TEMP = 0.8
+GEN_TOP_K = 1
+
+# wandb
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "exp1_nanogpt_1-3digit_overfit"
-
-DEVICES = [0]  # only use one GPU
 
 
 def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
@@ -105,12 +115,18 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         filename="{step}-{train_loss:.4f}-{val_loss:.4f}",
     )
 
+    callbacks = [
+        checkpoint_callback,
+        L.pytorch.callbacks.LearningRateMonitor(),
+    ]
+
     loggers = []
     if WANDB:
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
         )
         loggers.append(wandb_logger)
+
         # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
             {
@@ -124,12 +140,20 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
             }
         )
 
+        # sampler callback
+        callbacks.append(
+            SampleCallback(
+                wandb_logger,
+                n_samples=3,
+                temperature=GEN_TEMP,
+                top_k=GEN_TOP_K,
+                stop_token=tokenizer.encode("\n"),
+            )
+        )
+
     trainer = L.Trainer(
         logger=loggers,
-        callbacks=[
-            checkpoint_callback,
-            L.pytorch.callbacks.LearningRateMonitor(),
-        ],
+        callbacks=callbacks,
         max_steps=MAX_ITERS,
         val_check_interval=VAL_INTERVAL,
         check_val_every_n_epoch=None,
