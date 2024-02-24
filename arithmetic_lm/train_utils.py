@@ -7,7 +7,6 @@ import lightning as L
 import torch
 
 from arithmetic_lm.eval_utils import eval_sample
-from arithmetic_lm.tokenizer import Tokenizer
 
 
 def lr_cosine_annealing_with_warmup(
@@ -49,34 +48,39 @@ class SampleCallback(L.Callback):
         self,
         pl_module: L.LightningModule,
         step: int,
-        dset: str,
-        prompt: torch.Tensor,
-        ans: torch.Tensor,
+        dsets: list[str],
+        prompts: list[torch.Tensor],
+        answers: list[torch.Tensor],
     ):
         cols = ["dataset", "prompt", "answer", "pred_answer", "correct"]
+        rows = []
 
         # save whether module is in train/eval
         m_training = pl_module.training
         pl_module.eval()
-        pred_ans = pl_module.generate(
-            prompt, **self.gen_kwargs, max_new_tokens=ans.numel()
-        )
+        for dset, prompt, ans in zip(dsets, prompts, answers):
+            pred_ans = pl_module.generate(
+                prompt, **self.gen_kwargs, max_new_tokens=ans.numel()
+            )
+
+            pred_ans_str = pl_module.tokenizer.decode(pred_ans.squeeze().tolist())
+            ans_str = pl_module.tokenizer.decode(ans.squeeze().tolist())
+
+            rows.append(
+                [
+                    dset,
+                    pl_module.tokenizer.decode(prompt.squeeze().tolist()),
+                    ans_str,
+                    pred_ans_str,
+                    eval_sample(pred_ans_str, ans_str),
+                ]
+            )
         pl_module.train(m_training)
-        pred_ans_str = pl_module.tokenizer.decode(pred_ans.squeeze().tolist())
-        prompt_str = pl_module.tokenizer.decode(prompt.squeeze().tolist())
-        ans_str = pl_module.tokenizer.decode(ans.squeeze().tolist())
+
         self.wandb_logger.log_text(
             key="generated_samples",
             columns=cols,
-            data=[
-                [
-                    dset,
-                    repr(prompt_str),
-                    repr(ans_str),
-                    repr(pred_ans_str),
-                    eval_sample(pred_ans_str, ans_str),
-                ]
-            ],
+            data=rows,
             step=step,
         )
 
@@ -85,6 +89,10 @@ class SampleCallback(L.Callback):
         trainer: L.Trainer,
         pl_module: L.LightningModule,
     ):
+
+        ds_labels = []
+        prompts = []
+        answers = []
 
         # train
         train_seq = trainer.datamodule.train_ds[
@@ -98,27 +106,25 @@ class SampleCallback(L.Callback):
         for sample in train_samples:
             prompt_str, ans_str = sample.split("=")
             prompt_str = prompt_str + "="
-            self._log(
-                pl_module,
-                trainer.global_step,
-                "train",
+            ds_labels.append("train")
+            prompts.append(
                 torch.tensor(
                     pl_module.tokenizer.encode(prompt_str), device=pl_module.device
-                ),
+                )
+            )
+            answers.append(
                 torch.tensor(
                     pl_module.tokenizer.encode(ans_str), device=pl_module.device
-                ),
+                )
             )
 
         # test
-        for test_ds in trainer.datamodule.test_ds_list:
+        for ds_name, test_ds in zip(
+            pl_module.test_dataloader_names, trainer.datamodule.test_ds_list
+        ):
             test_idxs = random.sample(range(len(test_ds)), self.n_samples)
             for idx in test_idxs:
                 prompt, ans = test_ds[idx]
-                self._log(
-                    pl_module,
-                    trainer.global_step,
-                    "test",
-                    prompt.to(pl_module.device),
-                    ans.to(pl_module.device),
-                )
+                ds_labels.append("test_{ds_name}")
+                prompt.to(pl_module.device)
+                ans.to(pl_module.device)
