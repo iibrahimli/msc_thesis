@@ -31,6 +31,7 @@ BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
 
 # training
+GRAD_ACC_BATCHES = 2  # effectively batch size = 256
 WARMUP_ITERS = 100
 MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
@@ -158,6 +159,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         check_val_every_n_epoch=None,
         limit_val_batches=LIMIT_VAL_BATCHES,
         # limit_test_batches=N_TEST_BATCHES,
+        accumulate_grad_batches=GRAD_ACC_BATCHES,
         log_every_n_steps=5,
         gradient_clip_val=1.0,
         devices=DEVICES,
