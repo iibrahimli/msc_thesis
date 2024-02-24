@@ -256,7 +256,7 @@ class LightningNanoGPT(L.LightningModule):
         else:
             # evaluate accuracy on TEST set (it's the second dataloader)
             res = eval_on_batch(
-                self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")
+                self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")[0]
             )
             # index - 1 coz 0 is val
             test_dl_name = self.test_dataloader_names[dataloader_idx - 1]
