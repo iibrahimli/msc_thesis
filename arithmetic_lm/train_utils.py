@@ -95,7 +95,7 @@ class SampleCallback(L.Callback):
         train_samples = random.sample(train_samples, self.n_samples)
         for sample in train_samples:
             prompt_str, ans_str = sample.split("=")
-            prompt = prompt + "="
+            prompt_str = prompt_str + "="
             self._log(
                 pl_module,
                 "train",
