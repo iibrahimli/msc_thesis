@@ -135,7 +135,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         check_val_every_n_epoch=None,
         limit_val_batches=LIMIT_VAL_BATCHES,
         # limit_test_batches=N_TEST_BATCHES,
-        log_every_n_steps=1,
+        log_every_n_steps=10,
         gradient_clip_val=1.0,
         devices=DEVICES,
         # fast_dev_run=True,
