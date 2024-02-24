@@ -11,7 +11,7 @@ from arithmetic_lm.tokenizer import Tokenizer
 
 
 def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str]:
-    return list(map(partial(format_line, **kwargs), lines))
+    return list(map(partial(format_func, **kwargs), lines))
 
 
 class ArithmeticDataset(Dataset):
