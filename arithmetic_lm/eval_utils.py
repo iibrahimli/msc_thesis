@@ -8,7 +8,7 @@ from arithmetic_lm.tokenizer import Tokenizer
 def eval_sample(pred_answer: str, answer: str = None) -> bool:
     """Evaluate a single example, true if correct"""
 
-    return answer.strip().startswith(pred_answer.strip())
+    return pred_answer.strip() == answer.strip()
 
 
 def eval_on_batch(model, tokenizer: Tokenizer, batch: list, **gen_kwargs) -> dict:
