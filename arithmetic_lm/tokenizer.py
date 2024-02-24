@@ -14,7 +14,7 @@ class Tokenizer(ABC):
         raise NotImplementedError
 
 
-class CharTokenizer:
+class CharTokenizer(Tokenizer):
     """Character tokenizer, using printable chars by default"""
 
     CHAR_VOCAB = list(string.printable)
