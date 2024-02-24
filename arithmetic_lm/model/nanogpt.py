@@ -299,7 +299,10 @@ class LightningNanoGPT(L.LightningModule):
                 lr_decay_iters=self.trainer.max_steps,
             ),
         )
-        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler}
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {"scheduler": lr_scheduler, "interval": "step"},
+        }
 
     def param_count(self) -> int:
         return self.model.param_count()
