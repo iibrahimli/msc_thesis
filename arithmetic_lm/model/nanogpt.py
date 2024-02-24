@@ -254,7 +254,7 @@ class LightningNanoGPT(L.LightningModule):
             self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
             return loss
         else:
-            # evaluate accuracy on TEST set (it's the second dataloader)
+            # evaluate accuracy on TEST set (other dataloaders than 0)
             res = eval_on_batch(
                 self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")[0]
             )
