@@ -74,7 +74,7 @@ class NanoGPT(nn.Module):
         )
 
         # same as decoder layer essentially, but without cross attention
-        self.layer = nn.TransformerEncoderLayer(
+        layer = nn.TransformerEncoderLayer(
             d_model=n_embd,
             nhead=n_head,
             dim_feedforward=n_embd * ff_factor,
@@ -83,7 +83,7 @@ class NanoGPT(nn.Module):
             activation="gelu",
         )
         self.transformer_encoder = nn.TransformerEncoder(
-            self.layer,
+            layer,
             num_layers=n_layers,
             norm=nn.LayerNorm(n_embd),
         )
