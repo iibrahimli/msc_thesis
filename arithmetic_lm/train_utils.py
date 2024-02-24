@@ -48,6 +48,7 @@ class SampleCallback(L.Callback):
     def _log(
         self,
         pl_module: L.LightningModule,
+        step: int,
         dset: str,
         prompt: torch.Tensor,
         ans: torch.Tensor,
@@ -76,6 +77,7 @@ class SampleCallback(L.Callback):
                     eval_sample(pred_ans_str, ans_str),
                 ]
             ],
+            step=step,
         )
 
     def on_validation_end(
@@ -98,6 +100,7 @@ class SampleCallback(L.Callback):
             prompt_str = prompt_str + "="
             self._log(
                 pl_module,
+                trainer.global_step,
                 "train",
                 torch.tensor(
                     pl_module.tokenizer.encode(prompt_str), device=pl_module.device
@@ -114,6 +117,7 @@ class SampleCallback(L.Callback):
                 prompt, ans = test_ds[idx]
                 self._log(
                     pl_module,
+                    trainer.global_step,
                     "test",
                     prompt.to(pl_module.device),
                     ans.to(pl_module.device),
