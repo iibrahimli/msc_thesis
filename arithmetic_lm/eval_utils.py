@@ -1,7 +1,5 @@
 """Evaluation utility functions"""
 
-import lightning as L
-
 from arithmetic_lm.tokenizer import Tokenizer
 
 
