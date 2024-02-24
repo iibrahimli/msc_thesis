@@ -138,6 +138,10 @@ class NanoGPT(nn.Module):
 
         # TODO implement seed w/ device support
 
+        # unsqueeze
+        if idx.ndim == 1:
+            idx = idx.unsqueeze(0)
+
         assert isinstance(idx, torch.Tensor), "idx must be a torch.Tensor"
         assert idx.dim() == 2, "idx must be a 2D tensor of shape [batch, seq_len]"
         assert idx.size(1) <= self.context_len, "sequence length must be <= context_len"
