@@ -36,7 +36,7 @@ MAX_ITERS = 10_000
 NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
 VAL_RATIO = 0.1
-LIMIT_VAL_BATCHES = 50  # also test batches
+LIMIT_VAL_BATCHES = 5  # also test batches
 DEVICES = [0]  # only use one GPU
 
 # sampling
