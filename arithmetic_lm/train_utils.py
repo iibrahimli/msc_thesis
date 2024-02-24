@@ -45,8 +45,8 @@ class SampleCallback(L.Callback):
 
     def _log(
         self,
+        trainer: L.Trainer,
         pl_module: L.LightningModule,
-        step: int,
         dsets: list[str],
         prompts: list[torch.Tensor],
         answers: list[torch.Tensor],
@@ -76,11 +76,11 @@ class SampleCallback(L.Callback):
             )
         pl_module.train(m_training)
 
-        pl_module.logger.experiment.log_text(
+        trainer.logger.experiment.log_text(
             key="generated_samples",
             columns=cols,
             data=rows,
-            step=step,
+            step=trainer.global_step,
         )
 
     def on_validation_end(
@@ -128,4 +128,4 @@ class SampleCallback(L.Callback):
                 prompt.to(pl_module.device)
                 ans.to(pl_module.device)
 
-        self._log(pl_module, trainer.global_step, ds_labels, prompts, answers)
+        self._log(trainer, pl_module, ds_labels, prompts, answers)
