@@ -125,6 +125,6 @@ class SampleCallback(L.Callback):
             test_idxs = random.sample(range(len(test_ds)), self.n_samples)
             for idx in test_idxs:
                 prompt, ans = test_ds[idx]
-                ds_labels.append("test_{ds_name}")
+                ds_labels.append(f"test_{ds_name}")
                 prompt.to(pl_module.device)
                 ans.to(pl_module.device)
