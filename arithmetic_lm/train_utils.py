@@ -108,12 +108,13 @@ class SampleCallback(L.Callback):
             )
 
         # test
-        assert False, (len(trainer.datamodule.test_ds), trainer.datamodule.test_ds)
-        test_idxs = random.sample(
-            range(len(trainer.datamodule.test_ds)), self.n_samples
-        )
-        for idx in test_idxs:
-            prompt, ans = trainer.datamodule.test_ds[idx]
-            self._log(
-                pl_module, "test", prompt.to(pl_module.device), ans.to(pl_module.device)
-            )
+        for test_ds in trainer.datamodule.test_ds_list:
+            test_idxs = random.sample(range(len(test_ds)), self.n_samples)
+            for idx in test_idxs:
+                prompt, ans = test_ds[idx]
+                self._log(
+                    pl_module,
+                    "test",
+                    prompt.to(pl_module.device),
+                    ans.to(pl_module.device),
+                )

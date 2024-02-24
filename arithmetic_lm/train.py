@@ -68,7 +68,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     # test datasets
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
     test_ds_paths = list(test_data_dict.values())
-    test_ds = [
+    test_ds_list = [
         ArithmeticEvalDataset(
             test_path,
             tokenizer=tokenizer,
@@ -81,7 +81,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
     ldm = LightningArithmeticDataModule(
         train_val_ds,
-        test_ds,
+        test_ds_list,
         tokenizer,
         BATCH_SIZE,
         val_ratio=VAL_RATIO,

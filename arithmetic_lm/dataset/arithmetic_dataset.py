@@ -121,7 +121,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
         self.train_ds = train_ds
         self.val_ds = val_ds
-        self.test_ds = test_ds
+        self.test_ds_list = [test_ds] if isinstance(test_ds, Dataset) else test_ds
         self.batch_size = batch_size
         self.tokenizer = tokenizer
         self.num_workers = num_workers
@@ -144,8 +144,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 num_workers=self.num_workers,
             ),
         ]
-        tds = [self.test_ds] if isinstance(self.test_ds, Dataset) else self.test_ds
-        for td in tds:
+        for td in self.test_ds_list:
             dls.append(
                 torch.utils.data.DataLoader(
                     td,
@@ -157,20 +156,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 )
             )
         return dls
-
-    # def test_dataloader(self):
-    #     """
-    #     Test dataloader returns batches of list of (prompt, answer) where prompt
-    #     and answer are tensors.
-    #     """
-    #     return torch.utils.data.DataLoader(
-    #         self.test_ds,
-    #         batch_size=self.batch_size,
-    #         shuffle=False,
-    #         pin_memory=True,
-    #         collate_fn=self.test_ds.collate_fn,
-    #         num_workers=self.num_workers,
-    #     )
 
     def transfer_batch_to_device(self, batch, device, dataloader_idx):
         """Move batch to device since tensors are wrapped in lists"""
