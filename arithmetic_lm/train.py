@@ -132,6 +132,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
             {
                 "train_dataset": train_data_path,
                 "test_datasets": test_data_dict,
+                "batch_size": BATCH_SIZE,
                 "max_iters": MAX_ITERS,
                 "limit_val_batches": LIMIT_VAL_BATCHES,
                 "val_ratio": VAL_RATIO,
