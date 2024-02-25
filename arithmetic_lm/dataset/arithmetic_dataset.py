@@ -43,7 +43,7 @@ class ArithmeticTrainDataset(Dataset):
         # keep seq_len * n_seq + 1 tokens (+1 to make target)
         tokens = self.tokenizer.encode(text)
         self.n_seq = (len(tokens) - 1) // seq_len
-        self.tokens = torch.tensor(tokens[: self.n_seq * seq_len], dtype=torch.long)
+        self.tokens = torch.tensor(tokens[: self.n_seq * seq_len + 1], dtype=torch.long)
 
     def __len__(self) -> int:
         return self.n_seq
@@ -148,10 +148,3 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 )
             )
         return dls
-
-    def transfer_batch_to_device(self, batch, device, dataloader_idx):
-        """Move batch to device since tensors are wrapped in lists"""
-        if isinstance(batch, list):
-            return [x.to(device) for x in batch]
-        else:
-            return batch.to(device)
