@@ -268,7 +268,7 @@ class LightningNanoGPT(L.LightningModule):
             self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
             return loss
         else:
-            # evaluate accuracy on TEST set (other dataloaders than 0)
+            # evaluate accuracy on TEST set (other val dataloaders than 0)
             res = eval_on_batch(
                 self, self.tokenizer, batch, stop_token=self.tokenizer.encode("\n")[0]
             )
@@ -278,7 +278,7 @@ class LightningNanoGPT(L.LightningModule):
                 {
                     f"test_acc_{test_dl_name}": res["accuracy"],
                 },
-                batch_size=len(batch),
+                batch_size=1,  # since ArithmeticEvalDataset returns 1 example
                 add_dataloader_idx=False,
                 prog_bar=True,
             )

@@ -95,15 +95,6 @@ class ArithmeticEvalDataset(Dataset):
         # return tensors
         return torch.tensor(self.prompts[idx]), torch.tensor(self.answers[idx])
 
-    def collate_fn(
-        self, batch: list[tuple[Tensor, Tensor]]
-    ) -> list[tuple[Tensor, Tensor]]:
-        """
-        Custom collate_fn to handle multiple tensors, otherwise default collate
-        tries to make a tensor, but the sequences have diffrernt sizes
-        """
-        return batch
-
 
 class LightningArithmeticDataModule(L.LightningDataModule):
     def __init__(
@@ -151,10 +142,9 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             dls.append(
                 torch.utils.data.DataLoader(
                     td,
-                    batch_size=self.batch_size,
+                    batch_size=None,  # disable automatic batching, return samples
                     shuffle=False,
                     pin_memory=True,
-                    collate_fn=td.collate_fn,
                     num_workers=self.num_workers,
                 )
             )
@@ -164,7 +154,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
     #     """Move batch to device since tensors are wrapped in lists"""
     #     if dataloader_idx == 0:
     #         # train
-    #         return [(x.to(device), y.to(device)) for x, y in batch]
-    #     else:
-    #         # just a tuple
     #         return batch[0].to(device), batch[1].to(device)
+    #     else:
+    #         #
+    #         return [(x.to(device), y.to(device)) for x, y in batch]
