@@ -6,8 +6,8 @@ import lightning as L
 
 from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
-    ArithmeticDataset,
     ArithmeticEvalDataset,
+    ArithmeticTrainDataset,
     LightningArithmeticDataModule,
 )
 from arithmetic_lm.model.nanogpt import LightningNanoGPT
@@ -57,7 +57,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     tokenizer = CharTokenizer()
 
     # 10k balanced dataset
-    train_val_ds = ArithmeticDataset(
+    train_val_ds = ArithmeticTrainDataset(
         train_data_path,
         tokenizer=tokenizer,
         seq_len=SEQ_LEN,

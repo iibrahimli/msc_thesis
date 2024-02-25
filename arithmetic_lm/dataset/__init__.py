@@ -1,5 +1,5 @@
 from .arithmetic_dataset import (
-    ArithmeticDataset,
     ArithmeticEvalDataset,
+    ArithmeticTrainDataset,
     LightningArithmeticDataModule,
 )

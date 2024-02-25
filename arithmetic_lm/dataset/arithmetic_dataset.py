@@ -14,8 +14,8 @@ def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str
     return list(map(partial(format_func, **kwargs), lines))
 
 
-class ArithmeticDataset(Dataset):
-    """Concatenate lines in file and split into sequences of length seq_len + 1 (for shifted targets)."""
+class ArithmeticTrainDataset(Dataset):
+    """Concatenate lines in file and split into sequences of length seq_len"""
 
     def __init__(
         self,
@@ -36,22 +36,22 @@ class ArithmeticDataset(Dataset):
             reverse_ans=reverse_ans,
             prepend_newline=False,
         )
+        # number of lines, not sequences (a seq contains many examples)
         self.n_examples = len(lines)
         # merge lines into one string
         text = "".join(lines)
+        # keep seq_len * n_seq + 1 tokens (+1 to make target)
         tokens = self.tokenizer.encode(text)
-        # make seqs of same length (truncate if necessary)
-        self.seqs = [
-            tokens[i : i + seq_len + 1]
-            for i in range(0, len(tokens) - seq_len, seq_len)
-        ]
+        self.n_seq = (len(tokens) - 1) // seq_len
+        self.tokens = torch.tensor(tokens[: self.n_seq * seq_len], dtype=torch.long)
 
     def __len__(self) -> int:
-        return len(self.seqs)
+        return self.n_seq
 
     def __getitem__(self, idx: int) -> Tensor:
-        # return tensors
-        return torch.tensor(self.seqs[idx])
+        x = self.tokens[idx * self.seq_len : (idx + 1) * self.seq_len]
+        y = self.tokens[idx * self.seq_len + 1 : (idx + 1) * self.seq_len + 1]
+        return x, y
 
 
 class ArithmeticEvalDataset(Dataset):
@@ -98,7 +98,10 @@ class ArithmeticEvalDataset(Dataset):
     def collate_fn(
         self, batch: list[tuple[Tensor, Tensor]]
     ) -> list[tuple[Tensor, Tensor]]:
-        """Custom collate_fn to handle multiple tensors"""
+        """
+        Custom collate_fn to handle multiple tensors, otherwise default collate
+        tries to make a tensor, but the sequences have diffrernt sizes
+        """
         return batch
 
 
@@ -162,4 +165,5 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         if isinstance(batch, list):
             return [(x.to(device), y.to(device)) for x, y in batch]
         else:
-            return batch.to(device)
+            # just a tuple
+            return batch[0].to(device), batch[1].to(device)

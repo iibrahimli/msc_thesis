@@ -20,17 +20,17 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(
             torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model)
         )
-        pe = torch.zeros(max_len, 1, d_model)
-        pe[:, 0, 0::2] = torch.sin(position * div_term)
-        pe[:, 0, 1::2] = torch.cos(position * div_term)
+        pe = torch.zeros(1, max_len, d_model)
+        pe[0, :, 0::2] = torch.sin(position * div_term)
+        pe[0, :, 1::2] = torch.cos(position * div_term)
         self.register_buffer("pe", pe)
 
     def forward(self, x: Tensor) -> Tensor:
         """
         Arguments:
-            x: Tensor, shape ``[seq_len, batch_size, embedding_dim]``
+            x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
         """
-        x = x + self.pe[: x.size(0)]
+        x = x + self.pe[:, : x.size(1)]
         return self.dropout(x)
 
 
@@ -243,14 +243,13 @@ class LightningNanoGPT(L.LightningModule):
         return self.model(x)
 
     def training_step(self, batch: Tensor, batch_idx: int) -> Tensor:
-        # batch: (batch_size, seq_len)
-        # split into input and target (shifted by 1)
-        x, y = batch[:, :-1], batch[:, 1:]
+        x, y = batch
         # forward pass
         logits = self.model(x)
-        # calculate loss
+        # calculate loss (ignores class index -100 by default)
         loss = nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)), y.reshape(-1)
+            logits.view(-1, logits.size(-1)),
+            y.reshape(-1),
         )
         self.log("train_loss", loss, prog_bar=True)
         return loss
@@ -261,7 +260,7 @@ class LightningNanoGPT(L.LightningModule):
         """Dataloader 0 is the val split, others are from test data (see self.test_dataloader_names)"""
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
-            x, y = batch[:, :-1], batch[:, 1:]
+            x, y = batch
             logits = self.model(x)
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), y.reshape(-1)

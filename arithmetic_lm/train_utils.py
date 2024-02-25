@@ -104,7 +104,7 @@ class SampleCallback(L.Callback):
         answers = []
 
         # train
-        train_seq = trainer.datamodule.train_ds[
+        train_seq, _ = trainer.datamodule.train_ds[
             random.randint(0, len(trainer.datamodule.train_ds) - 1)
         ]
         # decode and split by newline
