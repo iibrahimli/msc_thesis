@@ -150,11 +150,10 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             )
         return dls
 
-    # def transfer_batch_to_device(self, batch, device, dataloader_idx):
-    #     """Move batch to device since tensors are wrapped in lists"""
-    #     if dataloader_idx == 0:
-    #         # train
-    #         return batch[0].to(device), batch[1].to(device)
-    #     else:
-    #         #
-    #         return [(x.to(device), y.to(device)) for x, y in batch]
+    def transfer_batch_to_device(self, batch, device, dataloader_idx):
+        """Move batch to device since tensors are wrapped in lists"""
+        with open("logloglog.txt", "a"):
+            print("==========")
+            print("dataloader_idx", dataloader_idx)
+            print("type", type(batch))
+            print("batch[0]", type(batch[0]), batch[0])
