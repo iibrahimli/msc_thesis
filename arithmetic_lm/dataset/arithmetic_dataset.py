@@ -48,7 +48,7 @@ class ArithmeticTrainDataset(Dataset):
     def __len__(self) -> int:
         return self.n_seq
 
-    def __getitem__(self, idx: int) -> Tensor:
+    def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
         x = self.tokens[idx * self.seq_len : (idx + 1) * self.seq_len]
         y = self.tokens[idx * self.seq_len + 1 : (idx + 1) * self.seq_len + 1]
         return x, y
@@ -81,8 +81,8 @@ class ArithmeticEvalDataset(Dataset):
         self.answers = []
         for line in lines:
             prompt, ans = line.split("=")
-            self.prompts.append(self.tokenizer.encode(prompt + "="))
-            self.answers.append(self.tokenizer.encode(ans))
+            self.prompts.append(torch.tensor(self.tokenizer.encode(prompt + "=")))
+            self.answers.append(torch.tensor(self.tokenizer.encode(ans)))
 
         assert len(self.prompts) == len(
             self.answers
@@ -92,8 +92,7 @@ class ArithmeticEvalDataset(Dataset):
         return len(self.prompts)
 
     def __getitem__(self, idx: int) -> Tensor:
-        # return tensors
-        return torch.tensor(self.prompts[idx]), torch.tensor(self.answers[idx])
+        return self.prompts[idx], self.answers[idx]
 
 
 class LightningArithmeticDataModule(L.LightningDataModule):
