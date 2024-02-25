@@ -95,15 +95,18 @@ class NanoGPT(nn.Module):
         self.lm_head.weight = self.embedding.weight
 
         # init all weights
-        self.apply(self._init_weights)
-        # apply special scaled init to the residual projections, per GPT-2 paper
-        for pn, p in self.named_parameters():
-            if pn.endswith("self_attn.out_proj.weight") or pn.endswith(
-                "linear2.weight"
-            ):
-                torch.nn.init.normal_(
-                    p, mean=0.0, std=0.02 / math.sqrt(2 * self.n_layers)
-                )
+        # TODO: for some reason with init both train and val loss get stuck
+        # and do not progress, model outputs the same character
+        # for Experiment 1 both losses plateau at 2.60
+        # self.apply(self._init_weights)
+        # # apply special scaled init to the residual projections, per GPT-2 paper
+        # for pn, p in self.named_parameters():
+        #     if pn.endswith("self_attn.out_proj.weight") or pn.endswith(
+        #         "linear2.weight"
+        #     ):
+        #         torch.nn.init.normal_(
+        #             p, mean=0.0, std=0.02 / math.sqrt(2 * self.n_layers)
+        #         )
 
     def _init_weights(self, module: nn.Module):
         if isinstance(module, nn.Linear):
