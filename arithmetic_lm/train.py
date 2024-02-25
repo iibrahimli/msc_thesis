@@ -56,7 +56,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     # tokenizer
     tokenizer = CharTokenizer()
 
-    # 10k balanced dataset
+    # train dataset
     train_val_ds = ArithmeticTrainDataset(
         train_data_path,
         tokenizer=tokenizer,
