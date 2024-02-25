@@ -79,17 +79,17 @@ class SampleCallback(L.Callback):
         pl_module.train(m_training)
 
         # generate monospace html for samples
-        out = "<pre>\n"
-        out += f"step: {trainer.global_step}\n"
-        out += f"{'dataset':^14}|{'prompt':^15}|{'answer':^12}|{'pred_answer':^12}|{'correct':^3}\n"
-        for row in rows:
-            correct = " " if row[4] else "-"
-            out += f"{row[0]:^14} {row[1]:^15} {row[2]:^12} {row[3]:^12} {correct:^3}\n"
-        out += "</pre>"
+        # out = "<pre>\n"
+        # out += f"step: {trainer.global_step}\n"
+        # out += f"{'dataset':^14}|{'prompt':^15}|{'answer':^12}|{'pred_answer':^12}|{'correct':^3}\n"
+        # for row in rows:
+        #     correct = " " if row[4] else "-"
+        #     out += f"{row[0]:^14} {row[1]:^15} {row[2]:^12} {row[3]:^12} {correct:^3}\n"
+        # out += "</pre>"
 
         trainer.logger.experiment.log(
-            # {"samples": wandb.Table(columns=cols, data=rows)},
-            {"samples": wandb.Html(out)},
+            {"samples": wandb.Table(columns=cols, data=rows)},
+            # {"samples": wandb.Html(out)},
             step=trainer.global_step,
         )
 
