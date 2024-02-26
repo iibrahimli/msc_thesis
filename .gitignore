@@ -20,6 +20,9 @@
 /venv
 /venv/
 
+# testing notebook
+/notebooks/playground.ipynb
+
 # ======================
 
 # Byte-compiled / optimized / DLL files
