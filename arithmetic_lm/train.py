@@ -78,6 +78,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
         )
         for test_path in test_ds_paths
     ]
+    n_train_tokens = len(train_val_ds.tokens)
 
     ldm = LightningArithmeticDataModule(
         train_val_ds,
@@ -138,6 +139,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
                 "val_ratio": VAL_RATIO,
                 "pad": PAD,
                 "reverse_ans": REVERSE_ANS,
+                "n_train_tokens": n_train_tokens,
             }
         )
 
