@@ -35,7 +35,7 @@ class PositionalEncoding(nn.Module):
 
 
 class NanoGPT(nn.Module):
-    """Simple small decoder-only transformer model using nn.TransformerDecoder."""
+    """Simple small decoder-only transformer model"""
 
     def __init__(
         self,
@@ -52,7 +52,7 @@ class NanoGPT(nn.Module):
             context_len: context length, i.e. the number of expected features in the input
             n_embd: dimensionality of model embeddings
             n_head: number of heads in the multi-head attention
-            n_layers: number of nn.TransformerDecoderLayer layers
+            n_layers: number of layers
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
