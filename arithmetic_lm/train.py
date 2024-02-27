@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import lightning as L
+import torch
 
 from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
@@ -13,7 +14,7 @@ from arithmetic_lm.dataset import (
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.model.nanogpt import NanoGPT
 from arithmetic_lm.model.universal_nanogpt import UniversalNanoGPT
-from arithmetic_lm.tokenizer import CharTokenizer
+from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
 
@@ -52,12 +53,15 @@ WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "exp1_nanogpt_1-3digit"
 
 
-def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
+def train(
+    model: torch.nn.Module,
+    tokenizer: Tokenizer,
+    train_data_path: str | Path,
+    test_data_dict: dict,
+    run_name: str,
+):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
-
-    # tokenizer
-    tokenizer = CharTokenizer()
 
     # train dataset
     train_val_ds = ArithmeticTrainDataset(
@@ -94,14 +98,7 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     del train_val_ds
 
     lmodel = LightningModel(
-        model=NanoGPT(
-            context_len=SEQ_LEN,
-            n_embd=N_EMBD,
-            n_head=N_HEAD,
-            n_layers=N_LAYERS,
-            vocab_size=tokenizer.vocab_size,
-            dropout=DROPOUT,
-        ),
+        model=model,
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
         lr=LR,
@@ -178,7 +175,21 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
 if __name__ == "__main__":
     exp_dir = DATA_DIR / "experiment_1"
+
+    tokenizer = CharTokenizer()
+
+    model = UniversalNanoGPT(
+        context_len=SEQ_LEN,
+        n_embd=N_EMBD,
+        n_head=N_HEAD,
+        n_layers=N_LAYERS,
+        vocab_size=tokenizer.vocab_size,
+        dropout=DROPOUT,
+    )
+
     train(
+        model=model,
+        tokenizer=tokenizer,
         train_data_path=exp_dir / "train_add_1-3digit.txt",
         test_data_dict={
             f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
