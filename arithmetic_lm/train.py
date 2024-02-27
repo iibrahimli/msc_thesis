@@ -49,7 +49,7 @@ GEN_TOP_K = 1
 # wandb
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp1_nanogpt_1-3digit"
+RUN_NAME = "exp2_universalnanogpt_1-3digit"
 
 
 def train(
