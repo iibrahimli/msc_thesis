@@ -10,7 +10,9 @@ from arithmetic_lm.dataset import (
     ArithmeticTrainDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.model.nanogpt import LightningNanoGPT
+from arithmetic_lm.model.lightning_module import LightningModel
+from arithmetic_lm.model.nanogpt import NanoGPT
+from arithmetic_lm.model.universal_nanogpt import UniversalNanoGPT
 from arithmetic_lm.tokenizer import CharTokenizer
 from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
@@ -21,7 +23,8 @@ REVERSE_ANS = True
 
 # model
 SEQ_LEN = 256
-BATCH_SIZE = 224
+# BATCH_SIZE =
+BATCH_SIZE = 32
 N_LAYERS = 6
 N_HEAD = 6
 N_EMBD = 384
@@ -44,7 +47,7 @@ GEN_TEMP = 0.8
 GEN_TOP_K = 1
 
 # wandb
-WANDB = True
+WANDB = False
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "exp1_nanogpt_1-3digit"
 
@@ -90,15 +93,17 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     )
     del train_val_ds
 
-    lmodel = LightningNanoGPT(
+    lmodel = LightningModel(
+        model=NanoGPT(
+            context_len=SEQ_LEN,
+            n_embd=N_EMBD,
+            n_head=N_HEAD,
+            n_layers=N_LAYERS,
+            vocab_size=tokenizer.vocab_size,
+            dropout=DROPOUT,
+        ),
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
-        context_len=SEQ_LEN,
-        n_embd=N_EMBD,
-        n_head=N_HEAD,
-        n_layers=N_LAYERS,
-        vocab_size=tokenizer.vocab_size,
-        dropout=DROPOUT,
         lr=LR,
         betas=BETAS,
         weight_decay=WEIGHT_DECAY,
@@ -118,7 +123,6 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
     callbacks = [
         checkpoint_callback,
-        L.pytorch.callbacks.LearningRateMonitor(),
     ]
 
     loggers = []
@@ -143,14 +147,17 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
             }
         )
 
-        # sampler callback
-        callbacks.append(
-            SampleCallback(
-                n_samples=3,
-                temperature=GEN_TEMP,
-                top_k=GEN_TOP_K,
-                stop_token=tokenizer.encode("\n")[0],
-            )
+        # sampler and LR monitor callbacks
+        callbacks.extend(
+            [
+                SampleCallback(
+                    n_samples=3,
+                    temperature=GEN_TEMP,
+                    top_k=GEN_TOP_K,
+                    stop_token=tokenizer.encode("\n")[0],
+                ),
+                L.pytorch.callbacks.LearningRateMonitor(),
+            ]
         )
 
     trainer = L.Trainer(
