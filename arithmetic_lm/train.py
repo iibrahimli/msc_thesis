@@ -24,8 +24,7 @@ REVERSE_ANS = True
 
 # model
 SEQ_LEN = 256
-# BATCH_SIZE =
-BATCH_SIZE = 32
+BATCH_SIZE = 224
 N_LAYERS = 6
 N_HEAD = 6
 N_EMBD = 384
@@ -48,7 +47,7 @@ GEN_TEMP = 0.8
 GEN_TOP_K = 1
 
 # wandb
-WANDB = False
+WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "exp1_nanogpt_1-3digit"
 
