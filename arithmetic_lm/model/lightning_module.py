@@ -6,6 +6,8 @@ from arithmetic_lm.eval_utils import eval_on_batch
 from arithmetic_lm.tokenizer import Tokenizer
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
+from .utils import generate
+
 
 class LightningModel(L.LightningModule):
     def __init__(
@@ -120,6 +122,6 @@ class LightningModel(L.LightningModule):
         stop_token: int = None,
         seed: int = 42,
     ) -> Tensor:
-        return self.model.generate(
-            idx, max_new_tokens, temperature, top_k, stop_token, seed
+        return generate(
+            self.model, idx, max_new_tokens, temperature, top_k, stop_token, seed
         )

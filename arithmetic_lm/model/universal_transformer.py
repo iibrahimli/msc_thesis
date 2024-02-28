@@ -4,8 +4,8 @@ from torch import Tensor, nn
 from .utils import CoordinateEncoding
 
 
-class UniversalNanoGPT(nn.Module):
-    """A decoder-only universal transformer model"""
+class UniversalTransformer(nn.Module):
+    """Encoder-decoder universal transformer model"""
 
     def __init__(
         self,
@@ -22,7 +22,7 @@ class UniversalNanoGPT(nn.Module):
             context_len: context length, i.e. the number of expected features in the input
             n_embd: dimensionality of model embeddings
             n_head: number of heads in the multi-head attention
-            max_steps: number of maximum recurrent steps
+            max_steps: number of maximum recurrent steps (both enc and dec)
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
@@ -44,8 +44,15 @@ class UniversalNanoGPT(nn.Module):
             n_embd, max_len=context_len, dropout=dropout
         )
 
-        # same as decoder layer essentially, but without cross attention
-        self.layer = nn.TransformerEncoderLayer(
+        self.encoder_layer = nn.TransformerEncoderLayer(
+            d_model=n_embd,
+            nhead=n_head,
+            dim_feedforward=n_embd * ff_factor,
+            dropout=dropout,
+            batch_first=True,
+            activation="gelu",
+        )
+        self.decoder_layer = nn.TransformerDecoderLayer(
             d_model=n_embd,
             nhead=n_head,
             dim_feedforward=n_embd * ff_factor,
