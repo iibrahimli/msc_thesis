@@ -94,7 +94,7 @@ class NanoGPT(nn.Module):
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
-        x = self.embedding(x) / (self.n_embd**0.5)
+        x = self.embedding(x)
         x = self.pos_encoder(x)
 
         x = self.transformer_encoder(
