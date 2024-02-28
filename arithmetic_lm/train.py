@@ -39,7 +39,7 @@ NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
 VAL_RATIO = 0.1
 LIMIT_VAL_BATCHES = None  # also test batches
-DEVICES = [0]  # only use one GPU
+DEVICES = [6]  # only use one GPU
 
 # sampling
 GEN_TEMP = 0.8
