@@ -11,9 +11,8 @@ from arithmetic_lm.dataset import (
     ArithmeticTrainDataset,
     LightningArithmeticDataModule,
 )
+from arithmetic_lm.model import NanoGPT, UniversalNanoGPT
 from arithmetic_lm.model.lightning_module import LightningModel
-from arithmetic_lm.model.nanogpt import NanoGPT
-from arithmetic_lm.model.universal_nanogpt import UniversalNanoGPT
 from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
@@ -49,7 +48,7 @@ GEN_TOP_K = 1
 # wandb
 WANDB = True
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp2_universalnanogpt_1-3digit"
+RUN_NAME = "exp2_nanogpt_scaled_emb_1-3digit"
 
 
 def train(
@@ -178,7 +177,7 @@ if __name__ == "__main__":
 
     tokenizer = CharTokenizer()
 
-    model = UniversalNanoGPT(
+    model = NanoGPT(
         context_len=SEQ_LEN,
         n_embd=N_EMBD,
         n_head=N_HEAD,
