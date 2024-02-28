@@ -47,6 +47,7 @@ GEN_TOP_K = 1
 
 # wandb
 WANDB = True
+WANDB_ENTITY = "compositional-generalization-ut"
 WANDB_PROJECT = "msc-thesis-pilot"
 RUN_NAME = "exp2_nanogpt_scaled_emb_1-3digit"
 
@@ -123,7 +124,11 @@ def train(
     loggers = []
     if WANDB:
         wandb_logger = L.pytorch.loggers.WandbLogger(
-            project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
+            project=WANDB_PROJECT,
+            name=run_name,
+            save_dir=ROOT_DIR,
+            log_model=True,
+            entity=WANDB_ENTITY,
         )
         loggers.append(wandb_logger)
         wandb_logger.watch(model, log_freq=1000)
