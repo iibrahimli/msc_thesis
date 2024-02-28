@@ -126,11 +126,13 @@ def train(
             project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
         )
         loggers.append(wandb_logger)
+        wandb_logger.watch(model, log_freq=1000)
 
         # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
             {
                 "model": model.__class__.__name__.split(".")[-1],
+                "tokenizer": tokenizer.__class__.split(".")[-1],
                 "train_dataset": train_data_path,
                 "test_datasets": test_data_dict,
                 "batch_size": BATCH_SIZE,

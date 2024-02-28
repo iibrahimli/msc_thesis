@@ -28,7 +28,9 @@ class LightningModel(L.LightningModule):
         self.warmup_iters = warmup_iters
         self.tokenizer = tokenizer
         self.test_dataloader_names = test_dataloader_names
-        self.save_hyperparameters(ignore=["model"])
+        self.save_hyperparameters(
+            ignore=["model", "tokenizer", "test_dataloader_names"]
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         return self.model(x)
