@@ -49,7 +49,7 @@ GEN_TOP_K = 1
 WANDB = True
 WANDB_ENTITY = "compositional-generalization-ut"
 WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp2_nanogpt_scaled_emb_1-3digit"
+RUN_NAME = "exp2_ut_1-3digit"
 
 
 def train(
