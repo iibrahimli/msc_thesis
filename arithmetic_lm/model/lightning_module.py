@@ -40,7 +40,7 @@ class LightningModel(L.LightningModule):
     def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x, y = batch
         # forward pass
-        logits = self.model(batch)
+        logits = self.forward(batch)
         # calculate loss (ignores class index -100 by default)
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
@@ -56,7 +56,7 @@ class LightningModel(L.LightningModule):
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
             x, y = batch
-            logits = self.model(batch)
+            logits = self.forward(batch)
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), y.reshape(-1)
             )
