@@ -11,7 +11,7 @@ from arithmetic_lm.dataset import (
     ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.model import NanoGPT, UniversalNanoGPT
+from arithmetic_lm.model import NanoGPT, UniversalNanoGPT, UniversalTransformer
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
@@ -31,6 +31,9 @@ DROPOUT = 0.2
 LR = 0.001
 BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
+
+# universal transformer
+UT_MAX_RECURRENT_STEPS = 10
 
 # training
 WARMUP_ITERS = 100
@@ -184,11 +187,20 @@ if __name__ == "__main__":
 
     tokenizer = CharTokenizer()
 
-    model = NanoGPT(
+    # model = NanoGPT(
+    #     context_len=SEQ_LEN,
+    #     n_embd=N_EMBD,
+    #     n_head=N_HEAD,
+    #     n_layers=N_LAYERS,
+    #     vocab_size=tokenizer.vocab_size,
+    #     dropout=DROPOUT,
+    # )
+
+    model = UniversalTransformer(
         context_len=SEQ_LEN,
         n_embd=N_EMBD,
         n_head=N_HEAD,
-        n_layers=N_LAYERS,
+        max_steps=UT_MAX_RECURRENT_STEPS,
         vocab_size=tokenizer.vocab_size,
         dropout=DROPOUT,
     )
