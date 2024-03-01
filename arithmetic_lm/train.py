@@ -1,5 +1,10 @@
 """Main training script"""
 
+import os
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+
+
 from pathlib import Path
 
 import lightning as L
