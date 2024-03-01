@@ -57,7 +57,7 @@ GEN_TOP_K = 1
 WANDB = True
 WANDB_ENTITY = "compositional-generalization-ut"
 WANDB_PROJECT = "addition-1-3-digit"
-RUN_NAME = "universal_transformer"
+RUN_NAME = "universal_transformer_no_recurrence"
 
 
 def train(
