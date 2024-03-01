@@ -141,7 +141,7 @@ def train(
             entity=WANDB_ENTITY,
         )
         loggers.append(wandb_logger)
-        wandb_logger.watch(model, log_freq=1000)
+        wandb_logger.watch(model, log_freq=500)
 
         # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
