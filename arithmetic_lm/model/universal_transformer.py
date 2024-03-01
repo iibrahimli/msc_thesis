@@ -104,15 +104,12 @@ class UniversalTransformer(nn.Module):
         tgt_padding_mask = target == 99
 
         x = self.embedding(x)
+        target = self.embedding(target)
 
         # encoder
         for t in range(self.max_steps):
             x = self.pos_encoder(x, timestep=t)
             x = self.encoder_layer(x, src_key_padding_mask=src_padding_mask)
-
-        print("DEBUG: x:", type(x), x.shape, x.dtype)
-        print("DEBUG: target:", type(target), target.shape, target.dtype)
-        assert False
 
         # decoder
         for t in range(self.max_steps):
@@ -123,9 +120,9 @@ class UniversalTransformer(nn.Module):
                 # tgt_mask=nn.Transformer.generate_square_subsequent_mask(
                 #     x.size(1), device=x.device
                 # ),
-                # tgt_is_causal=True,
-                # tgt_key_padding_mask=tgt_padding_mask,
-                # memory_key_padding_mask=src_padding_mask,
+                tgt_is_causal=True,
+                tgt_key_padding_mask=tgt_padding_mask,
+                memory_key_padding_mask=src_padding_mask,
             )
 
         x = self.lm_head(x)
