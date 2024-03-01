@@ -116,6 +116,9 @@ class UniversalTransformer(nn.Module):
             x = self.decoder_layer(
                 target,
                 x,
+                tgt_mask=nn.Transformer.generate_square_subsequent_mask(
+                    x.size(1), device=x.device
+                ),
                 tgt_is_causal=True,
                 tgt_key_padding_mask=tgt_padding_mask,
                 memory_key_padding_mask=src_padding_mask,
