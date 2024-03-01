@@ -151,7 +151,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         seed: int = 42,
     ):
         super().__init__()
-        self.train_collate_fn = (
+        self.train_val_collate_fn = (
             train_ds.collate_fn if hasattr(train_ds, "collate_fn") else None
         )
         train_ds, val_ds = torch.utils.data.random_split(
@@ -167,14 +167,14 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self.num_workers = num_workers
 
     def train_dataloader(self):
-        assert self.train_collate_fn is not None, "collate_fn required for training"
+        assert self.train_val_collate_fn is not None, "collate_fn required for training"
         return torch.utils.data.DataLoader(
             self.train_ds,
             batch_size=self.batch_size,
             shuffle=True,
             pin_memory=True,
             num_workers=self.num_workers,
-            collate_fn=self.train_collate_fn,
+            collate_fn=self.train_val_collate_fn,
         )
 
     def val_dataloader(self):
@@ -184,6 +184,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 batch_size=self.batch_size,
                 pin_memory=True,
                 num_workers=self.num_workers,
+                collate_fn=self.train_val_collate_fn,
             ),
         ]
         for td in self.test_ds_list:
