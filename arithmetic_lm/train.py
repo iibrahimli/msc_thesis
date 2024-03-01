@@ -8,6 +8,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 from pathlib import Path
 
 import lightning as L
+import omegaconf
 import torch
 
 from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
@@ -34,11 +35,10 @@ N_HEAD = 6
 N_EMBD = 384
 DROPOUT = 0.2
 LR = 0.001
-BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
 
 # universal transformer
-UT_MAX_RECURRENT_STEPS = 10
+UT_MAX_RECURRENT_STEPS = 1
 
 # training
 WARMUP_ITERS = 100
@@ -112,7 +112,6 @@ def train(
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
         lr=LR,
-        betas=BETAS,
         weight_decay=WEIGHT_DECAY,
         warmup_iters=WARMUP_ITERS,
     )
