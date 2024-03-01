@@ -34,20 +34,13 @@ class LightningModel(L.LightningModule):
             ignore=["model", "tokenizer", "test_dataloader_names", "enc_dec"]
         )
 
-    def _prepare_input(self, batch: Tensor | tuple[Tensor, Tensor]):
-        """Prepare input for forward pass"""
-        if self.enc_dec:
-            return batch
-        else:
-            return batch[0]
-
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
-        return self.model(x)
+        return self.model(*x) if self.enc_dec else self.model(x)
 
     def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x, y = batch
         # forward pass
-        logits = self.model(self._prepare_input(batch))
+        logits = self.model(batch)
         # calculate loss (ignores class index -100 by default)
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
@@ -63,7 +56,7 @@ class LightningModel(L.LightningModule):
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
             x, y = batch
-            logits = self.model(self._prepare_input(batch))
+            logits = self.model(batch)
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), y.reshape(-1)
             )
