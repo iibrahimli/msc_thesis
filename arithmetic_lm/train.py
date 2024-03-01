@@ -7,8 +7,8 @@ import torch
 
 from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
-    ArithmeticEvalDataset,
-    ArithmeticTrainDataset,
+    ArithmeticExampleDataset,
+    ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
 from arithmetic_lm.model import NanoGPT, UniversalNanoGPT
@@ -48,8 +48,8 @@ GEN_TOP_K = 1
 # wandb
 WANDB = True
 WANDB_ENTITY = "compositional-generalization-ut"
-WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp2_ut_1-3digit"
+WANDB_PROJECT = "addition-1-3-digit"
+RUN_NAME = "universal_transformer"
 
 
 def train(
@@ -63,7 +63,7 @@ def train(
     set_seed(42)
 
     # train dataset
-    train_val_ds = ArithmeticTrainDataset(
+    train_val_ds = ArithmeticLMDataset(
         train_data_path,
         tokenizer=tokenizer,
         seq_len=SEQ_LEN,
@@ -75,7 +75,7 @@ def train(
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
     test_ds_paths = list(test_data_dict.values())
     test_ds_list = [
-        ArithmeticEvalDataset(
+        ArithmeticExampleDataset(
             test_path,
             tokenizer=tokenizer,
             seq_len=SEQ_LEN,

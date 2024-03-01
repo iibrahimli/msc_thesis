@@ -1,9 +1,25 @@
+"""
+Defines the datasets. All examples are stored as lines in txt files without any
+formatting (e.g. `32+11=43`). The Datasets are responsible for loading and
+appropriate formatting of the examples. The datasets return tokenized sequences.
+
+- ArithmeticLMDataset: for language modeling, concatenates lines and splits into
+    sequences of length `seq_len` (e.g. 256). The targets are next tokens.
+- ArithmeticExampleDataset: for src -> target training/testing. For training,
+    each example is one sequence src: `32+11` tgt: `=43` and the sequences are
+    padded to the longest, batching is enabled. For evaluation no batching is
+    used, where each example is evaluated separately. The prompt is the left-hand
+    side of the equation and the answer is the right-hand side e.g. "32+11=43"
+    -> "32+11=" and "43".
+"""
+
 from functools import partial
 from pathlib import Path
 
 import lightning as L
 import torch
 from torch import Tensor
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 from arithmetic_lm.formatting import format_line
@@ -14,7 +30,7 @@ def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str
     return list(map(partial(format_func, **kwargs), lines))
 
 
-class ArithmeticTrainDataset(Dataset):
+class ArithmeticLMDataset(Dataset):
     """Concatenate lines in file and split into sequences of length seq_len"""
 
     def __init__(
@@ -54,8 +70,8 @@ class ArithmeticTrainDataset(Dataset):
         return x, y
 
 
-class ArithmeticEvalDataset(Dataset):
-    """Dataset but instead of pure language modeling, we want to evaluate each example (line)"""
+class ArithmeticExampleDataset(Dataset):
+    """Dataset but instead of pure language modeling, we want keep examples separate"""
 
     def __init__(
         self,
@@ -64,7 +80,17 @@ class ArithmeticEvalDataset(Dataset):
         seq_len: int,
         pad: str,
         reverse_ans: bool,
+        equal_in_prompt: bool = True,
     ):
+        """
+        Args:
+            txtfile: path to txt file
+            tokenizer: tokenizer
+            seq_len: sequence length
+            pad: padding token
+            reverse_ans: whether to reverse the answer
+            equal_in_prompt: whether to include the `=` in the prompt or answer
+        """
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         with open(txtfile, "r") as f:
@@ -81,7 +107,11 @@ class ArithmeticEvalDataset(Dataset):
         self.answers = []
         for line in lines:
             prompt, ans = line.split("=")
-            self.prompts.append(torch.tensor(self.tokenizer.encode(prompt + "=")))
+            if equal_in_prompt:
+                prompt += "="
+            else:
+                ans = "=" + ans
+            self.prompts.append(torch.tensor(self.tokenizer.encode(prompt)))
             self.answers.append(torch.tensor(self.tokenizer.encode(ans)))
 
         assert len(self.prompts) == len(
@@ -93,6 +123,18 @@ class ArithmeticEvalDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tensor:
         return self.prompts[idx], self.answers[idx]
+
+    def collate_fn(self, batch: list[tuple[Tensor, Tensor]]) -> tuple[Tensor, Tensor]:
+        """
+        Pads sequences to longest in batch. Not used for evaluation, only for
+        training encoder-decoder models. Pad with -100 since cross_entropy ignores
+        this index by default.
+        """
+        pad_val = -100
+        prompts, answers = zip(*batch)
+        prompts = pad_sequence(prompts, batch_first=True, padding_value=pad_val)
+        answers = pad_sequence(answers, batch_first=True, padding_value=pad_val)
+        return prompts, answers
 
 
 class LightningArithmeticDataModule(L.LightningDataModule):
@@ -126,6 +168,11 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             shuffle=True,
             pin_memory=True,
             num_workers=self.num_workers,
+            collate_fn=(
+                self.train_ds.collate_fn
+                if hasattr(self.train_ds, "collate_fn")
+                else None
+            ),
         )
 
     def val_dataloader(self):

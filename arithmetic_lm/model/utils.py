@@ -63,6 +63,7 @@ def generate(
     model: nn.Module,
     idx: Tensor,
     max_new_tokens: int,
+    decoder_prompt: Tensor = None,
     temperature: float = 1.0,
     top_k: int = 1,
     stop_token: int = None,
@@ -98,7 +99,12 @@ def generate(
             idx_cond = idx
 
         # logits shape: [batch, seq_len, vocab_size]
-        logits = model(idx_cond)
+        if decoder_prompt is not None:
+            if decoder_prompt.ndim == 1:
+                decoder_prompt = decoder_prompt.unsqueeze(0)
+            logits = model(idx_cond, decoder_prompt)
+        else:
+            logits = model(idx_cond)
 
         # get logits at final step and apply temperature
         logits = logits[:, -1, :] / temperature

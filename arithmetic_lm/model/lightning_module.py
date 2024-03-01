@@ -28,17 +28,26 @@ class LightningModel(L.LightningModule):
         self.warmup_iters = warmup_iters
         self.tokenizer = tokenizer
         self.test_dataloader_names = test_dataloader_names
+        # whether encoder-decoder model, if so, forward
+        self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
         self.save_hyperparameters(
-            ignore=["model", "tokenizer", "test_dataloader_names"]
+            ignore=["model", "tokenizer", "test_dataloader_names", "enc_dec"]
         )
 
-    def forward(self, x: Tensor) -> Tensor:
+    def _prepare_input(self, batch: Tensor | tuple[Tensor, Tensor]):
+        """Prepare input for forward pass"""
+        if self.enc_dec:
+            return batch
+        else:
+            return batch[0]
+
+    def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
         return self.model(x)
 
-    def training_step(self, batch: Tensor, batch_idx: int) -> Tensor:
+    def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x, y = batch
         # forward pass
-        logits = self.model(x)
+        logits = self.model(self._prepare_input(batch))
         # calculate loss (ignores class index -100 by default)
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
@@ -54,7 +63,7 @@ class LightningModel(L.LightningModule):
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
             x, y = batch
-            logits = self.model(x)
+            logits = self.model(self._prepare_input(batch))
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), y.reshape(-1)
             )
@@ -124,6 +133,17 @@ class LightningModel(L.LightningModule):
         stop_token: int = None,
         seed: int = 42,
     ) -> Tensor:
+        if self.enc_dec:
+            decoder_prompt = torch.tensor(self.tokenizer.encode("="), device=idx.device)
+        else:
+            decoder_prompt = None
         return generate(
-            self.model, idx, max_new_tokens, temperature, top_k, stop_token, seed
+            self.model,
+            idx,
+            max_new_tokens,
+            decoder_prompt,
+            temperature,
+            top_k,
+            stop_token,
+            seed,
         )

@@ -23,6 +23,9 @@
 # testing notebook
 /notebooks/playground.ipynb
 
+# setup script
+/scripts/wtm_setup_env.sh
+
 # ======================
 
 # Byte-compiled / optimized / DLL files

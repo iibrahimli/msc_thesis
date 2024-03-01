@@ -37,6 +37,7 @@ class UniversalTransformer(nn.Module):
         self.ff_factor = ff_factor
         self.dropout = dropout
         self.max_steps = max_steps
+        self.enc_dec = True
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)
@@ -89,24 +90,34 @@ class UniversalTransformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, target: Tensor) -> Tensor:
         """
         Arguments:
             x: Tensor, shape ``[batch_size, seq_len]``
+            target: Tensor, shape ``[batch_size, seq_len]`` with the target sequence
 
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
+        src_padding_mask = x == -100
+        tgt_padding_mask = target == -100
+
         x = self.embedding(x)
 
+        # encoder
         for t in range(self.max_steps):
             x = self.pos_encoder(x, timestep=t)
-            x = self.layer(
+            x = self.encoder_layer(x, src_key_padding_mask=src_padding_mask)
+
+        # decoder
+        for t in range(self.max_steps):
+            x = self.pos_encoder(x, timestep=t)
+            x = self.decoder_layer(
+                target,
                 x,
-                is_causal=True,
-                src_mask=nn.Transformer.generate_square_subsequent_mask(
-                    x.size(1), device=x.device
-                ),
+                tgt_is_causal=True,
+                tgt_key_padding_mask=tgt_padding_mask,
+                memory_key_padding_mask=src_padding_mask,
             )
 
         x = self.lm_head(x)

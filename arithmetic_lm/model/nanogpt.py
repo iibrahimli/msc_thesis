@@ -36,6 +36,7 @@ class NanoGPT(nn.Module):
         self.vocab_size = vocab_size
         self.ff_factor = ff_factor
         self.dropout = dropout
+        self.enc_dec = False
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)

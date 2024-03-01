@@ -37,6 +37,7 @@ class UniversalNanoGPT(nn.Module):
         self.ff_factor = ff_factor
         self.dropout = dropout
         self.max_steps = max_steps
+        self.enc_dec = False
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)
