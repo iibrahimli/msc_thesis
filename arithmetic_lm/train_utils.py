@@ -7,7 +7,6 @@ import lightning as L
 import torch
 import wandb
 
-from arithmetic_lm.dataset import random_sample_str
 from arithmetic_lm.eval_utils import eval_sample
 
 
