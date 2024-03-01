@@ -86,6 +86,7 @@ def train(
             seq_len=SEQ_LEN,
             pad=PAD,
             reverse_ans=REVERSE_ANS,
+            equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
         )
         for test_path in test_ds_paths
     ]
