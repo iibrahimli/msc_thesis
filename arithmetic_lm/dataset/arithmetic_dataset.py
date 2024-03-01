@@ -60,6 +60,7 @@ class ArithmeticLMDataset(Dataset):
         tokens = self.tokenizer.encode(text)
         self.n_seq = (len(tokens) - 1) // seq_len
         self.tokens = torch.tensor(tokens[: self.n_seq * seq_len + 1], dtype=torch.long)
+        self.n_tokens = len(self.tokens)
 
     def __len__(self) -> int:
         return self.n_seq
@@ -113,6 +114,7 @@ class ArithmeticExampleDataset(Dataset):
                 ans = "=" + ans
             self.prompts.append(torch.tensor(self.tokenizer.encode(prompt)))
             self.answers.append(torch.tensor(self.tokenizer.encode(ans)))
+        self.n_tokens = sum(len(p) + len(a) for p, a in zip(self.prompts, self.answers))
 
         assert len(self.prompts) == len(
             self.answers

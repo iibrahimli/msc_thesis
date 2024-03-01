@@ -89,7 +89,7 @@ def train(
         )
         for test_path in test_ds_paths
     ]
-    n_train_tokens = len(train_val_ds.tokens)
+    n_train_tokens = train_val_ds.n_tokens
 
     ldm = LightningArithmeticDataModule(
         train_val_ds,
