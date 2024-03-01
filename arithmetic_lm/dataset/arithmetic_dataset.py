@@ -31,29 +31,6 @@ def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str
     return list(map(partial(format_func, **kwargs), lines))
 
 
-def random_sample_str(ds: Dataset, n_samples: int) -> list[str]:
-    """Randomly sample and decode examples as one line"""
-    if isinstance(ds, ArithmeticLMDataset):
-        train_seq, _ = ds[random.randint(0, len(ds) - 1)]
-        # decode and split by newline
-        train_seq = ds.tokenizer.decode(train_seq.squeeze().tolist())
-        # get rid of potentially incomplete lines
-        samples = random.sample(train_seq.split("\n")[1:-1], n_samples)
-    elif isinstance(ds, ArithmeticExampleDataset):
-        train_idxs = random.sample(range(len(ds)), n_samples)
-        train_pa = [ds[i] for i in train_idxs]
-        samples = [
-            "".join(
-                ds.tokenizer.decode(p.tolist()),
-                ds.tokenizer.decode(a.tolist()),
-            )
-            for p, a in train_pa
-        ]
-    else:
-        raise NotImplementedError(f"random_sample_str not implemented for {type(ds)}")
-    return samples
-
-
 class ArithmeticLMDataset(Dataset):
     """Concatenate lines in file and split into sequences of length seq_len"""
 
