@@ -103,6 +103,10 @@ class UniversalTransformer(nn.Module):
         src_padding_mask = x == 99
         tgt_padding_mask = target == 99
 
+        print("DEBUG: x:", type(x), x.shape, x.dtype)
+        print("DEBUG: target:", type(target), target.shape, target.dtype)
+        assert False
+
         x = self.embedding(x)
 
         # encoder
