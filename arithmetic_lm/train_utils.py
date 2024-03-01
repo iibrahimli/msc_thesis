@@ -5,8 +5,8 @@ import random
 
 import lightning as L
 import torch
-
 import wandb
+
 from arithmetic_lm.eval_utils import eval_sample
 
 
@@ -103,31 +103,6 @@ class SampleCallback(L.Callback):
         prompts = []
         answers = []
 
-        # train
-        train_seq, _ = trainer.datamodule.train_ds[
-            random.randint(0, len(trainer.datamodule.train_ds) - 1)
-        ]
-        # decode and split by newline
-        train_seq = pl_module.tokenizer.decode(train_seq.squeeze().tolist())
-        # get rid of potentially incomplete lines
-        train_samples = train_seq.split("\n")[1:-1]
-        train_samples = random.sample(train_samples, self.n_samples)
-        for sample in train_samples:
-            prompt_str, ans_str = sample.split("=")
-            prompt_str = prompt_str + "="
-            ds_labels.append("train")
-            prompts.append(
-                torch.tensor(
-                    pl_module.tokenizer.encode(prompt_str), device=pl_module.device
-                )
-            )
-            answers.append(
-                torch.tensor(
-                    pl_module.tokenizer.encode(ans_str), device=pl_module.device
-                )
-            )
-
-        # test
         for ds_name, test_ds in zip(
             pl_module.test_dataloader_names, trainer.datamodule.test_ds_list
         ):

@@ -1,18 +1,18 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import PositionalEncoding
+from .utils import CoordinateEncoding
 
 
-class NanoGPT(nn.Module):
-    """Simple small decoder-only transformer model"""
+class UniversalTransformer(nn.Module):
+    """Encoder-decoder universal transformer model"""
 
     def __init__(
         self,
         context_len: int,
         n_embd: int,
         n_head: int,
-        n_layers: int,
+        max_steps: int,
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
@@ -22,30 +22,30 @@ class NanoGPT(nn.Module):
             context_len: context length, i.e. the number of expected features in the input
             n_embd: dimensionality of model embeddings
             n_head: number of heads in the multi-head attention
-            n_layers: number of layers
+            max_steps: number of maximum recurrent steps (both enc and dec)
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
         """
 
         super().__init__()
+
         self.context_len = context_len
         self.n_embd = n_embd
         self.n_head = n_head
-        self.n_layers = n_layers
         self.vocab_size = vocab_size
         self.ff_factor = ff_factor
         self.dropout = dropout
-        self.enc_dec = False
+        self.max_steps = max_steps
+        self.enc_dec = True
 
-        # embedding
-        self.embedding = nn.Embedding(vocab_size, n_embd)
-        self.pos_encoder = PositionalEncoding(
+        # embedding (TODO: hardcoded pad index for char tokenizer)
+        self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
+        self.pos_encoder = CoordinateEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
-        # same as decoder layer essentially, but without cross attention
-        layer = nn.TransformerEncoderLayer(
+        self.encoder_layer = nn.TransformerEncoderLayer(
             d_model=n_embd,
             nhead=n_head,
             dim_feedforward=n_embd * ff_factor,
@@ -53,10 +53,13 @@ class NanoGPT(nn.Module):
             batch_first=True,
             activation="gelu",
         )
-        self.transformer_encoder = nn.TransformerEncoder(
-            layer,
-            num_layers=n_layers,
-            norm=nn.LayerNorm(n_embd),
+        self.decoder_layer = nn.TransformerDecoderLayer(
+            d_model=n_embd,
+            nhead=n_head,
+            dim_feedforward=n_embd * ff_factor,
+            dropout=dropout,
+            batch_first=True,
+            activation="gelu",
         )
 
         # output to vocab dim
@@ -87,26 +90,45 @@ class NanoGPT(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, source: Tensor, target: Tensor) -> Tensor:
         """
         Arguments:
             x: Tensor, shape ``[batch_size, seq_len]``
+            target: Tensor, shape ``[batch_size, seq_len]`` with the target sequence
 
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
-        x = self.embedding(x)
-        x = self.pos_encoder(x)
+        # TODO: hardcoded pad token for char tokenizer
+        src_padding_mask = source == 99
+        tgt_padding_mask = target == 99
 
-        x = self.transformer_encoder(
-            x,
-            is_causal=True,
-            mask=nn.Transformer.generate_square_subsequent_mask(
-                x.size(1), device=x.device
-            ),
-        )
-        x = self.lm_head(x)
-        return x
+        source = self.embedding(source)
+        target = self.embedding(target)
+
+        # encoder
+        for t in range(self.max_steps):
+            source = self.pos_encoder(source, timestep=t)
+            source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
+
+        # source is the memory at this point
+
+        # decoder
+        for t in range(self.max_steps):
+            target = self.pos_encoder(target, timestep=t)
+            target = self.decoder_layer(
+                target,
+                source,
+                tgt_mask=nn.Transformer.generate_square_subsequent_mask(
+                    target.size(1), device=target.device
+                ),
+                tgt_is_causal=True,
+                tgt_key_padding_mask=tgt_padding_mask,
+                memory_key_padding_mask=src_padding_mask,
+            )
+
+        logits = self.lm_head(target)
+        return logits
 
     def param_count(self) -> int:
         return sum(p.numel() for p in self.parameters() if p.requires_grad)

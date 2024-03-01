@@ -1,17 +1,24 @@
 """Main training script"""
 
+import os
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+
+
 from pathlib import Path
 
 import lightning as L
+import torch
 
 from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
-    ArithmeticEvalDataset,
-    ArithmeticTrainDataset,
+    ArithmeticExampleDataset,
+    ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.model.nanogpt import LightningNanoGPT
-from arithmetic_lm.tokenizer import CharTokenizer
+from arithmetic_lm.model import NanoGPT, UniversalNanoGPT, UniversalTransformer
+from arithmetic_lm.model.lightning_module import LightningModel
+from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
 
@@ -30,6 +37,9 @@ LR = 0.001
 BETAS = (0.9, 0.99)
 WEIGHT_DECAY = 0.1
 
+# universal transformer
+UT_MAX_RECURRENT_STEPS = 10
+
 # training
 WARMUP_ITERS = 100
 MAX_ITERS = 10_000
@@ -37,7 +47,7 @@ NUM_DL_WORKERS = 4
 VAL_INTERVAL = 100
 VAL_RATIO = 0.1
 LIMIT_VAL_BATCHES = None  # also test batches
-DEVICES = [0]  # only use one GPU
+DEVICES = [6]  # only use one GPU
 
 # sampling
 GEN_TEMP = 0.8
@@ -45,40 +55,47 @@ GEN_TOP_K = 1
 
 # wandb
 WANDB = True
-WANDB_PROJECT = "msc-thesis-pilot"
-RUN_NAME = "exp1_nanogpt_1-3digit"
+WANDB_ENTITY = "compositional-generalization-ut"
+WANDB_PROJECT = "addition-1-3-digit"
+RUN_NAME = "universal_transformer"
 
 
-def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
+def train(
+    model: torch.nn.Module,
+    tokenizer: Tokenizer,
+    train_data_path: str | Path,
+    test_data_dict: dict,
+    run_name: str,
+):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
-    # tokenizer
-    tokenizer = CharTokenizer()
-
     # train dataset
-    train_val_ds = ArithmeticTrainDataset(
+    # train_val_ds = ArithmeticLMDataset(
+    train_val_ds = ArithmeticExampleDataset(
         train_data_path,
         tokenizer=tokenizer,
         seq_len=SEQ_LEN,
         pad=PAD,
         reverse_ans=REVERSE_ANS,
+        equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
     )
 
     # test datasets
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
     test_ds_paths = list(test_data_dict.values())
     test_ds_list = [
-        ArithmeticEvalDataset(
+        ArithmeticExampleDataset(
             test_path,
             tokenizer=tokenizer,
             seq_len=SEQ_LEN,
             pad=PAD,
             reverse_ans=REVERSE_ANS,
+            equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
         )
         for test_path in test_ds_paths
     ]
-    n_train_tokens = len(train_val_ds.tokens)
+    n_train_tokens = train_val_ds.n_tokens
 
     ldm = LightningArithmeticDataModule(
         train_val_ds,
@@ -90,15 +107,10 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
     )
     del train_val_ds
 
-    lmodel = LightningNanoGPT(
+    lmodel = LightningModel(
+        model=model,
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
-        context_len=SEQ_LEN,
-        n_embd=N_EMBD,
-        n_head=N_HEAD,
-        n_layers=N_LAYERS,
-        vocab_size=tokenizer.vocab_size,
-        dropout=DROPOUT,
         lr=LR,
         betas=BETAS,
         weight_decay=WEIGHT_DECAY,
@@ -118,19 +130,25 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
     callbacks = [
         checkpoint_callback,
-        L.pytorch.callbacks.LearningRateMonitor(),
     ]
 
     loggers = []
     if WANDB:
         wandb_logger = L.pytorch.loggers.WandbLogger(
-            project=WANDB_PROJECT, name=run_name, save_dir=ROOT_DIR, log_model=True
+            project=WANDB_PROJECT,
+            name=run_name,
+            save_dir=ROOT_DIR,
+            log_model=True,
+            entity=WANDB_ENTITY,
         )
         loggers.append(wandb_logger)
+        wandb_logger.watch(model, log_freq=1000)
 
         # add experiment hparams that are not in the lightning module
         wandb_logger.experiment.config.update(
             {
+                "model": model.__class__.__name__.split(".")[-1],
+                "tokenizer": tokenizer.__class__.__name__.split(".")[-1],
                 "train_dataset": train_data_path,
                 "test_datasets": test_data_dict,
                 "batch_size": BATCH_SIZE,
@@ -143,14 +161,17 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
             }
         )
 
-        # sampler callback
-        callbacks.append(
-            SampleCallback(
-                n_samples=3,
-                temperature=GEN_TEMP,
-                top_k=GEN_TOP_K,
-                stop_token=tokenizer.encode("\n")[0],
-            )
+        # sampler and LR monitor callbacks
+        callbacks.extend(
+            [
+                SampleCallback(
+                    n_samples=3,
+                    temperature=GEN_TEMP,
+                    top_k=GEN_TOP_K,
+                    stop_token=tokenizer.encode("\n")[0],
+                ),
+                L.pytorch.callbacks.LearningRateMonitor(),
+            ]
         )
 
     trainer = L.Trainer(
@@ -171,7 +192,30 @@ def train(train_data_path: str | Path, test_data_dict: dict, run_name: str):
 
 if __name__ == "__main__":
     exp_dir = DATA_DIR / "experiment_1"
+
+    tokenizer = CharTokenizer()
+
+    # model = NanoGPT(
+    #     context_len=SEQ_LEN,
+    #     n_embd=N_EMBD,
+    #     n_head=N_HEAD,
+    #     n_layers=N_LAYERS,
+    #     vocab_size=tokenizer.vocab_size,
+    #     dropout=DROPOUT,
+    # )
+
+    model = UniversalTransformer(
+        context_len=SEQ_LEN,
+        n_embd=N_EMBD,
+        n_head=N_HEAD,
+        max_steps=UT_MAX_RECURRENT_STEPS,
+        vocab_size=tokenizer.vocab_size,
+        dropout=DROPOUT,
+    )
+
     train(
+        model=model,
+        tokenizer=tokenizer,
         train_data_path=exp_dir / "train_add_1-3digit.txt",
         test_data_dict={
             f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
