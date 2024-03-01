@@ -66,12 +66,14 @@ def train(
     set_seed(42)
 
     # train dataset
-    train_val_ds = ArithmeticLMDataset(
+    # train_val_ds = ArithmeticLMDataset(
+    train_val_ds = ArithmeticExampleDataset(
         train_data_path,
         tokenizer=tokenizer,
         seq_len=SEQ_LEN,
         pad=PAD,
         reverse_ans=REVERSE_ANS,
+        equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
     )
 
     # test datasets
