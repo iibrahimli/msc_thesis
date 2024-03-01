@@ -90,7 +90,7 @@ class UniversalTransformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, x: Tensor, target: Tensor) -> Tensor:
+    def forward(self, source: Tensor, target: Tensor) -> Tensor:
         """
         Arguments:
             x: Tensor, shape ``[batch_size, seq_len]``
@@ -100,23 +100,25 @@ class UniversalTransformer(nn.Module):
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
         # TODO: hardcoded pad token for char tokenizer
-        src_padding_mask = x == 99
+        src_padding_mask = source == 99
         tgt_padding_mask = target == 99
 
-        x = self.embedding(x)
+        source = self.embedding(source)
         target = self.embedding(target)
 
         # encoder
         for t in range(self.max_steps):
-            x = self.pos_encoder(x, timestep=t)
-            x = self.encoder_layer(x, src_key_padding_mask=src_padding_mask)
+            source = self.pos_encoder(source, timestep=t)
+            source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
+
+        # source is the memory at this point
 
         # decoder
         for t in range(self.max_steps):
-            x = self.pos_encoder(x, timestep=t)
-            x = self.decoder_layer(
+            target = self.pos_encoder(target, timestep=t)
+            target = self.decoder_layer(
                 target,
-                x,
+                source,
                 # tgt_mask=nn.Transformer.generate_square_subsequent_mask(
                 #     x.size(1), device=x.device
                 # ),
@@ -125,8 +127,8 @@ class UniversalTransformer(nn.Module):
                 memory_key_padding_mask=src_padding_mask,
             )
 
-        x = self.lm_head(x)
-        return x
+        logits = self.lm_head(target)
+        return logits
 
     def param_count(self) -> int:
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
