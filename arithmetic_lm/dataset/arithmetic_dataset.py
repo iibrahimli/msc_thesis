@@ -49,6 +49,8 @@ def random_sample_str(ds: Dataset, n_samples: int) -> list[str]:
             )
             for p, a in train_pa
         ]
+    else:
+        raise NotImplementedError(f"random_sample_str not implemented for {type(ds)}")
     return samples
 
 
