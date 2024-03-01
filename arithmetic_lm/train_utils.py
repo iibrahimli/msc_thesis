@@ -5,8 +5,9 @@ import random
 
 import lightning as L
 import torch
-
 import wandb
+
+from arithmetic_lm.dataset import random_sample_str
 from arithmetic_lm.eval_utils import eval_sample
 
 
@@ -104,14 +105,7 @@ class SampleCallback(L.Callback):
         answers = []
 
         # train
-        train_seq, _ = trainer.datamodule.train_ds[
-            random.randint(0, len(trainer.datamodule.train_ds) - 1)
-        ]
-        # decode and split by newline
-        train_seq = pl_module.tokenizer.decode(train_seq.squeeze().tolist())
-        # get rid of potentially incomplete lines
-        train_samples = train_seq.split("\n")[1:-1]
-        train_samples = random.sample(train_samples, self.n_samples)
+        train_samples = random_sample_str(trainer.datamodule.train_ds, self.n_samples)
         for sample in train_samples:
             prompt_str, ans_str = sample.split("=")
             prompt_str = prompt_str + "="
