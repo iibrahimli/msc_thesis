@@ -17,7 +17,12 @@ from arithmetic_lm.dataset import (
     ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.model import NanoGPT, UniversalNanoGPT, UniversalTransformer
+from arithmetic_lm.model import (
+    NanoGPT,
+    Transformer,
+    UniversalNanoGPT,
+    UniversalTransformer,
+)
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
@@ -203,11 +208,20 @@ if __name__ == "__main__":
     #     dropout=DROPOUT,
     # )
 
-    model = UniversalTransformer(
+    # model = UniversalTransformer(
+    #     context_len=SEQ_LEN,
+    #     n_embd=N_EMBD,
+    #     n_head=N_HEAD,
+    #     max_steps=UT_MAX_RECURRENT_STEPS,
+    #     vocab_size=tokenizer.vocab_size,
+    #     dropout=DROPOUT,
+    # )
+
+    model = Transformer(
         context_len=SEQ_LEN,
         n_embd=N_EMBD,
         n_head=N_HEAD,
-        max_steps=UT_MAX_RECURRENT_STEPS,
+        n_layers=N_LAYERS,
         vocab_size=tokenizer.vocab_size,
         dropout=DROPOUT,
     )
