@@ -142,7 +142,7 @@ def train(
         wandb_logger.experiment.config.update(
             {
                 "model": model.__class__.__name__.split(".")[-1],
-                "tokenizer": tokenizer.__class__.split(".")[-1],
+                "tokenizer": tokenizer.__class__.__name__.split(".")[-1],
                 "train_dataset": train_data_path,
                 "test_datasets": test_data_dict,
                 "batch_size": BATCH_SIZE,
