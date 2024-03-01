@@ -41,10 +41,11 @@ class LightningModel(L.LightningModule):
         x, y = batch
         # forward pass
         logits = self.forward(batch)
-        # calculate loss (ignores class index -100 by default)
+        # calculate loss
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
             y.reshape(-1),
+            ignore_index=self.tokenizer.pad_token_id,
         )
         self.log("train_loss", loss, prog_bar=True)
         return loss

@@ -129,10 +129,9 @@ class ArithmeticExampleDataset(Dataset):
     def collate_fn(self, batch: list[tuple[Tensor, Tensor]]) -> tuple[Tensor, Tensor]:
         """
         Pads sequences to longest in batch. Not used for evaluation, only for
-        training encoder-decoder models. Pad with -100 since cross_entropy ignores
-        this index by default.
+        training encoder-decoder models.
         """
-        pad_val = -100
+        pad_val = self.tokenizer.pad_token_id
         prompts, answers = zip(*batch)
         prompts = pad_sequence(prompts, batch_first=True, padding_value=pad_val)
         answers = pad_sequence(answers, batch_first=True, padding_value=pad_val)

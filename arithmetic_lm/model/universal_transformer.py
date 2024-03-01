@@ -39,8 +39,8 @@ class UniversalTransformer(nn.Module):
         self.max_steps = max_steps
         self.enc_dec = True
 
-        # embedding
-        self.embedding = nn.Embedding(vocab_size, n_embd)
+        # embedding (TODO: hardcoded pad index for char tokenizer)
+        self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
         self.pos_encoder = CoordinateEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
@@ -99,8 +99,9 @@ class UniversalTransformer(nn.Module):
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
-        src_padding_mask = x == -100
-        tgt_padding_mask = target == -100
+        # TODO: hardcoded pad token for char tokenizer
+        src_padding_mask = x == 99
+        tgt_padding_mask = target == 99
 
         x = self.embedding(x)
 
