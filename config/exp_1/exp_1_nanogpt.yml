@@ -1,7 +1,6 @@
 # Experiment 1: Train on 1 and 3 digit addition, test on 1-4 digit addition
 
 data:
-  name: "Addition 1-3 digits"
   format:
     pad: $
     reverse_ans: true
