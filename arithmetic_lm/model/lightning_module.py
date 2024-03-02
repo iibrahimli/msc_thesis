@@ -28,7 +28,7 @@ class LightningModel(L.LightningModule):
         self.warmup_iters = warmup_iters
         self.tokenizer = tokenizer
         self.test_dataloader_names = test_dataloader_names
-        # whether encoder-decoder model, if so, forward
+        # whether is encoder-decoder model
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
         self.save_hyperparameters(
             ignore=[
