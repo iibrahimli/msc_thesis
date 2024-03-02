@@ -43,7 +43,7 @@ sampling:
   top_k: 1
 
 wandb:
-  enabled: false
+  enabled: true
   entity: "compositional-generalization-ut"
   project: "addition-1-3-digit"
   run_name: "nanogpt"
