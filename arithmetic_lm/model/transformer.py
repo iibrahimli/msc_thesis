@@ -109,14 +109,14 @@ class Transformer(nn.Module):
         # encoder
         source = self.embedding(source)
         source = self.pos_encoder(source)
-        source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
+        source = self.encoder(source, src_key_padding_mask=src_padding_mask)
 
         # source is the memory at this point
 
         # decoder
         target = self.embedding(target)
         target = self.pos_encoder(target)
-        target = self.decoder_layer(
+        target = self.decoder(
             target,
             source,
             tgt_mask=nn.Transformer.generate_square_subsequent_mask(
