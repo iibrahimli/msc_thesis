@@ -5,120 +5,72 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
-from pathlib import Path
+import argparse
 
 import lightning as L
 import omegaconf
 import torch
 
-from arithmetic_lm.constants import CHECKPOINTS_DIR, DATA_DIR, ROOT_DIR
+from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
     ArithmeticExampleDataset,
     ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
-from arithmetic_lm.model import (
-    NanoGPT,
-    Transformer,
-    UniversalNanoGPT,
-    UniversalTransformer,
-)
+from arithmetic_lm.model import MODELS
 from arithmetic_lm.model.lightning_module import LightningModel
-from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
+from arithmetic_lm.tokenizer import TOKENIZERS, Tokenizer
 from arithmetic_lm.train_utils import SampleCallback
 from arithmetic_lm.utils import set_seed
 
-# example formatting
-PAD = "$"
-REVERSE_ANS = True
-
-# model
-SEQ_LEN = 256
-BATCH_SIZE = 256
-N_LAYERS = 6
-N_HEAD = 6
-N_EMBD = 384
-DROPOUT = 0.2
-LR = 0.001
-WEIGHT_DECAY = 0.1
-
-# universal transformer
-UT_MAX_RECURRENT_STEPS = 1
-
-# training
-WARMUP_ITERS = 100
-MAX_ITERS = 10_000
-NUM_DL_WORKERS = 4
-VAL_INTERVAL = 100
-VAL_RATIO = 0.1
-LIMIT_VAL_BATCHES = None  # also test batches
-DEVICES = [6]  # only use one GPU
-
-# sampling
-GEN_TEMP = 0.8
-GEN_TOP_K = 1
-
-# wandb
-WANDB = True
-WANDB_ENTITY = "compositional-generalization-ut"
-WANDB_PROJECT = "addition-1-3-digit"
-RUN_NAME = "transformer_6layers"
-
 
 def train(
+    run_name: str,
+    cfg: omegaconf.DictConfig,
     model: torch.nn.Module,
     tokenizer: Tokenizer,
-    train_data_path: str | Path,
-    test_data_dict: dict,
-    run_name: str,
+    train_dataset: torch.utils.data.Dataset,
+    test_data_dict: dict[str, torch.utils.data.Dataset],
+    batch_size: int,
+    lr: float,
+    weight_decay: float,
+    warmup_iters: int,
+    max_iters: int,
+    num_dl_workers: int,
+    val_ratio: float,
+    val_interval: int,
+    limit_val_batches: float | int,
+    devices: list[int],
+    wandb_enabled: bool,
+    wandb_project: str,
+    wandb_entity: str,
+    grad_log_interval: int,
+    gen_temp: float,
+    gen_top_k: int,
 ):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
-    # train dataset
-    # train_val_ds = ArithmeticLMDataset(
-    train_val_ds = ArithmeticExampleDataset(
-        train_data_path,
-        tokenizer=tokenizer,
-        seq_len=SEQ_LEN,
-        pad=PAD,
-        reverse_ans=REVERSE_ANS,
-        equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
-    )
-
     # test datasets
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
-    test_ds_paths = list(test_data_dict.values())
-    test_ds_list = [
-        ArithmeticExampleDataset(
-            test_path,
-            tokenizer=tokenizer,
-            seq_len=SEQ_LEN,
-            pad=PAD,
-            reverse_ans=REVERSE_ANS,
-            equal_in_prompt=False,  # for enc-dec TODO: move enc-dec/dec-only to config
-        )
-        for test_path in test_ds_paths
-    ]
-    n_train_tokens = train_val_ds.n_tokens
+    test_datasets = list(test_data_dict.values())
 
     ldm = LightningArithmeticDataModule(
-        train_val_ds,
-        test_ds_list,
+        train_dataset,
+        test_datasets,
         tokenizer,
-        BATCH_SIZE,
-        val_ratio=VAL_RATIO,
-        num_workers=NUM_DL_WORKERS,
+        batch_size,
+        val_ratio=val_ratio,
+        num_workers=num_dl_workers,
     )
-    del train_val_ds
 
     lmodel = LightningModel(
         model=model,
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
-        lr=LR,
-        weight_decay=WEIGHT_DECAY,
-        warmup_iters=WARMUP_ITERS,
+        lr=lr,
+        weight_decay=weight_decay,
+        warmup_iters=warmup_iters,
     )
 
     run_dir = CHECKPOINTS_DIR / run_name
@@ -137,41 +89,27 @@ def train(
     ]
 
     loggers = []
-    if WANDB:
+    if wandb_enabled:
         wandb_logger = L.pytorch.loggers.WandbLogger(
-            project=WANDB_PROJECT,
+            project=wandb_project,
             name=run_name,
             save_dir=ROOT_DIR,
             log_model=True,
-            entity=WANDB_ENTITY,
+            entity=wandb_entity,
         )
         loggers.append(wandb_logger)
-        wandb_logger.watch(model, log_freq=500)
+        wandb_logger.watch(model, log_freq=grad_log_interval)
 
-        # add experiment hparams that are not in the lightning module
-        wandb_logger.experiment.config.update(
-            {
-                "model": model.__class__.__name__.split(".")[-1],
-                "tokenizer": tokenizer.__class__.__name__.split(".")[-1],
-                "train_dataset": train_data_path,
-                "test_datasets": test_data_dict,
-                "batch_size": BATCH_SIZE,
-                "max_iters": MAX_ITERS,
-                "limit_val_batches": LIMIT_VAL_BATCHES,
-                "val_ratio": VAL_RATIO,
-                "pad": PAD,
-                "reverse_ans": REVERSE_ANS,
-                "n_train_tokens": n_train_tokens,
-            }
-        )
+        # add experiment hparams from omegaconf
+        wandb_logger.experiment.config.update(cfg)
 
         # sampler and LR monitor callbacks
         callbacks.extend(
             [
                 SampleCallback(
                     n_samples=3,
-                    temperature=GEN_TEMP,
-                    top_k=GEN_TOP_K,
+                    temperature=gen_temp,
+                    top_k=gen_top_k,
                     stop_token=tokenizer.encode("\n")[0],
                 ),
                 L.pytorch.callbacks.LearningRateMonitor(),
@@ -181,57 +119,72 @@ def train(
     trainer = L.Trainer(
         logger=loggers,
         callbacks=callbacks,
-        max_steps=MAX_ITERS,
-        val_check_interval=VAL_INTERVAL,
+        max_steps=max_iters,
+        val_check_interval=val_interval,
         check_val_every_n_epoch=None,
-        limit_val_batches=LIMIT_VAL_BATCHES,
+        limit_val_batches=limit_val_batches,
         # limit_test_batches=N_TEST_BATCHES,
         log_every_n_steps=5,
         gradient_clip_val=1.0,
-        devices=DEVICES,
+        devices=devices,
         # fast_dev_run=True,
     )
     trainer.fit(lmodel, ldm)
 
 
 if __name__ == "__main__":
-    exp_dir = DATA_DIR / "experiment_1"
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        required=True,
+        type=str,
+        help="Path to the config file",
+    )
+    # parse args, pass remainder to omegaconf
+    args, remaining_args = parser.parse_known_args()
+    cfg = omegaconf.OmegaConf.load(args.config)
+    cli_args = omegaconf.OmegaConf.from_cli(remaining_args)
+    cfg = omegaconf.OmegaConf.merge(cfg, cli_args)
 
-    tokenizer = CharTokenizer()
+    # tokenizer
+    tokenizer = TOKENIZERS[cfg.tokenizer.name](**cfg.tokenizer.get("args"))
 
-    # model = NanoGPT(
-    #     context_len=SEQ_LEN,
-    #     n_embd=N_EMBD,
-    #     n_head=N_HEAD,
-    #     n_layers=N_LAYERS,
-    #     vocab_size=tokenizer.vocab_size,
-    #     dropout=DROPOUT,
-    # )
+    # datasets
+    train_ds_type = (
+        ArithmeticExampleDataset if cfg.data.format.encdec else ArithmeticLMDataset
+    )
+    ds_args = {
+        "tokenizer": tokenizer,
+        "seq_len": cfg.model.args.context_len,
+        "pad": cfg.data.format.pad,
+        "reverse_ans": cfg.data.format.reverse_ans,
+        "equal_in_prompt": not cfg.data.format.encdec,
+    }
+    train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
+    test_data_dict = {
+        n: ArithmeticExampleDataset(txtfile=f, **ds_args)
+        for n, f in cfg.data.test.items()
+    }
 
-    # model = UniversalTransformer(
-    #     context_len=SEQ_LEN,
-    #     n_embd=N_EMBD,
-    #     n_head=N_HEAD,
-    #     max_steps=UT_MAX_RECURRENT_STEPS,
-    #     vocab_size=tokenizer.vocab_size,
-    #     dropout=DROPOUT,
-    # )
-
-    model = Transformer(
-        context_len=SEQ_LEN,
-        n_embd=N_EMBD,
-        n_head=N_HEAD,
-        n_layers=N_LAYERS,
-        vocab_size=tokenizer.vocab_size,
-        dropout=DROPOUT,
+    # model
+    print(cfg.model.get("args"))
+    model = MODELS[cfg.model.name](
+        vocab_size=tokenizer.vocab_size, **cfg.model.get("args")
     )
 
+    # train
     train(
+        run_name=cfg.wandb.run_name,
+        cfg=cfg,
         model=model,
         tokenizer=tokenizer,
-        train_data_path=exp_dir / "train_add_1-3digit.txt",
-        test_data_dict={
-            f"{i}digit": exp_dir / f"test_{i}digit_100.txt" for i in range(1, 4 + 1)
-        },
-        run_name=RUN_NAME,
+        train_dataset=train_dataset,
+        test_data_dict=test_data_dict,
+        **cfg.training,
+        wandb_enabled=cfg.wandb.enabled,
+        wandb_project=cfg.wandb.project,
+        wandb_entity=cfg.wandb.entity,
+        grad_log_interval=cfg.wandb.grad_log_interval,
+        gen_temp=cfg.sampling.temp,
+        gen_top_k=cfg.sampling.top_k,
     )

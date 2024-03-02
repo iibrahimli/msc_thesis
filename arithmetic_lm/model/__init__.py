@@ -4,3 +4,10 @@ from .transformer import Transformer
 from .universal_nanogpt import UniversalNanoGPT
 from .universal_transformer import UniversalTransformer
 from .utils import CoordinateEncoding, PositionalEncoding
+
+MODELS = {
+    "NanoGPT": NanoGPT,
+    "Transformer": Transformer,
+    "UniversalNanoGPT": UniversalNanoGPT,
+    "UniversalTransformer": UniversalTransformer,
+}

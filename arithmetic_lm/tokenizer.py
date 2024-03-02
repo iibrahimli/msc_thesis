@@ -34,3 +34,8 @@ class CharTokenizer(Tokenizer):
         if isinstance(tokens, int):
             tokens = [tokens]
         return "".join([self.itos[token] for token in tokens])
+
+
+TOKENIZERS = {
+    "CharTokenizer": CharTokenizer,
+}

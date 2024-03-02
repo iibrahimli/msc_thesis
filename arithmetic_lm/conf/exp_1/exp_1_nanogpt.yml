@@ -1,0 +1,50 @@
+# Experiment 1: Train on 1 and 3 digit addition, test on 1-4 digit addition
+
+data:
+  name: "Addition 1-3 digits"
+  format:
+    pad: $
+    reverse_ans: true
+    encdec: false
+  train: "data/experiment_1/train_add_1-3digit.txt"
+  test:
+    1digit: "data/experiment_1/test_add_1digit_100.txt"
+    2digit: "data/experiment_1/test_add_2digit_100.txt"
+    3digit: "data/experiment_1/test_add_3digit_100.txt"
+    4digit: "data/experiment_1/test_add_4digit_100.txt"
+
+tokenizer:
+  name: CharTokenizer
+  args: {}
+
+model:
+  name: "NanoGPT"
+  args:
+    context_len: 256
+    n_embd: 384
+    n_head: 6
+    n_layers: 6
+    dropout: 0.1
+
+training:
+  batch_size: 256
+  lr: 0.001
+  weight_decay: 0.1
+  warmup_iters: 100
+  max_iters: 10000
+  num_dl_workers: 4
+  val_ratio: 0.1
+  val_interval: 100
+  limit_val_batches: null
+  devices: [6]
+
+sampling:
+  temp: 0.8
+  top_k: 1
+
+wandb:
+  enabled: false
+  entity: "compositional-generalization-ut"
+  project: "addition-1-3-digit"
+  run_name: "nanogpt"
+  grad_log_interval: 500

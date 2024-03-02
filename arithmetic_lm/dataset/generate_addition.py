@@ -236,7 +236,7 @@ def generate_experiment_1(out_dir: str | Path):
     # 3. generate test datasets
     n_test_examples = 100
     for n_digits in (1, 2, 3, 4):
-        digit_path = out_dir / f"test_{n_digits}digit_{n_test_examples}.txt"
+        digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
         logger.info(f"Generating {digit_path}")
         generate_only_digit(digit_path, num_digits=n_digits, num_examples=100)
 
