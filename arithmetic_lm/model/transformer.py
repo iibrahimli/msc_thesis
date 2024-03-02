@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import CoordinateEncoding
+from .utils import PositionalEncoding
 
 
 class Transformer(nn.Module):
@@ -41,7 +41,7 @@ class Transformer(nn.Module):
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.pos_encoder = CoordinateEncoding(
+        self.pos_encoder = PositionalEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
