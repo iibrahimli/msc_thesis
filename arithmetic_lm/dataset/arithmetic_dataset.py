@@ -40,6 +40,7 @@ class ArithmeticLMDataset(Dataset):
         seq_len: int,
         pad: str,
         reverse_ans: bool,
+        **kwargs,
     ):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
