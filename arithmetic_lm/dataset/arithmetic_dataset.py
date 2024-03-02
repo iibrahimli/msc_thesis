@@ -167,7 +167,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self.num_workers = num_workers
 
     def train_dataloader(self):
-        assert self.train_val_collate_fn is not None, "collate_fn required for training"
         return torch.utils.data.DataLoader(
             self.train_ds,
             batch_size=self.batch_size,

@@ -35,7 +35,7 @@ class LightningModel(L.LightningModule):
         )
 
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
-        return self.model(*x) if self.enc_dec else self.model(x)
+        return self.model(*x) if self.enc_dec else self.model(x[0])
 
     def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x, y = batch
