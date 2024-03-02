@@ -31,7 +31,16 @@ class LightningModel(L.LightningModule):
         # whether encoder-decoder model, if so, forward
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
         self.save_hyperparameters(
-            ignore=["model", "tokenizer", "test_dataloader_names", "enc_dec"]
+            ignore=[
+                "model",
+                "lr",
+                "betas",
+                "weight_decay",
+                "warmup_iters",
+                "tokenizer",
+                "test_dataloader",
+                "enc_dec",
+            ]
         )
 
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
