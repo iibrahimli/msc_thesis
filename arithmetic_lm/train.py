@@ -167,7 +167,6 @@ if __name__ == "__main__":
     }
 
     # model
-    print(cfg.model.get("args"))
     model = MODELS[cfg.model.name](
         vocab_size=tokenizer.vocab_size, **cfg.model.get("args")
     )
