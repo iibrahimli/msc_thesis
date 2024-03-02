@@ -101,7 +101,7 @@ def train(
         wandb_logger.watch(model, log_freq=grad_log_interval)
 
         # add experiment hparams from omegaconf
-        wandb_logger.experiment.config.update(cfg)
+        wandb_logger.experiment.config.update(cfg.to_container(resolve=True))
 
         # sampler and LR monitor callbacks
         callbacks.extend(
