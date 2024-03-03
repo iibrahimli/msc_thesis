@@ -89,6 +89,10 @@ def generate(
     # keep track of where generated part starts to only return it
     gen_start_idx = idx.size(-1)
 
+    # get hidden state from encoder
+    if decoder_prompt is not None:
+        memory, memory_key_padding_mask = model.encode(idx_cond)
+
     for _ in range(max_new_tokens):
         # crop to context_len if necessary
         if idx.size(1) > model.context_len:
@@ -102,7 +106,7 @@ def generate(
         if decoder_prompt is not None:
             if decoder_prompt.ndim == 1:
                 decoder_prompt = decoder_prompt.unsqueeze(0)
-            logits = model(idx_cond, decoder_prompt)
+            logits = model.decode(decoder_prompt, memory, memory_key_padding_mask)
         else:
             logits = model(idx_cond)
 

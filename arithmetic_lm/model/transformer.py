@@ -93,25 +93,19 @@ class Transformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, source: Tensor, target: Tensor) -> Tensor:
-        """
-        Arguments:
-            x: Tensor, shape ``[batch_size, seq_len]``
-            target: Tensor, shape ``[batch_size, seq_len]`` with the target sequence
-
-        Returns:
-            logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
-        """
+    def encode(self, source: Tensor) -> tuple[Tensor, Tensor]:
         # TODO: hardcoded pad token for char tokenizer
         src_padding_mask = source == 99
-        tgt_padding_mask = target == 99
-
-        # encoder
         source = self.embedding(source)
         source = self.pos_encoder(source)
         memory = self.encoder(source, src_key_padding_mask=src_padding_mask)
+        return memory, src_padding_mask
 
-        # decoder
+    def decode(
+        self, target: Tensor, memory: Tensor, memory_key_padding_mask: Tensor
+    ) -> Tensor:
+        # TODO: hardcoded pad token for char tokenizer
+        tgt_padding_mask = target == 99
         target = self.embedding(target)
         target = self.pos_encoder(target)
         target = self.decoder(
@@ -122,10 +116,27 @@ class Transformer(nn.Module):
             ),
             tgt_is_causal=True,
             tgt_key_padding_mask=tgt_padding_mask,
-            memory_key_padding_mask=src_padding_mask,
+            memory_key_padding_mask=memory_key_padding_mask,
         )
-
         logits = self.lm_head(target)
+        return logits
+
+    def forward(self, source: Tensor, target: Tensor) -> Tensor:
+        """
+        Arguments:
+            x: Tensor, shape ``[batch_size, seq_len]``
+            target: Tensor, shape ``[batch_size, seq_len]`` with the target sequence
+
+        Returns:
+            logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
+        """
+
+        # encoder
+        memory, src_padding_mask = self.encode(source)
+
+        # decoder
+        logits = self.decode(target, memory, src_padding_mask)
+
         return logits
 
     def param_count(self) -> int:
