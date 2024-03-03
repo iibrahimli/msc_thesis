@@ -162,6 +162,7 @@ if __name__ == "__main__":
         "reverse_ans": cfg.data.format.reverse_ans,
         "equal_in_prompt": not cfg.data.format.encdec,
     }
+    # TODO: add support for multiple train files
     train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
     test_data_dict = {
         n: ArithmeticExampleDataset(txtfile=f, **ds_args)
