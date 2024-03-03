@@ -55,9 +55,6 @@ class SampleCallback(L.Callback):
         cols = ["dataset", "prompt", "answer", "pred_answer", "correct"]
         rows = []
 
-        # save whether module is in train/eval
-        m_training = pl_module.training
-        pl_module.eval()
         for dset, prompt, ans in zip(dsets, prompts, answers):
             pred_ans = pl_module.generate(
                 prompt, **self.gen_kwargs, max_new_tokens=ans.numel()
@@ -76,16 +73,6 @@ class SampleCallback(L.Callback):
                     eval_sample(pred_ans_str, ans_str),
                 ]
             )
-        pl_module.train(m_training)
-
-        # generate monospace html for samples
-        # out = "<pre>\n"
-        # out += f"step: {trainer.global_step}\n"
-        # out += f"{'dataset':^14}|{'prompt':^15}|{'answer':^12}|{'pred_answer':^12}|{'correct':^3}\n"
-        # for row in rows:
-        #     correct = " " if row[4] else "-"
-        #     out += f"{row[0]:^14} {row[1]:^15} {row[2]:^12} {row[3]:^12} {correct:^3}\n"
-        # out += "</pre>"
 
         trainer.logger.experiment.log(
             {"samples": wandb.Table(columns=cols, data=rows)},
@@ -103,6 +90,10 @@ class SampleCallback(L.Callback):
         prompts = []
         answers = []
 
+        # save whether module is in train/eval
+        m_training = pl_module.training
+        pl_module.eval()
+
         for ds_name, test_ds in zip(
             pl_module.test_dataloader_names, trainer.datamodule.test_ds_list
         ):
@@ -114,3 +105,6 @@ class SampleCallback(L.Callback):
                 answers.append(ans.to(pl_module.device))
 
         self._log(trainer, pl_module, ds_labels, prompts, answers)
+
+        # restore module training state
+        pl_module.train(m_training)
