@@ -3,7 +3,7 @@ from .nanogpt import NanoGPT
 from .transformer import Transformer
 from .universal_nanogpt import UniversalNanoGPT
 from .universal_transformer import UniversalTransformer
-from .utils import CoordinateEncoding, PositionalEncoding
+from .utils import CoordinateEncoding, PositionalEncoding, generate
 
 MODELS = {
     "NanoGPT": NanoGPT,
