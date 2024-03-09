@@ -81,7 +81,7 @@ def generate(
     if idx.ndim == 1:
         idx = idx.unsqueeze(0)
 
-    if stop_token and len(stop_token) == 1:
+    if isinstance(stop_token, list) and len(stop_token) == 1:
         stop_token = stop_token[0]
 
     assert isinstance(idx, torch.Tensor), "idx must be a torch.Tensor"
