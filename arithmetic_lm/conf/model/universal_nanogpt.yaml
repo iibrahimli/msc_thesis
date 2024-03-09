@@ -1,7 +1,6 @@
 name: "UniversalNanoGPT"
 args:
   context_len: 256
-  vocab_size: 100 # default vocab size for CharTokenizer
   n_embd: 768
   n_head: 12
   max_steps: 10
