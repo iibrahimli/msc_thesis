@@ -10,8 +10,8 @@
 # model checkpoints
 /checkpoints/
 
-# Obsidian
-.obsidian/
+# Hydra
+outputs/
 
 # Logbook (publish later)
 /logbook/

@@ -1,0 +1,10 @@
+format:
+  pad: $
+  reverse_ans: ???
+  encdec: ???
+train: "data/experiment_1/train_add_1-3digit.txt"
+test:
+  1digit: "data/experiment_1/test_add_1digit_100.txt"
+  2digit: "data/experiment_1/test_add_2digit_100.txt"
+  3digit: "data/experiment_1/test_add_3digit_100.txt"
+  4digit: "data/experiment_1/test_add_4digit_100.txt"

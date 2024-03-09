@@ -1,0 +1,8 @@
+defaults:
+  - data: add_1-3digit
+  - model: nanogpt
+  - tokenizer: char
+  - sampling: default
+  - training: exp1
+  - wandb: default
+  - _self_

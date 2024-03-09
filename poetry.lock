@@ -529,17 +529,6 @@ files = [
 six = ">=1.4.0"
 
 [[package]]
-name = "docstring-parser"
-version = "0.15"
-description = "Parse Python docstrings in reST, Google and Numpydoc format"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "docstring_parser-0.15-py3-none-any.whl", hash = "sha256:d1679b86250d269d06a99670924d6bce45adc00b08069dae8c47d98e89b667a9"},
-    {file = "docstring_parser-0.15.tar.gz", hash = "sha256:48ddc093e8b1865899956fcc03b03e66bb7240c310fac5af81814580c55bf682"},
-]
-
-[[package]]
 name = "executing"
 version = "2.0.1"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -790,6 +779,22 @@ gitdb = ">=4.0.1,<5"
 test = ["black", "coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mock", "mypy", "pre-commit", "pytest (>=7.3.1)", "pytest-cov", "pytest-instafail", "pytest-mock", "pytest-sugar"]
 
 [[package]]
+name = "hydra-core"
+version = "1.3.2"
+description = "A framework for elegantly configuring complex applications"
+optional = false
+python-versions = "*"
+files = [
+    {file = "hydra-core-1.3.2.tar.gz", hash = "sha256:8a878ed67216997c3e9d88a8e72e7b4767e81af37afb4ea3334b269a4390a824"},
+    {file = "hydra_core-1.3.2-py3-none-any.whl", hash = "sha256:fa0238a9e31df3373b35b0bfb672c34cc92718d21f81311d8996a16de1141d8b"},
+]
+
+[package.dependencies]
+antlr4-python3-runtime = "==4.9.*"
+omegaconf = ">=2.2,<2.4"
+packaging = "*"
+
+[[package]]
 name = "idna"
 version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -799,21 +804,6 @@ files = [
     {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
     {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
 ]
-
-[[package]]
-name = "importlib-resources"
-version = "6.1.2"
-description = "Read resources from Python packages"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "importlib_resources-6.1.2-py3-none-any.whl", hash = "sha256:9a0a862501dc38b68adebc82970140c9e4209fc99601782925178f8386339938"},
-    {file = "importlib_resources-6.1.2.tar.gz", hash = "sha256:308abf8474e2dba5f867d279237cd4076482c3de7104a40b41426370e891549b"},
-]
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)", "zipp (>=3.17)"]
 
 [[package]]
 name = "ipykernel"
@@ -918,41 +908,6 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
-
-[[package]]
-name = "jsonargparse"
-version = "4.27.5"
-description = "Implement minimal boilerplate CLIs derived from type hints and parse from command line, config files and environment variables."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "jsonargparse-4.27.5-py3-none-any.whl", hash = "sha256:95d1ff000efa759c171fca816685c1d1a66daab056fe30a73062a0fc4a734a05"},
-    {file = "jsonargparse-4.27.5.tar.gz", hash = "sha256:88ad908387ea5c8285a48e7d94bfd025e6f536b0dbae616d755d701248ab85d9"},
-]
-
-[package.dependencies]
-docstring-parser = {version = ">=0.15", optional = true, markers = "extra == \"signatures\""}
-PyYAML = ">=3.13"
-typeshed-client = {version = ">=2.1.0", optional = true, markers = "extra == \"signatures\""}
-
-[package.extras]
-all = ["jsonargparse[argcomplete]", "jsonargparse[fsspec]", "jsonargparse[jsonnet]", "jsonargparse[jsonschema]", "jsonargparse[omegaconf]", "jsonargparse[reconplogger]", "jsonargparse[ruyaml]", "jsonargparse[signatures]", "jsonargparse[typing-extensions]", "jsonargparse[urls]"]
-argcomplete = ["argcomplete (>=2.0.0)"]
-coverage = ["jsonargparse[test-no-urls]", "pytest-cov (>=4.0.0)"]
-dev = ["build (>=0.10.0)", "jsonargparse[coverage]", "jsonargparse[doc]", "jsonargparse[mypy]", "jsonargparse[test]", "pre-commit (>=2.19.0)", "tox (>=3.25.0)"]
-doc = ["Sphinx (>=1.7.9)", "autodocsumm (>=0.1.10)", "sphinx-autodoc-typehints (>=1.19.5)", "sphinx-rtd-theme (>=1.2.2)"]
-fsspec = ["fsspec (>=0.8.4)"]
-jsonnet = ["jsonnet (>=0.13.0)", "jsonnet-binary (>=0.17.0)"]
-jsonschema = ["jsonschema (>=3.2.0)"]
-maintainer = ["bump2version (>=0.5.11)", "twine (>=4.0.2)"]
-omegaconf = ["omegaconf (>=2.1.1)"]
-reconplogger = ["reconplogger (>=4.4.0)"]
-ruyaml = ["ruyaml (>=0.20.0)"]
-signatures = ["docstring-parser (>=0.15)", "jsonargparse[typing-extensions]", "typeshed-client (>=2.1.0)"]
-test = ["attrs (>=22.2.0)", "jsonargparse[test-no-urls]", "pydantic (>=2.3.0)", "responses (>=0.12.0)", "types-PyYAML (>=6.0.11)", "types-requests (>=2.28.9)"]
-test-no-urls = ["pytest (>=6.2.5)", "pytest-subtests (>=0.8.0)"]
-typing-extensions = ["typing-extensions (>=3.10.0.0)"]
-urls = ["requests (>=2.18.4)"]
 
 [[package]]
 name = "jupyter-client"
@@ -2822,21 +2777,6 @@ tests = ["autopep8", "flake8", "isort", "numpy", "pytest", "scipy (>=1.7.1)", "t
 tutorials = ["matplotlib", "pandas", "tabulate", "torch"]
 
 [[package]]
-name = "typeshed-client"
-version = "2.5.1"
-description = "A library for accessing stubs in typeshed."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "typeshed_client-2.5.1-py3-none-any.whl", hash = "sha256:8cc254766b38f949effd3c9d4e0934d706d787127d7aedcabc648e4f094f7292"},
-    {file = "typeshed_client-2.5.1.tar.gz", hash = "sha256:6f1127f4853d216d5bfbb77260bb25e760fe00fcc67204a891be6c23471cd221"},
-]
-
-[package.dependencies]
-importlib-resources = ">=1.4.0"
-typing-extensions = ">=4.5.0"
-
-[[package]]
 name = "typing-extensions"
 version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -3032,4 +2972,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "8f6119134af6458fb5f0bde8d9aee7a32f803d76ae86959c36e98f9abc4a1667"
+content-hash = "7ec1d6099ea8deda7826e96fbf91d446d59315854ccf9fc134259264f410e210"

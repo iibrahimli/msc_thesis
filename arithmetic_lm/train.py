@@ -5,8 +5,7 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
-import argparse
-
+import hydra
 import lightning as L
 import omegaconf
 import torch
@@ -134,19 +133,8 @@ def train(
     trainer.fit(lmodel, ldm)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config",
-        required=True,
-        type=str,
-        help="Path to the config file",
-    )
-    # parse args, pass remainder to omegaconf
-    args, remaining_args = parser.parse_known_args()
-    cfg = omegaconf.OmegaConf.load(args.config)
-    cli_args = omegaconf.OmegaConf.from_cli(remaining_args)
-    cfg = omegaconf.OmegaConf.merge(cfg, cli_args)
+@hydra.main(version_base=None, config_path="conf", config_name="train")
+def main(cfg: omegaconf.DictConfig):
 
     # tokenizer
     tokenizer = TOKENIZERS[cfg.tokenizer.name](**cfg.tokenizer.get("args"))
@@ -190,3 +178,7 @@ if __name__ == "__main__":
         gen_temp=cfg.sampling.temp,
         gen_top_k=cfg.sampling.top_k,
     )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,5 @@
+enabled: true
+entity: "compositional-generalization-ut"
+project: ???
+run_name: ???
+grad_log_interval: 500
