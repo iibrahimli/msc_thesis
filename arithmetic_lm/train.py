@@ -156,6 +156,11 @@ def main(cfg: omegaconf.DictConfig):
         n: ArithmeticExampleDataset(txtfile=f, **ds_args)
         for n, f in cfg.data.test.items()
     }
+    # add a random subset of train dataset as test dataset to eval on it as well
+    train_subset_ds = torch.utils.data.Subset(
+        train_dataset, torch.randperm(len(train_dataset))[:100]
+    )
+    test_data_dict["train_subset"] = train_subset_ds
 
     # model
     model = MODELS[cfg.model.name](
