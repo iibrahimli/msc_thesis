@@ -44,12 +44,10 @@ class LightningModel(L.LightningModule):
         )
 
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
-        if self.enc_dec:
-            assert isinstance(x, tuple), "Enc-dec models need tuple"
-        if isinstance(x, tuple):
-            src, tgt = x
-        else:
+        if isinstance(x, Tensor):
             src = x
+        else:
+            src, tgt = x
         return self.model(src, tgt) if self.enc_dec else self.model(src)
 
     def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
