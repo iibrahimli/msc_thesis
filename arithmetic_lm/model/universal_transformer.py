@@ -110,7 +110,7 @@ class UniversalTransformer(nn.Module):
 
         for i in range(self.max_steps):
             target = self.coord_encoder(target, timestep=i)
-            target = self.decoder(
+            target = self.decoder_layer(
                 target,
                 memory,
                 tgt_mask=nn.Transformer.generate_square_subsequent_mask(
