@@ -6,7 +6,7 @@ defaults:
   - override /data: add_1-3digit
   - override /training: exp1
   - override /wandb: default
-  - override /model: transformer
+  - override /model: universal_transformer
   - _self_
 
 data:
@@ -16,8 +16,8 @@ data:
     encdec: true
 
 training:
-  batch_size: 512
+  batch_size: 256
 
 wandb:
   project: "addition-1-3-digit"
-  run_name: "transformer"
+  run_name: "universal_transformer"
