@@ -54,13 +54,16 @@ class LightningModel(L.LightningModule):
         # shift target to the left and add padding if encoder-decoder model
         # so e.g. decoder gets '=123$' and target is '123$'
         if self.enc_dec:
-            y[:, :-1] = y[:, 1:].clone()
-            y[:, -1] = self.tokenizer.pad_token_id
+            tgt = y.clone()
+            tgt[:, :-1] = y[:, 1:]
+            tgt[:, -1] = self.tokenizer.pad_token_id
+        else:
+            tgt = y
 
         # calculate loss
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
-            y.reshape(-1),
+            tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
         )
         self.log("train_loss", loss, prog_bar=True)
@@ -78,11 +81,14 @@ class LightningModel(L.LightningModule):
             # shift target to the left and add padding if encoder-decoder model
             # so e.g. decoder gets '=123$' and target is '123$'
             if self.enc_dec:
-                y[:, :-1] = y[:, 1:].clone()
-                y[:, -1] = self.tokenizer.pad_token_id
+                tgt = y.clone()
+                tgt[:, :-1] = y[:, 1:]
+                tgt[:, -1] = self.tokenizer.pad_token_id
+            else:
+                tgt = y
 
             loss = nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)), y.reshape(-1)
+                logits.view(-1, logits.size(-1)), tgt.reshape(-1)
             )
             self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
             return loss
