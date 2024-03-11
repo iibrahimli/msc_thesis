@@ -41,7 +41,7 @@ class UniversalTransformer(nn.Module):
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.pos_encoder = CoordinateEncoding(
+        self.coord_encoder = CoordinateEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
@@ -95,7 +95,7 @@ class UniversalTransformer(nn.Module):
     ) -> tuple[Tensor, Tensor]:
         source = self.embedding(source)
         for i in range(self.max_steps):
-            source = self.pos_encoder(source)
+            source = self.coord_encoder(source, timestep=i)
             source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
         return source  # return memory
 
@@ -109,7 +109,7 @@ class UniversalTransformer(nn.Module):
         target = self.embedding(target)
 
         for i in range(self.max_steps):
-            target = self.pos_encoder(target)
+            target = self.coord_encoder(target, timestep=i)
             target = self.decoder(
                 target,
                 memory,
