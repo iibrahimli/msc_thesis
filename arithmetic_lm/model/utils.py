@@ -99,6 +99,8 @@ def generate(
     if encoder_source is not None:
         # TODO: hardcoded pad token for char tokenizer
         # don't care about masks for now since only batch size = 1
+        if encoder_source.ndim == 1:
+            encoder_source = encoder_source.unsqueeze(0)
         memory = model.encode(encoder_source)
 
     for _ in range(max_new_tokens):
