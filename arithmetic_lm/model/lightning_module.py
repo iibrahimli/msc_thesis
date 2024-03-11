@@ -143,17 +143,17 @@ class LightningModel(L.LightningModule):
         stop_token: int = None,
         seed: int = 42,
     ) -> Tensor:
+        encoder_source = None
         if self.enc_dec:
-            decoder_prompt = torch.tensor(self.tokenizer.encode("="), device=idx.device)
-        else:
-            decoder_prompt = None
+            encoder_source = idx
+            idx = torch.tensor(self.tokenizer.encode("="), device=idx.device)
         return generate(
-            self.model,
-            idx,
-            max_new_tokens,
-            decoder_prompt,
-            temperature,
-            top_k,
-            stop_token,
-            seed,
+            model=self.model,
+            idx=idx,
+            max_new_tokens=max_new_tokens,
+            encoder_source=encoder_source,
+            temperature=temperature,
+            top_k=top_k,
+            stop_token=stop_token,
+            seed=seed,
         )

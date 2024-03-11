@@ -63,7 +63,7 @@ def generate(
     model: nn.Module,
     idx: Tensor,
     max_new_tokens: int,
-    decoder_prompt: Tensor = None,
+    encoder_source: Tensor = None,
     temperature: float = 1.0,
     top_k: int = 1,
     stop_token: int = None,
@@ -73,6 +73,9 @@ def generate(
     Take a conditioning sequence of indices idx (tensor of shape [batch, seq_len]) and complete
     the sequence max_new_tokens times, feeding the predictions back into the model each time.
     Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+
+    encoder_source hints that the model is an encoder-decoder model and the encoder_source
+    will be encoded and used as memory for the decoder.
     """
 
     # TODO implement seed w/ device support
@@ -93,8 +96,10 @@ def generate(
     gen_start_idx = idx.size(-1)
 
     # get hidden state from encoder
-    if decoder_prompt is not None:
-        memory, memory_key_padding_mask = model.encode(idx_cond)
+    if encoder_source is not None:
+        # TODO: hardcoded pad token for char tokenizer
+        # don't care about masks for now since only batch size = 1
+        memory = model.encode(encoder_source)
 
     for _ in range(max_new_tokens):
         # crop to context_len if necessary
@@ -106,10 +111,9 @@ def generate(
             idx_cond = idx
 
         # logits shape: [batch, seq_len, vocab_size]
-        if decoder_prompt is not None:
-            if decoder_prompt.ndim == 1:
-                decoder_prompt = decoder_prompt.unsqueeze(0)
-            logits = model.decode(decoder_prompt, memory, memory_key_padding_mask)
+        if encoder_source is not None:
+            # enc-dec model
+            logits = model.decode(idx_cond, memory)
         else:
             logits = model(idx_cond)
 

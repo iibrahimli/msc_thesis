@@ -93,19 +93,20 @@ class Transformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def encode(self, source: Tensor, src_padding_mask: Tensor) -> tuple[Tensor, Tensor]:
-
+    def encode(
+        self, source: Tensor, src_padding_mask: Tensor = None
+    ) -> tuple[Tensor, Tensor]:
         source = self.embedding(source)
         source = self.pos_encoder(source)
         memory = self.encoder(source, src_key_padding_mask=src_padding_mask)
-        return memory, src_padding_mask
+        return memory
 
     def decode(
         self,
         target: Tensor,
         memory: Tensor,
-        tgt_padding_mask: Tensor,
-        memory_padding_mask: Tensor,
+        tgt_padding_mask: Tensor = None,
+        memory_padding_mask: Tensor = None,
     ) -> Tensor:
         target = self.embedding(target)
         target = self.pos_encoder(target)
@@ -137,9 +138,7 @@ class Transformer(nn.Module):
         tgt_padding_mask = target == 99
 
         # encoder
-        memory, src_padding_mask = self.encode(
-            source=source, src_padding_mask=src_padding_mask
-        )
+        memory = self.encode(source=source, src_padding_mask=src_padding_mask)
 
         # decoder
         logits = self.decode(
