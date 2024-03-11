@@ -1,4 +1,4 @@
-name: "Transformer"
+name: "UniversalTransformer"
 args:
   context_len: 256
   n_embd: 384
