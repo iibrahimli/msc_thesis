@@ -20,4 +20,4 @@ training:
 
 wandb:
   project: "addition-1-3-digit"
-  run_name: "universal_transformer"
+  run_name: "universal_transformer_3_steps"
