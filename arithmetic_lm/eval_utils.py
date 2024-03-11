@@ -5,10 +5,16 @@ import torch
 from arithmetic_lm.tokenizer import Tokenizer
 
 
-def eval_sample(pred_answer: str, answer: str = None) -> bool:
-    """Evaluate a single example, true if correct"""
+def eval_sample(pred_answer: str, answer: str, strict: bool = False) -> bool:
+    """Evaluate a single example, true if correct, strict = whether to only compare digit chars"""
 
-    return pred_answer.strip() == answer.strip()
+    if strict:
+        return pred_answer.strip() == answer.strip()
+    else:
+        # only compare digits
+        pred_answer_digits = "".join(filter(str.isdigit, pred_answer))
+        answer_digits = "".join(filter(str.isdigit, answer))
+        return pred_answer_digits == answer_digits
 
 
 def eval_on_batch(
