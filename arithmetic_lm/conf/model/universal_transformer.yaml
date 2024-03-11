@@ -3,5 +3,5 @@ args:
   context_len: 256
   n_embd: 384
   n_head: 6
-  max_steps: 6
+  max_steps: 3
   dropout: 0.1
