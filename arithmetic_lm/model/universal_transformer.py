@@ -90,6 +90,40 @@ class UniversalTransformer(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
+    def encode(
+        self, source: Tensor, src_padding_mask: Tensor = None
+    ) -> tuple[Tensor, Tensor]:
+        source = self.embedding(source)
+        for i in range(self.max_steps):
+            source = self.pos_encoder(source)
+            source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
+        return source  # return memory
+
+    def decode(
+        self,
+        target: Tensor,
+        memory: Tensor,
+        tgt_padding_mask: Tensor = None,
+        memory_padding_mask: Tensor = None,
+    ) -> Tensor:
+        target = self.embedding(target)
+
+        for i in range(self.max_steps):
+            target = self.pos_encoder(target)
+            target = self.decoder(
+                target,
+                memory,
+                tgt_mask=nn.Transformer.generate_square_subsequent_mask(
+                    target.size(1), device=target.device
+                ),
+                tgt_is_causal=True,
+                tgt_key_padding_mask=tgt_padding_mask,
+                memory_key_padding_mask=memory_padding_mask,
+            )
+
+        logits = self.lm_head(target)
+        return logits
+
     def forward(self, source: Tensor, target: Tensor) -> Tensor:
         """
         Arguments:
@@ -99,35 +133,22 @@ class UniversalTransformer(nn.Module):
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
+
         # TODO: hardcoded pad token for char tokenizer
         src_padding_mask = source == 99
         tgt_padding_mask = target == 99
 
-        source = self.embedding(source)
-        target = self.embedding(target)
-
         # encoder
-        for t in range(self.max_steps):
-            source = self.pos_encoder(source, timestep=t)
-            source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
-
-        # source is the memory at this point
+        memory = self.encode(source=source, src_padding_mask=src_padding_mask)
 
         # decoder
-        for t in range(self.max_steps):
-            target = self.pos_encoder(target, timestep=t)
-            target = self.decoder_layer(
-                target,
-                source,
-                tgt_mask=nn.Transformer.generate_square_subsequent_mask(
-                    target.size(1), device=target.device
-                ),
-                tgt_is_causal=True,
-                tgt_key_padding_mask=tgt_padding_mask,
-                memory_key_padding_mask=src_padding_mask,
-            )
+        logits = self.decode(
+            target=target,
+            memory=memory,
+            tgt_padding_mask=tgt_padding_mask,
+            memory_padding_mask=src_padding_mask,
+        )
 
-        logits = self.lm_head(target)
         return logits
 
     def param_count(self) -> int:
