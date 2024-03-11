@@ -50,6 +50,13 @@ class LightningModel(L.LightningModule):
         x, y = batch
         # forward pass
         logits = self.forward(batch)
+
+        # shift target to the left and add padding if encoder-decoder model
+        # so e.g. decoder gets '=123$' and target is '123$'
+        if self.enc_dec:
+            y[:, :-1] = y[:, 1:].clone()
+            y[:, -1] = self.tokenizer.pad_token_id
+
         # calculate loss
         loss = nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)),
