@@ -19,6 +19,10 @@ training:
   batch_size: 512
   devices: [6]
 
+model:
+  args:
+    n_layers: 3
+
 wandb:
   project: "addition-1-7-digit"
   run_name: "transformer"
