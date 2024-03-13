@@ -1,0 +1,14 @@
+format:
+  pad: $
+  reverse_ans: ???
+  encdec: ???
+train: data/addition/train_add_1-7digit.txt
+test:
+  1digit: data/addition/test_add_1digit_100.txt
+  2digit: data/addition/test_add_2digit_100.txt
+  3digit: data/addition/test_add_3digit_100.txt
+  4digit: data/addition/test_add_4digit_100.txt
+  5digit: data/addition/test_add_5digit_100.txt
+  6digit: data/addition/test_add_6digit_100.txt
+  7digit: data/addition/test_add_7digit_100.txt
+  8digit: data/addition/test_add_8digit_100.txt

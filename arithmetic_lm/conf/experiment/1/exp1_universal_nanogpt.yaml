@@ -4,20 +4,20 @@ defaults:
   - override /tokenizer: char
   - override /sampling: default
   - override /data: add_1-3digit
-  - override /training: exp1
+  - override /training: default
   - override /wandb: default
-  - override /model: transformer
+  - override /model: universal_nanogpt
   - _self_
 
 data:
   format:
     pad: $
     reverse_ans: true
-    encdec: true
+    encdec: false
 
 training:
-  batch_size: 512
+  devices: [6]
 
 wandb:
   project: "addition-1-3-digit"
-  run_name: "transformer"
+  run_name: "universal_nanogpt_x2"

@@ -3,6 +3,6 @@ defaults:
   - model: nanogpt
   - tokenizer: char
   - sampling: default
-  - training: exp1
+  - training: default
   - wandb: default
   - _self_

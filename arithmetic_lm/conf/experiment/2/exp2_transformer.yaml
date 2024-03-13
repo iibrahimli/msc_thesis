@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_1-7digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: transformer
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: false # unlike Experiment 1
+    encdec: true
+
+training:
+  batch_size: 512
+  devices: [6]
+
+wandb:
+  project: "addition-1-7-digit"
+  run_name: "transformer"

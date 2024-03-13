@@ -7,4 +7,4 @@ num_dl_workers: 4
 val_ratio: 0.1
 val_interval: 100
 limit_val_batches: null
-devices: [6]
+devices: null

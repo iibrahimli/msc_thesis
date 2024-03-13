@@ -1,0 +1,28 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_1-3digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: universal_transformer
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: true
+    encdec: true
+
+training:
+  batch_size: 512
+  devices: [6]
+
+model:
+  args:
+    max_steps: 3
+
+wandb:
+  project: "addition-1-3-digit"
+  run_name: "universal_transformer_3_steps"
