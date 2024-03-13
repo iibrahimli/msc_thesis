@@ -10,4 +10,4 @@ Aims to aims to reproduce Figure 22 (a) from the [[Lee et al. 2023] Teaching Ari
 
 ## Experiment 2
 
-Aims to aims to reproduce Figure 22 (b) from the [[Lee et al. 2023] Teaching Arithmetic to Small Transformers](https://arxiv.org/abs/2307.03381). Same 3 models as Experiment 1 are trained on 1-7 digit addition and tested on 8 digit addition. Other details are the same as Experiment 1.
+Aims to aims to reproduce Figure 22 (b) from the [[Lee et al. 2023] Teaching Arithmetic to Small Transformers](https://arxiv.org/abs/2307.03381). Same 3 models as Experiment 1 are trained on 1-7 digit addition and tested on 8 digit addition. The examples are plain formatted (i.e. answers are not reversed). Other details are the same as Experiment 1.
