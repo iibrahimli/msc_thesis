@@ -35,97 +35,89 @@ def k_notation(number: int) -> str:
     return f"{number // 1000}k" if number >= 1000 else f"{number}"
 
 
+def n_possible_examples(num_digits: int) -> int:
+    """Number of possible examples for given number of digits exactly"""
+    # exlude the case where either start with 0
+    return 100**num_digits - 99
+
+
 # for train set
 def generate_balanced(
     filepath: str | Path,
-    num_examples: int = 10_000,
-    num_digits: int = 3,
+    num_examples: dict[int, int],  # digit -> num_examples
     seed: int = 42,
 ) -> None:
     """Generate addition problems with balanced number of digits (<= num_digits) and carries"""
     set_seed(seed)
 
-    num_digit_2 = int(900 * num_examples / 10000)
-    num_digit_list = [100, num_digit_2, num_examples - 100 - num_digit_2]
+    if 1 in num_examples:
+        assert num_examples[1] == 100, "Expected 100 examples for 1 digit for coverage"
 
-    logger.info(f"Number of examples for each digit: {num_digit_list}")
+    for i, n in num_examples.items():
+        assert n > 0, f"Expected positive number of examples for {i} digit"
+        if i > 1:
+            assert n <= n_possible_examples(
+                i
+            ), f"Can't generate more than {n_possible_examples(i)} examples for {i} digit (requested {n})"
 
-    # create a list of number of carries - we target each number of carries to have the same number of examples
-    target_num_carry_examples = math.ceil(num_examples / (num_digits + 1))
+    num_total_examples = sum(num_examples.values())
+    logger.info(
+        f"Number of examples for each digit: {num_examples} (total: {num_total_examples})"
+    )
+    num_digits = len(num_examples)
+
+    # we target each number of carries (0...N) to have the same number of examples
+    target_num_carry_examples = math.ceil(num_total_examples / (num_digits + 1))
     num_carry_list = [0 for _ in range(num_digits + 1)]
 
     logger.info(f"Target number of carry examples: {target_num_carry_examples}")
 
     with open(filepath, "w") as f:
-        num_example = 0
 
-        # generate all 1 digit examples
-        for a in range(10):
-            for b in range(10):
-                ans = str(a + b)
-                f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
-                num_example += 1
-                num_carry = num_carry_ops(a, b)
-                num_carry_list[num_carry] += 1
+        for num_digit, num_digit_examples in num_examples.items():
+            if num_digit == 1 or num_digit_examples == n_possible_examples(num_digit):
+                logger.info(
+                    f"Generating all possible {num_digit} digit examples ({num_digit_examples})"
+                )
+                # generate all examples
+                min_val = 10 ** (num_digit - 1) if num_digit > 1 else 0
+                max_val = 10**num_digit - 1
+                for a in range(min_val, max_val + 1):
+                    for b in range(min_val, max_val + 1):
+                        ans = str(a + b)
+                        f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
+                        num_carry = num_carry_ops(a, b)
+                        num_carry_list[num_carry] += 1
+                continue
 
-        for num_digit in range(2, num_digits + 1):
-            num_digit_example = 0
+            logger.info(f"Using random sampling for {num_digit} digit examples")
 
-            while (
-                num_digit_example < num_digit_list[num_digit - 1]
-                and num_example < num_examples
-            ):
-                # generate a random number between 0 and 10^(i+1) - 1
-                a = random.randint(0, 10 ** (num_digit) - 1)
-                b = random.randint(0, 10 ** (num_digit) - 1)
+            num_current_digit_examples = 0
+            generated_examples = set()
+
+            while num_current_digit_examples < num_digit_examples:
+                a = random.randint(10 ** (num_digit - 1), 10**num_digit - 1)
+                b = random.randint(10 ** (num_digit - 1), 10**num_digit - 1)
                 ans = str(a + b)
 
                 # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
                 if num_carry_list[num_carry] < target_num_carry_examples:
+                    example_str = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
+                    if example_str in generated_examples:
+                        continue
+                    generated_examples.add(example_str)
+
                     # write the example to file
-                    f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
+                    f.write(example_str)
 
                     # increment num_carry_list[num_carry]
                     num_carry_list[num_carry] += 1
-                    num_digit_example += 1
-                    num_example += 1
+                    num_current_digit_examples += 1
                 else:
                     continue
 
     logger.info(f"Number of carries for each digit: {num_carry_list}")
-
-
-# for test set
-def generate_uniform_exclude(
-    filepath: str | Path,
-    exclude: set[str],
-    num_digits: int,
-    num_examples: int,
-    seed: int = 42,
-) -> None:
-    """
-    Uniformly sample addition problems, excluding the given examples and without answer
-    for <= num_digit digit numbers
-    """
-    set_seed(seed)
-
-    c = 0
-    max_val = 10**num_digits - 1
-    with open(filepath, "w") as f:
-        while c < num_examples:
-
-            a = random.randint(0, max_val)
-            b = random.randint(0, max_val)
-            ans = str(a + b)
-
-            example_with_ans = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
-
-            if example_with_ans in exclude:
-                continue
-
-            f.write(example_with_ans)
-            c += 1
 
 
 # for N digit tasks
@@ -208,7 +200,7 @@ def generate_experiment_1(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Generating data for experiment {out_dir}")
+    logger.info(f"Generating data for Experiment 1 to {out_dir}")
 
     # 1. generate balanced dataset
     bal_path = out_dir / "add_1-2-3digit_10k_bal.txt"
@@ -216,8 +208,11 @@ def generate_experiment_1(out_dir: str | Path):
     logger.info(f"Generating {bal_path}")
     generate_balanced(
         filepath=bal_path,
-        num_examples=n_bal_examples,
-        num_digits=3,
+        num_examples={
+            1: 100,
+            2: 900,
+            3: n_bal_examples - 100 - 900,
+        },
     )
 
     def _does_not_feature_2_digit_operand(line: str) -> bool:
@@ -241,8 +236,53 @@ def generate_experiment_1(out_dir: str | Path):
         generate_only_digit(digit_path, num_digits=n_digits, num_examples=100)
 
 
+def generate_experiment_2(out_dir: str | Path):
+    """
+    Generate data for Experiment 2 (Trying to replicate length generalization,
+    Figure 22(b) from Lee 2023 "Teaching Arithmetic to Small Transformers"),
+    assuming Experiment 1 data is already generated in the out_dir:
+     1. generate 1-7 digit 100k examples train dataset `train_add_1-7digit.txt`
+     2. generate {5,6,7,8} digit test datasets of 100 examples each `test_Xdigit_100.txt`
+    (the test data should have no overlap with train file)
+    """
+
+    out_dir = Path(out_dir)
+    assert out_dir.exists(), "Expected experiment 1 data to already exist"
+    logger.info(f"Generating data for Experiment 2 to {out_dir}")
+
+    # 1. generate train dataset
+    train_path = out_dir / "train_add_1-7digit.txt"
+    logger.info(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples={
+            1: 100,
+            2: 9901,
+            3: 16650,
+            4: 16650,
+            5: 16650,
+            6: 16650,
+            7: 16650,
+        },  # total 100k
+    )
+
+    # 2. generate 5-8 digit test datasets (1-4 generated in Experiment 1)
+    n_test_examples = 100
+    for n_digits in (5, 6, 7, 8):
+        digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
+        logger.info(f"Generating {digit_path}")
+        generate_only_digit(
+            digit_path,
+            num_digits=n_digits,
+            num_examples=100,
+            exclude=get_set_from_file(train_path),
+            seed=n_digits,  # different seed to avoid overlap
+        )
+
+
 def main():
-    generate_experiment_1(DATA_DIR / "experiment_1")
+    generate_experiment_1(DATA_DIR / "addition")
+    generate_experiment_2(DATA_DIR / "addition")
 
 
 if __name__ == "__main__":
