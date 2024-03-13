@@ -3,8 +3,8 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_1-3digit
-  - override /training: exp1
+  - override /data: add_1-7digit
+  - override /training: default
   - override /wandb: default
   - override /model: nanogpt
   - _self_
@@ -12,9 +12,12 @@ defaults:
 data:
   format:
     pad: $
-    reverse_ans: true
+    reverse_ans: false # unlike Experiment 1
     encdec: false
 
+training:
+  devices: [6]
+
 wandb:
-  project: "addition-1-3-digit"
+  project: "addition-1-7-digit"
   run_name: "nanogpt"
