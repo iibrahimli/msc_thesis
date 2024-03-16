@@ -91,10 +91,14 @@ class UniversalTransformer(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     def encode(
-        self, source: Tensor, src_padding_mask: Tensor = None
+        self,
+        source: Tensor,
+        src_padding_mask: Tensor = None,
+        max_steps: int = None,
     ) -> tuple[Tensor, Tensor]:
+        max_steps = max_steps if max_steps else self.max_steps
         source = self.embedding(source)
-        for i in range(self.max_steps):
+        for i in range(max_steps):
             source = self.coord_encoder(source, timestep=i)
             source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
         return source  # return memory
@@ -105,10 +109,11 @@ class UniversalTransformer(nn.Module):
         memory: Tensor,
         tgt_padding_mask: Tensor = None,
         memory_padding_mask: Tensor = None,
+        max_steps: int = None,
     ) -> Tensor:
+        max_steps = max_steps if max_steps else self.max_steps
         target = self.embedding(target)
-
-        for i in range(self.max_steps):
+        for i in range(max_steps):
             target = self.coord_encoder(target, timestep=i)
             target = self.decoder_layer(
                 target,
@@ -124,7 +129,7 @@ class UniversalTransformer(nn.Module):
         logits = self.lm_head(target)
         return logits
 
-    def forward(self, source: Tensor, target: Tensor) -> Tensor:
+    def forward(self, source: Tensor, target: Tensor, max_steps: int = None) -> Tensor:
         """
         Arguments:
             x: Tensor, shape ``[batch_size, seq_len]``
@@ -138,8 +143,12 @@ class UniversalTransformer(nn.Module):
         src_padding_mask = source == 99
         tgt_padding_mask = target == 99
 
+        max_steps = max_steps if max_steps else self.max_steps
+
         # encoder
-        memory = self.encode(source=source, src_padding_mask=src_padding_mask)
+        memory = self.encode(
+            source=source, src_padding_mask=src_padding_mask, max_steps=max_steps
+        )
 
         # decoder
         logits = self.decode(
@@ -147,6 +156,7 @@ class UniversalTransformer(nn.Module):
             memory=memory,
             tgt_padding_mask=tgt_padding_mask,
             memory_padding_mask=src_padding_mask,
+            max_steps=max_steps,
         )
 
         return logits
