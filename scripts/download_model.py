@@ -31,8 +31,7 @@ if __name__ == "__main__":
             if artifact.type == "model":
                 out_dir = CHECKPOINTS_DIR / run.project / run.name
                 out_dir.mkdir(parents=True, exist_ok=True)
-                out_path = out_dir / "model.ckpt"
                 print(
-                    f"Downloading {artifact.name} from {run.project}/{run.name} to {out_path}"
+                    f"Downloading {artifact.name} from {run.project}/{run.name} to {out_dir}"
                 )
-                artifact.download(out_path)
+                artifact.download(out_dir)
