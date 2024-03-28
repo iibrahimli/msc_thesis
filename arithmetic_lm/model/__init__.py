@@ -1,9 +1,10 @@
+from .generate import generate
 from .lightning_module import LightningModel
 from .nanogpt import NanoGPT
+from .pos_encoding import AbsolutePositionalEncoding, CoordinateEncoding
 from .transformer import Transformer
 from .universal_nanogpt import UniversalNanoGPT
 from .universal_transformer import UniversalTransformer
-from .utils import CoordinateEncoding, PositionalEncoding, generate
 
 MODELS = {
     "NanoGPT": NanoGPT,

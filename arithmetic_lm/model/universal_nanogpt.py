@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import CoordinateEncoding
+from .pos_encoding import CoordinateEncoding
 
 
 class UniversalNanoGPT(nn.Module):

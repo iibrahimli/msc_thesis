@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import PositionalEncoding
+from .pos_encoding import AbsolutePositionalEncoding
 
 
 class NanoGPT(nn.Module):
@@ -40,7 +40,7 @@ class NanoGPT(nn.Module):
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)
-        self.pos_encoder = PositionalEncoding(
+        self.pos_encoder = AbsolutePositionalEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 

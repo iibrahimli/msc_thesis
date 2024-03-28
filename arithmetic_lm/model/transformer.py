@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import PositionalEncoding
+from .pos_encoding import AbsolutePositionalEncoding
 
 
 class Transformer(nn.Module):
@@ -41,7 +41,7 @@ class Transformer(nn.Module):
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.pos_encoder = PositionalEncoding(
+        self.pos_encoder = AbsolutePositionalEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
