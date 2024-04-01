@@ -66,13 +66,29 @@ class CoordinateEncoding(nn.Module):
         return self.dropout(x)
 
 
-class RelativePositionalEncoding(nn.Module):
-    pass
+def relative_positions(n: int, k: int) -> Tensor:
+    """
+    Returns a tensor of shape [n, n] where the value at position [i, j] is the relative
+    position of j to i (clipped to window size k).
+    """
+    return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k)
 
 
 # Since relative positional encoding implementation changes the multi-head attention layer,
 # we need to child class the original MHA and override the forward method to include it.
 class RelativeMultiheadAttention(nn.MultiheadAttention):
+    """
+    A multihead attention layer with relative positional encoding.
+    """
+
+    def __init__(self, *args, rel_pos_k: int = None, **kwargs):
+        """
+        rel_pos_k: the window size for relative positional encoding.
+        """
+        super().__init__(*args, **kwargs)
+        self.rel_pos_k = rel_pos_k or 16  # default clipping
+        self.rel_pos_embedding = nn.Embedding(2 * self.rel_pos_k + 1, self.kdim)
+
     def forward(
         self,
         query: Tensor,
@@ -81,6 +97,14 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         **kwargs,
     ) -> tuple[Tensor, Optional[Tensor]]:
         """
+        THIS IMPLEMENTATION SHARES REL EMBEDDING ACROSS HEADS
+        For rel pos enc, see Shaw et al. 2018: https://arxiv.org/abs/1803.02155
+        A modified version is implemented here, see Huang et al. 2018: https://arxiv.org/pdf/1809.04281.pdf
+        (no relative position for the value, only for the key)
+        This is an inefficient implementation, could be optimized for less memory,
+        see: https://jaketae.github.io/study/relative-positional-encoding/
+
+        Args, from torch docs:
         query: Query embeddings of shape :math:`(L, E_q)` for unbatched input, :math:`(L, N, E_q)` when ``batch_first=False``
             or :math:`(N, L, E_q)` when ``batch_first=True``, where :math:`L` is the target sequence length,
             :math:`N` is the batch size, and :math:`E_q` is the query embedding dimension ``embed_dim``.
@@ -95,8 +119,9 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
             sequence length, :math:`N` is the batch size, and :math:`E_v` is the value embedding dimension ``vdim``.
             See "Attention Is All You Need" for more details.
         """
-        # add relative positions to keys and values
-        # TODO
+
+        seq_len = query.size(0) if self.batch_first else query.size(1)
+        rel_pos = relative_positions(seq_len, k=self.rel_pos_k).to(query.device)
 
         # call the parent class forward method
         return super().forward(query, key, value, **kwargs)
