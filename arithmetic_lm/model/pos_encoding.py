@@ -121,14 +121,14 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
 
         # query: [B, L, D] (D is query embed_dim)
         # R: [L, L, D] (relative positions embeddings)
-        # 1. reshape query to [B, L, 1, D]
-        # 2. S_rel = Q_reshaped * R^T
+        # 1. reshape query to [L, B, D]
+        # 2. S_rel = Q_reshaped * R^T (batch matrix-matrix product)
         # 3. add S_rel / sqrt(D) to attn_mask (since attn_mask is added to softmax input term QK^T)
         # 4. call super().forward with the modified attn_mask
         R = self.rel_pos_embedding(
             rel_pos_indices(query.size(1), self.rel_pos_k).to(query.device)
         )
-        S_rel = torch.einsum("blnd,lkd->blk", query.unsqueeze(-2), R)
+        S_rel = torch.einsum("bld,lkd->blk", query, R)
         rel_pos_mask = S_rel / (self.embed_dim**0.5)
 
         # TODO: might be wrong, not sure if it's flattened batch first or heads first
