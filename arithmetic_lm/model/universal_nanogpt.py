@@ -114,8 +114,8 @@ class UniversalNanoGPT(nn.Module):
             x = self.layer(
                 x,
                 is_causal=True,
-                src_mask=nn.Transformer.generate_square_subsequent_mask(
-                    x.size(1), device=x.device
+                src_mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                    x.device
                 ),
             )
 

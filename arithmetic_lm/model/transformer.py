@@ -140,8 +140,8 @@ class Transformer(nn.Module):
         target = self.decoder(
             target,
             memory,
-            tgt_mask=nn.Transformer.generate_square_subsequent_mask(
-                target.size(1), device=target.device
+            tgt_mask=nn.Transformer.generate_square_subsequent_mask(target.size(1)).to(
+                target.device
             ),
             tgt_is_causal=True,  # TODO set to false if cross attention is also relative?
             tgt_key_padding_mask=tgt_padding_mask,

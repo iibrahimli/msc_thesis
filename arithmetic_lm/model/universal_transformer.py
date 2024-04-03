@@ -146,8 +146,8 @@ class UniversalTransformer(nn.Module):
                 target,
                 memory,
                 tgt_mask=nn.Transformer.generate_square_subsequent_mask(
-                    target.size(1), device=target.device
-                ),
+                    target.size(1)
+                ).to(target.device),
                 tgt_is_causal=True,
                 tgt_key_padding_mask=tgt_padding_mask,
                 memory_key_padding_mask=memory_padding_mask,

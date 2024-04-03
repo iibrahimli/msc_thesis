@@ -116,9 +116,9 @@ class NanoGPT(nn.Module):
 
         x = self.transformer_encoder(
             x,
-            mask=nn.Transformer.generate_square_subsequent_mask(
-                x.size(1), device=x.device
-            ),
+            mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                x.device
+            ),  # use to instead of passing device= due to bug that returns NaNs on MPS
         )
         x = self.lm_head(x)
         return x
