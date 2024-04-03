@@ -77,8 +77,6 @@ class Transformer(nn.Module):
                     dropout=dropout,
                     bias=True,  # is true by default
                     batch_first=True,
-                    device=self.device,
-                    dtype=self.dtype,
                     rel_pos_k=16,
                 )
             for layer in self.decoder.layers:
@@ -88,8 +86,6 @@ class Transformer(nn.Module):
                     dropout=dropout,
                     bias=True,  # is true by default
                     batch_first=True,
-                    device=self.device,
-                    dtype=self.dtype,
                     rel_pos_k=16,
                 )
                 # TODO: also change cross attention to relative maybe?

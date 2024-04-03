@@ -67,8 +67,6 @@ class UniversalNanoGPT(nn.Module):
                     dropout=dropout,
                     bias=True,  # is true by default
                     batch_first=True,
-                    device=self.device,
-                    dtype=self.dtype,
                     rel_pos_k=16,
                 )
 
