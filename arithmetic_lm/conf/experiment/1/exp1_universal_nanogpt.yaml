@@ -16,7 +16,7 @@ data:
     encdec: false
 
 training:
-  devices: [6]
+  devices: [0]
 
 wandb:
   project: "addition-1-3-digit"
