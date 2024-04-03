@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .pos_encoding import CoordinateEncoding
+from .pos_encoding import CoordinateEncoding, RelativeMultiheadAttention
 
 
 class UniversalTransformer(nn.Module):
@@ -16,6 +16,7 @@ class UniversalTransformer(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
+        pos_enc: str = "abs",
     ):
         """
         Arguments:
@@ -26,6 +27,7 @@ class UniversalTransformer(nn.Module):
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
+            pos_enc: type of positional encoding to use, either "abs" for absolute or "rel" for relative
         """
 
         super().__init__()
@@ -38,6 +40,7 @@ class UniversalTransformer(nn.Module):
         self.dropout = dropout
         self.max_steps = max_steps
         self.enc_dec = True
+        self.pos_enc = pos_enc
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
@@ -61,6 +64,32 @@ class UniversalTransformer(nn.Module):
             batch_first=True,
             activation="gelu",
         )
+
+        # change all self-attention layers to relative multi-head attention
+        if self.pos_enc == "rel":
+            for layer in self.encoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    device=self.device,
+                    dtype=self.dtype,
+                    rel_pos_k=16,
+                )
+            for layer in self.decoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    device=self.device,
+                    dtype=self.dtype,
+                    rel_pos_k=16,
+                )
+                # TODO: also change cross attention to relative maybe?
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
@@ -99,6 +128,7 @@ class UniversalTransformer(nn.Module):
         max_steps = max_steps if max_steps else self.max_steps
         source = self.embedding(source)
         for i in range(max_steps):
+            # TODO: this is needed for timestep info, keep even with relative pos enc
             source = self.coord_encoder(source, timestep=i)
             source = self.encoder_layer(source, src_key_padding_mask=src_padding_mask)
         return source  # return memory
@@ -114,6 +144,7 @@ class UniversalTransformer(nn.Module):
         max_steps = max_steps if max_steps else self.max_steps
         target = self.embedding(target)
         for i in range(max_steps):
+            # TODO: this is needed for timestep info, keep even with relative pos enc
             target = self.coord_encoder(target, timestep=i)
             target = self.decoder_layer(
                 target,

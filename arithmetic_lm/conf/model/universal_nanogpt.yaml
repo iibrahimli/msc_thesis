@@ -5,3 +5,4 @@ args:
   n_head: 12
   max_steps: 10
   dropout: 0.1
+  pos_enc: "abs"
