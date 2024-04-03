@@ -2,14 +2,7 @@ import math
 from typing import Optional
 
 import torch
-from torch import Tensor
-from torch import functional as F
-from torch import nn
-from torch.nn.modules.activation import (
-    _arg_requires_grad,
-    _check_arg_device,
-    _is_make_fx_tracing,
-)
+from torch import Tensor, nn
 
 
 # from https://pytorch.org/tutorials/beginner/transformer_tutorial.html
@@ -66,12 +59,12 @@ class CoordinateEncoding(nn.Module):
         return self.dropout(x)
 
 
-def relative_positions(n: int, k: int) -> Tensor:
+def rel_pos_indices(n: int, k: int) -> Tensor:
     """
-    Returns a tensor of shape [n, n] where the value at position [i, j] is the relative
-    position of j to i (clipped to window size k).
+    Returns a tensor of shape [n, n] where the value at position [i, j] is the
+    index of embedding for relative position of j to i (clipped to window size k).
     """
-    return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k)
+    return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k) + k
 
 
 # Since relative positional encoding implementation changes the multi-head attention layer,
@@ -81,19 +74,21 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
     A multihead attention layer with relative positional encoding.
     """
 
-    def __init__(self, *args, rel_pos_k: int = None, **kwargs):
+    def __init__(self, *args, rel_pos_k: int = 16, **kwargs):
         """
         rel_pos_k: the window size for relative positional encoding.
         """
+
         super().__init__(*args, **kwargs)
-        self.rel_pos_k = rel_pos_k or 16  # default clipping
-        self.rel_pos_embedding = nn.Embedding(2 * self.rel_pos_k + 1, self.kdim)
+        self.rel_pos_k = rel_pos_k
+        self.rel_pos_embedding = nn.Embedding(2 * self.rel_pos_k + 1, self.embed_dim)
 
     def forward(
         self,
         query: Tensor,
         key: Tensor,
         value: Tensor,
+        attn_mask: Optional[Tensor] = None,
         **kwargs,
     ) -> tuple[Tensor, Optional[Tensor]]:
         """
@@ -101,8 +96,9 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         For rel pos enc, see Shaw et al. 2018: https://arxiv.org/abs/1803.02155
         A modified version is implemented here, see Huang et al. 2018: https://arxiv.org/pdf/1809.04281.pdf
         (no relative position for the value, only for the key)
-        This is an inefficient implementation, could be optimized for less memory,
+        This is an inefficient implementation, could be optimized for less memory usign skewing as shown in Huang et al. 2018.,
         see: https://jaketae.github.io/study/relative-positional-encoding/
+        Another reference: https://ychai.uk/notes/2019/10/17/NN/Transformer-variants-a-peek/
 
         Args, from torch docs:
         query: Query embeddings of shape :math:`(L, E_q)` for unbatched input, :math:`(L, N, E_q)` when ``batch_first=False``
@@ -120,8 +116,28 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
             See "Attention Is All You Need" for more details.
         """
 
-        seq_len = query.size(0) if self.batch_first else query.size(1)
-        rel_pos = relative_positions(seq_len, k=self.rel_pos_k).to(query.device)
+        # query: [B, L, D] (D is query embed_dim)
+        # R: [L, L, D] (relative positions embeddings)
+        # 1. reshape query to [B, L, 1, D]
+        # 2. S_rel = Q_reshaped * R^T
+        # 3. add S_rel / sqrt(D) to attn_mask (since attn_mask is added to softmax input term QK^T)
+        # 4. call super().forward with the modified attn_mask
+        R = self.rel_pos_embedding(rel_pos_indices(query.size(1), self.rel_pos_k))
+        S_rel = torch.einsum("blnd,lkd->blk", query.unsqueeze(2), R)
+        rel_pos_mask = S_rel / (self.embed_dim**0.5)
 
-        # call the parent class forward method
-        return super().forward(query, key, value, **kwargs)
+        # TODO: might be wrong, not sure if it's flattened batch first or heads first
+        # rel_pos_mask has shape [B, L, L], we need [B*n_heads, L, L]
+        rel_pos_mask = (
+            rel_pos_mask.unsqueeze(1)
+            .expand(-1, self.num_heads, -1, -1)
+            .reshape(-1, query.size(1), query.size(1))
+        )
+
+        if attn_mask is None:
+            attn_mask = rel_pos_mask
+        else:
+            if attn_mask.ndim == 2:
+                attn_mask = attn_mask.unsqueeze(0)
+            attn_mask = attn_mask + rel_pos_mask
+        return super().forward(query, key, value, attn_mask=attn_mask, **kwargs)
