@@ -83,6 +83,9 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         self.rel_pos_k = rel_pos_k
         self.rel_pos_embedding = nn.Embedding(2 * self.rel_pos_k + 1, self.embed_dim)
 
+        # TODO: test init to 0 to see if loss NaNs or not
+        nn.init.zeros_(self.rel_pos_embedding.weight)
+
     def forward(
         self,
         query: Tensor,
@@ -142,4 +145,5 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
             if attn_mask.ndim == 2:
                 attn_mask = attn_mask.unsqueeze(0)
             attn_mask = attn_mask + rel_pos_mask
+
         return super().forward(query, key, value, attn_mask=attn_mask, **kwargs)
