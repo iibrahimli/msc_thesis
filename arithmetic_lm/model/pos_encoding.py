@@ -128,7 +128,7 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         R = self.rel_pos_embedding(
             rel_pos_indices(query.size(1), self.rel_pos_k).to(query.device)
         )
-        S_rel = torch.einsum("blnd,lkd->blk", query.unsqueeze(2), R)
+        S_rel = torch.einsum("blnd,lkd->blk", query.unsqueeze(-2), R)
         rel_pos_mask = S_rel / (self.embed_dim**0.5)
 
         # TODO: might be wrong, not sure if it's flattened batch first or heads first
