@@ -122,7 +122,9 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         # 2. S_rel = Q_reshaped * R^T
         # 3. add S_rel / sqrt(D) to attn_mask (since attn_mask is added to softmax input term QK^T)
         # 4. call super().forward with the modified attn_mask
-        R = self.rel_pos_embedding(rel_pos_indices(query.size(1), self.rel_pos_k))
+        R = self.rel_pos_embedding(
+            rel_pos_indices(query.size(1), self.rel_pos_k).to(query.device)
+        )
         S_rel = torch.einsum("blnd,lkd->blk", query.unsqueeze(2), R)
         rel_pos_mask = S_rel / (self.embed_dim**0.5)
 
