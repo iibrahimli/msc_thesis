@@ -136,7 +136,6 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         rel_pos_mask = (
             rel_pos_mask.unsqueeze(1)
             .expand(-1, self.num_heads, -1, -1)
-            .transpose(0, 1)
             .reshape(-1, query.size(1), query.size(1))
         )
 
