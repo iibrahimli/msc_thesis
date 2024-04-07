@@ -12,9 +12,11 @@ Aims to aims to reproduce Figure 22 (a) from the [[Lee et al. 2023] Teaching Ari
 
 Aims to aims to reproduce Figure 22 (b) from the [[Lee et al. 2023] Teaching Arithmetic to Small Transformers](https://arxiv.org/abs/2307.03381). Same 3 models as Experiment 1 are trained on 1-7 digit addition and tested on 8 digit addition. The examples are plain formatted (i.e. answers are not reversed). Other details are the same as Experiment 1.
 
+
 ## Experiment 3
 
 Go simpler: train the models on 3x3 digit addition on ~1M samples. No out of distribution test set. Just see if they can perfect adding 3 digit numbers.
+
 
 ## Experiment 4
 
