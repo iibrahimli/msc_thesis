@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import CoordinateEncoding
+from .pos_encoding import CoordinateEncoding, RelativeMultiheadAttention
 
 
 class UniversalNanoGPT(nn.Module):
@@ -16,6 +16,7 @@ class UniversalNanoGPT(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
+        pos_enc: str = "abs",
     ):
         """
         Arguments:
@@ -26,6 +27,7 @@ class UniversalNanoGPT(nn.Module):
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
+            pos_enc: type of positional encoding to use, either "abs" for absolute or "rel" for relative
         """
 
         super().__init__()
@@ -38,10 +40,11 @@ class UniversalNanoGPT(nn.Module):
         self.dropout = dropout
         self.max_steps = max_steps
         self.enc_dec = False
+        self.pos_enc = pos_enc
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)
-        self.pos_encoder = CoordinateEncoding(
+        self.coord_encoder = CoordinateEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
@@ -54,6 +57,18 @@ class UniversalNanoGPT(nn.Module):
             batch_first=True,
             activation="gelu",
         )
+
+        # change all self-attention layers to relative multi-head attention
+        if self.pos_enc == "rel":
+            for layer in self.encoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    rel_pos_k=16,
+                )
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
@@ -94,12 +109,13 @@ class UniversalNanoGPT(nn.Module):
         x = self.embedding(x)
 
         for t in range(self.max_steps):
-            x = self.pos_encoder(x, timestep=t)
+            # TODO: this is needed for timestep info, keep even with relative pos enc
+            x = self.coord_encoder(x, timestep=t)
             x = self.layer(
                 x,
                 is_causal=True,
-                src_mask=nn.Transformer.generate_square_subsequent_mask(
-                    x.size(1), device=x.device
+                src_mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                    x.device
                 ),
             )
 

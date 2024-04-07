@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import PositionalEncoding
+from .pos_encoding import AbsolutePositionalEncoding, RelativeMultiheadAttention
 
 
 class Transformer(nn.Module):
@@ -16,6 +16,7 @@ class Transformer(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
+        pos_enc: str = "abs",
     ):
         """
         Arguments:
@@ -26,6 +27,7 @@ class Transformer(nn.Module):
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
+            pos_enc: type of positional encoding to use, either "abs" for absolute or "rel" for relative
         """
 
         super().__init__()
@@ -38,10 +40,11 @@ class Transformer(nn.Module):
         self.dropout = dropout
         self.n_layers = n_layers
         self.enc_dec = True
+        self.pos_enc = pos_enc
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.pos_encoder = PositionalEncoding(
+        self.pos_encoder = AbsolutePositionalEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
@@ -64,6 +67,28 @@ class Transformer(nn.Module):
 
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=n_layers)
         self.decoder = nn.TransformerDecoder(self.decoder_layer, num_layers=n_layers)
+
+        # change all self-attention layers to relative multi-head attention
+        if self.pos_enc == "rel":
+            for layer in self.encoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    rel_pos_k=16,
+                )
+            for layer in self.decoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    rel_pos_k=16,
+                )
+                # TODO: also change cross attention to relative maybe?
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
@@ -97,7 +122,8 @@ class Transformer(nn.Module):
         self, source: Tensor, src_padding_mask: Tensor = None
     ) -> tuple[Tensor, Tensor]:
         source = self.embedding(source)
-        source = self.pos_encoder(source)
+        if self.pos_enc == "abs":
+            source = self.pos_encoder(source)
         memory = self.encoder(source, src_key_padding_mask=src_padding_mask)
         return memory
 
@@ -109,14 +135,15 @@ class Transformer(nn.Module):
         memory_padding_mask: Tensor = None,
     ) -> Tensor:
         target = self.embedding(target)
-        target = self.pos_encoder(target)
+        if self.pos_enc == "abs":
+            target = self.pos_encoder(target)
         target = self.decoder(
             target,
             memory,
-            tgt_mask=nn.Transformer.generate_square_subsequent_mask(
-                target.size(1), device=target.device
+            tgt_mask=nn.Transformer.generate_square_subsequent_mask(target.size(1)).to(
+                target.device
             ),
-            tgt_is_causal=True,
+            tgt_is_causal=True,  # TODO set to false if cross attention is also relative?
             tgt_key_padding_mask=tgt_padding_mask,
             memory_key_padding_mask=memory_padding_mask,
         )

@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .utils import PositionalEncoding
+from .pos_encoding import AbsolutePositionalEncoding, RelativeMultiheadAttention
 
 
 class NanoGPT(nn.Module):
@@ -16,6 +16,7 @@ class NanoGPT(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
+        pos_enc: str = "abs",
     ):
         """
         Arguments:
@@ -26,6 +27,7 @@ class NanoGPT(nn.Module):
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
+            pos_enc: type of positional encoding to use, either "abs" for absolute or "rel" for relative
         """
 
         super().__init__()
@@ -37,10 +39,11 @@ class NanoGPT(nn.Module):
         self.ff_factor = ff_factor
         self.dropout = dropout
         self.enc_dec = False
+        self.pos_enc = pos_enc
 
         # embedding
         self.embedding = nn.Embedding(vocab_size, n_embd)
-        self.pos_encoder = PositionalEncoding(
+        self.pos_encoder = AbsolutePositionalEncoding(
             n_embd, max_len=context_len, dropout=dropout
         )
 
@@ -58,6 +61,18 @@ class NanoGPT(nn.Module):
             num_layers=n_layers,
             norm=nn.LayerNorm(n_embd),
         )
+
+        # change all self-attention layers to relative multi-head attention
+        if self.pos_enc == "rel":
+            for layer in self.transformer_encoder.layers:
+                layer.self_attn = RelativeMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    rel_pos_k=16,
+                )
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
@@ -96,14 +111,14 @@ class NanoGPT(nn.Module):
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
         x = self.embedding(x)
-        x = self.pos_encoder(x)
+        if self.pos_enc == "abs":
+            x = self.pos_encoder(x)
 
         x = self.transformer_encoder(
             x,
-            is_causal=True,
-            mask=nn.Transformer.generate_square_subsequent_mask(
-                x.size(1), device=x.device
-            ),
+            mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                x.device
+            ),  # use to instead of passing device= due to bug that returns NaNs on MPS
         )
         x = self.lm_head(x)
         return x

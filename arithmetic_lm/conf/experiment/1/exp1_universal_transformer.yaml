@@ -17,7 +17,7 @@ data:
 
 training:
   batch_size: 512
-  devices: [6]
+  devices: [0]
 
 model:
   args:

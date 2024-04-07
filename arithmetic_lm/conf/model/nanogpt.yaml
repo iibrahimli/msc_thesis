@@ -5,3 +5,4 @@ args:
   n_head: 6
   n_layers: 6
   dropout: 0.1
+  pos_enc: "abs"
