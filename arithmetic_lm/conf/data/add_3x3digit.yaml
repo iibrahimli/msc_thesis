@@ -1,0 +1,7 @@
+format:
+  pad: $
+  reverse_ans: ???
+  encdec: ???
+train: data/addition/train_add_3x3digit_800k.txt
+test:
+  data/addition/test_add_3x3digit_200k.txt
