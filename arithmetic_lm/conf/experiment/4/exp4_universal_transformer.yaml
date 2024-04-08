@@ -1,0 +1,29 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_7x7digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: universal_transformer
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: true
+    encdec: true
+
+training:
+  batch_size: 224
+  limit_test_examples: 1000 # since test set is large
+  devices: [0]
+
+model:
+  args:
+    max_steps: 7
+
+wandb:
+  project: "addition-7x7-digit"
+  run_name: "universal_transformer_7_steps"
