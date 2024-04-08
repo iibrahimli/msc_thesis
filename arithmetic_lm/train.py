@@ -153,7 +153,9 @@ def main(cfg: omegaconf.DictConfig):
     # TODO: add support for multiple train files
     train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
     test_data_dict = {
-        n: ArithmeticExampleDataset(txtfile=f, **ds_args)
+        n: ArithmeticExampleDataset(
+            txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_args
+        )
         for n, f in cfg.data.test.items()
     }
     # add a random subset of train dataset as test dataset to eval on it as well
@@ -176,7 +178,16 @@ def main(cfg: omegaconf.DictConfig):
         tokenizer=tokenizer,
         train_dataset=train_dataset,
         test_data_dict=test_data_dict,
-        **cfg.training,
+        batch_size=cfg.training.batch_size,
+        lr=cfg.training.batch_size,
+        weight_decay=cfg.training.batch_size,
+        warmup_iters=cfg.training.batch_size,
+        max_iters=cfg.training.batch_size,
+        num_dl_workers=cfg.training.batch_size,
+        val_ratio=cfg.training.batch_size,
+        val_interval=cfg.training.batch_size,
+        limit_val_batches=cfg.training.batch_size,
+        devices=cfg.training.batch_size,
         wandb_enabled=cfg.wandb.enabled,
         wandb_project=cfg.wandb.project,
         wandb_entity=cfg.wandb.entity,

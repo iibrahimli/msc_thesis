@@ -40,12 +40,15 @@ class ArithmeticLMDataset(Dataset):
         seq_len: int,
         pad: str,
         reverse_ans: bool,
+        limit_examples: int | None = None,
         **kwargs,
     ):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         with open(txtfile, "r") as f:
             lines = f.readlines()
+        if limit_examples is not None:
+            lines = lines[:limit_examples]
         lines = _format_lines(
             format_line,
             lines,
@@ -83,6 +86,7 @@ class ArithmeticExampleDataset(Dataset):
         pad: str,
         reverse_ans: bool,
         equal_in_prompt: bool = True,
+        limit_examples: int | None = None,
     ):
         """
         Args:
@@ -92,11 +96,14 @@ class ArithmeticExampleDataset(Dataset):
             pad: padding token
             reverse_ans: whether to reverse the answer
             equal_in_prompt: whether to include the `=` in the prompt or answer
+            limit_examples: limit the number of examples (lines) to load
         """
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         with open(txtfile, "r") as f:
             lines = f.readlines()
+        if limit_examples is not None:
+            lines = lines[:limit_examples]
         self.n_examples = len(lines)
         lines = _format_lines(
             format_line,
