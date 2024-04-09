@@ -16,7 +16,7 @@ data:
     encdec: true
 
 training:
-  batch_size: 224
+  batch_size: 448
   limit_test_examples: 1000 # since test set is large
   devices: [0]
 
