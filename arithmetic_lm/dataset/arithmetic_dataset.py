@@ -40,6 +40,7 @@ class ArithmeticLMDataset(Dataset):
         seq_len: int,
         pad: str,
         reverse_ans: bool,
+        pad_ans_zero: int | None = None,
         limit_examples: int | None = None,
         **kwargs,
     ):
@@ -54,6 +55,7 @@ class ArithmeticLMDataset(Dataset):
             lines,
             pad=pad,
             reverse_ans=reverse_ans,
+            pad_ans_zero=pad_ans_zero,
             prepend_newline=False,
         )
         # number of lines, not sequences (a seq contains many examples)
@@ -85,6 +87,7 @@ class ArithmeticExampleDataset(Dataset):
         seq_len: int,
         pad: str,
         reverse_ans: bool,
+        pad_ans_zero: int | None = None,
         equal_in_prompt: bool = True,
         limit_examples: int | None = None,
     ):
@@ -110,6 +113,7 @@ class ArithmeticExampleDataset(Dataset):
             lines,
             pad=pad,
             reverse_ans=reverse_ans,
+            pad_ans_zero=pad_ans_zero,
             prepend_newline=True,  # prompt with starting \n
         )
         self.prompts = []

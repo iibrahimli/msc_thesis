@@ -148,6 +148,7 @@ def main(cfg: omegaconf.DictConfig):
         "seq_len": cfg.model.args.context_len,
         "pad": cfg.data.format.pad,
         "reverse_ans": cfg.data.format.reverse_ans,
+        "pad_ans_zero": cfg.data.format.pad_ans_zero,
         "equal_in_prompt": not cfg.data.format.encdec,
     }
     # TODO: add support for multiple train files
