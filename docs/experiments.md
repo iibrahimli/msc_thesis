@@ -21,3 +21,13 @@ Go simpler: train the models on 3x3 digit addition on ~1M samples. No out of dis
 ## Experiment 4
 
 As Experiment 3, but with 7x7 digit addition.
+
+
+## Experiment 5
+
+Same as experiment 3, except the answers are padded with a leading `0`, so that all answers are 4 digits long (still reversed).
+
+
+## Experiment 6
+
+As Experiment 5, but with 7x7 digit addition.

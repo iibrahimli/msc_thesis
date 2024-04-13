@@ -1,5 +1,6 @@
 format:
   pad: $
+  pad_ans_zero: null
   reverse_ans: ???
   encdec: ???
 train: data/addition/train_add_1-3digit.txt
