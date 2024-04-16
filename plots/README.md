@@ -19,3 +19,7 @@
 ### Trained with 3 recurrent steps
 
 ![3 recurrent steps](exp2_ut_1-7digits_3steps.png)
+
+## Experiment 6: NanoGPT on 7x7 digit addition
+
+![nanogpt digit loss](exp_6_7x7_addition_nanogpt_digit_learning.png)
