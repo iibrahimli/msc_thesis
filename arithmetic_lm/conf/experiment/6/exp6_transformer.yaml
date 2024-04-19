@@ -12,7 +12,7 @@ defaults:
 data:
   format:
     pad: $
-    reverse_ans: true
+    reverse_ans: false
     pad_ans_zero: 8
     encdec: true
 
