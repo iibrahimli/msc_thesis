@@ -49,3 +49,5 @@ Note that the key and value are separated by an `=` sign, and no spaces are used
 > ```bash
 > python -m arithmetic_lm.train --help
 > ```
+
+For experiment descriptions, see the [experiments doc](docs/experiments.md).

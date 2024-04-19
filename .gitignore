@@ -26,6 +26,9 @@ outputs/
 # setup script
 /scripts/wtm_setup_env.sh
 
+# wandb artifacts
+artifacts/
+
 # ======================
 
 # Byte-compiled / optimized / DLL files

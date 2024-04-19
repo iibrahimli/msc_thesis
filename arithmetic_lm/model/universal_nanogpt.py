@@ -60,15 +60,14 @@ class UniversalNanoGPT(nn.Module):
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
-            for layer in self.encoder.layers:
-                layer.self_attn = RelativeMultiheadAttention(
-                    n_embd,
-                    n_head,
-                    dropout=dropout,
-                    bias=True,  # is true by default
-                    batch_first=True,
-                    rel_pos_k=16,
-                )
+            self.layer.self_attn = RelativeMultiheadAttention(
+                n_embd,
+                n_head,
+                dropout=dropout,
+                bias=True,  # is true by default
+                batch_first=True,
+                rel_pos_k=16,
+            )
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)

@@ -1,0 +1,29 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_3x3digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: transformer
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: true
+    encdec: true
+
+training:
+  batch_size: 512
+  limit_test_examples: 1000 # since test set is large
+  devices: [0]
+
+model:
+  args:
+    n_layers: 3
+
+wandb:
+  project: "addition-3x3-digit"
+  run_name: "transformer"

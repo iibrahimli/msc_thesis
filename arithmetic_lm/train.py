@@ -148,12 +148,15 @@ def main(cfg: omegaconf.DictConfig):
         "seq_len": cfg.model.args.context_len,
         "pad": cfg.data.format.pad,
         "reverse_ans": cfg.data.format.reverse_ans,
+        "pad_ans_zero": cfg.data.format.pad_ans_zero,
         "equal_in_prompt": not cfg.data.format.encdec,
     }
     # TODO: add support for multiple train files
     train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
     test_data_dict = {
-        n: ArithmeticExampleDataset(txtfile=f, **ds_args)
+        n: ArithmeticExampleDataset(
+            txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_args
+        )
         for n, f in cfg.data.test.items()
     }
     # add a random subset of train dataset as test dataset to eval on it as well
@@ -176,7 +179,16 @@ def main(cfg: omegaconf.DictConfig):
         tokenizer=tokenizer,
         train_dataset=train_dataset,
         test_data_dict=test_data_dict,
-        **cfg.training,
+        batch_size=cfg.training.batch_size,
+        lr=cfg.training.lr,
+        weight_decay=cfg.training.weight_decay,
+        warmup_iters=cfg.training.warmup_iters,
+        max_iters=cfg.training.max_iters,
+        num_dl_workers=cfg.training.num_dl_workers,
+        val_ratio=cfg.training.val_ratio,
+        val_interval=cfg.training.val_interval,
+        limit_val_batches=cfg.training.limit_val_batches,
+        devices=cfg.training.devices,
         wandb_enabled=cfg.wandb.enabled,
         wandb_project=cfg.wandb.project,
         wandb_entity=cfg.wandb.entity,

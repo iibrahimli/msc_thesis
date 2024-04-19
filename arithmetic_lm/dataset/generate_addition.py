@@ -280,9 +280,63 @@ def generate_experiment_2(out_dir: str | Path):
         )
 
 
+def generate_experiment_3(out_dir: str | Path):
+    """
+    Experiment 3: 800k examples of 3x3 digit addition problems for training,
+    200k examples of 3x3 digit addition problems for testing (no overlap)
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Generating data for Experiment 3 to {out_dir}")
+
+    # 1. generate train dataset
+    train_path = out_dir / "train_add_3x3digit_800k.txt"
+    logger.info(f"Generating {train_path}")
+    generate_only_digit(train_path, num_digits=3, num_examples=800_000)
+
+    # 2. generate test dataset
+    test_path = out_dir / "test_add_3x3digit_200k.txt"
+    logger.info(f"Generating {test_path}")
+    generate_only_digit(
+        test_path,
+        num_digits=3,
+        num_examples=200_000,
+        exclude=get_set_from_file(train_path),
+    )
+
+
+def generate_experiment_4(out_dir: str | Path):
+    """
+    Experiment 4: Like Experiment 3, but with 7x7 digit addition problems,
+    800k examples for training and 200k examples for testing (no overlap)
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Generating data for Experiment 4 to {out_dir}")
+
+    # 1. generate train dataset
+    train_path = out_dir / "train_add_7x7digit_800k.txt"
+    logger.info(f"Generating {train_path}")
+    generate_only_digit(train_path, num_digits=7, num_examples=800_000)
+
+    # 2. generate test dataset
+    test_path = out_dir / "test_add_7x7digit_200k.txt"
+    logger.info(f"Generating {test_path}")
+    generate_only_digit(
+        test_path,
+        num_digits=7,
+        num_examples=200_000,
+        exclude=get_set_from_file(train_path),
+    )
+
+
 def main():
     generate_experiment_1(DATA_DIR / "addition")
     generate_experiment_2(DATA_DIR / "addition")
+    generate_experiment_3(DATA_DIR / "addition")
+    generate_experiment_4(DATA_DIR / "addition")
 
 
 if __name__ == "__main__":
