@@ -26,6 +26,8 @@ training:
 model:
   args:
     n_layers: 3
+    n_embd: 192
+    n_head: 3
 
 wandb:
   project: "addition-7x7-digit-pad-ans-zero"
