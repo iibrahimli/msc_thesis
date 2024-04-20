@@ -5,8 +5,8 @@ import random
 
 import lightning as L
 import torch
-import wandb
 
+import wandb
 from arithmetic_lm.eval_utils import eval_sample
 
 
@@ -39,7 +39,7 @@ def lr_cosine_annealing_with_warmup(
 class SampleCallback(L.Callback):
     """Sample from the model and log to wandb"""
 
-    def __init__(self, n_samples: int = 5, **gen_kwargs):
+    def __init__(self, n_samples: int = 10, **gen_kwargs):
         super().__init__()
         self.n_samples = n_samples
         self.gen_kwargs = gen_kwargs

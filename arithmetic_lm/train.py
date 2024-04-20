@@ -108,7 +108,7 @@ def train(
         callbacks.extend(
             [
                 SampleCallback(
-                    n_samples=3,
+                    n_samples=10,
                     temperature=gen_temp,
                     top_k=gen_top_k,
                     stop_token=tokenizer.encode("\n")[0],
