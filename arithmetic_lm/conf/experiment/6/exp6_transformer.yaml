@@ -25,10 +25,10 @@ training:
 
 model:
   args:
-    n_layers: 3
-    n_embd: 192
-    n_head: 3
+    n_layers: 1
+    n_embd: 96
+    n_head: 1
 
 wandb:
   project: "addition-7x7-digit-pad-ans-zero"
-  run_name: "transformer"
+  run_name: transformer_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
