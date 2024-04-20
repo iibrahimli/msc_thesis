@@ -12,6 +12,7 @@
 
 # Hydra
 outputs/
+multirun/
 
 # Logbook (publish later)
 /logbook/
