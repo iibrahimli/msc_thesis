@@ -10,6 +10,7 @@ import lightning as L
 import omegaconf
 import torch
 
+import wandb
 from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
     ArithmeticExampleDataset,
@@ -89,6 +90,10 @@ def train(
 
     loggers = []
     if wandb_enabled:
+
+        # finish previous run if exists (e.g. hydra multirun)
+        wandb.finish()
+
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
             name=run_name,
