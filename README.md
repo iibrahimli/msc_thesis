@@ -50,4 +50,12 @@ Note that the key and value are separated by an `=` sign, and no spaces are used
 > python -m arithmetic_lm.train --help
 > ```
 
+Multiple experiments can be run using Hydra's [multirun](https://hydra.cc/docs/tutorials/basic/running_your_app/multi-run) feature. E.g.
+
+```bash
+python -m arithmetic_lm.train -m +experiment=6/exp6_ut,6/exp6_transformer model.args.n_head=1,2,3 model.args.n_embd=96
+```
+
+will launch 6 experiments (serially by default) with all combinations.
+
 For experiment descriptions, see the [experiments doc](docs/experiments.md).
