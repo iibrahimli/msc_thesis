@@ -31,3 +31,7 @@ Same as experiment 3, except the answers are padded with a leading `0`, so that 
 ## Experiment 6
 
 As Experiment 5, but with 7x7 digit addition.
+
+## Experiment 7
+
+Like Experiment 2, but with operands zero-padded to 8 digits, answers padded to 9 digits, and not reversing the answers for enc-dec models.

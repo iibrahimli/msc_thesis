@@ -1,0 +1,35 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_1-7digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: nanogpt
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: true
+    pad_ops_zero: 8
+    pad_ans_zero: 9
+    encdec: false
+
+training:
+  batch_size: 224
+  lr: 0.001
+  max_iters: 10000
+  limit_test_examples: 1000 # since test set is large
+  devices: [0]
+
+model:
+  args:
+    n_layers: 1
+    n_embd: 96
+    n_head: 1
+
+wandb:
+  project: "addition-1-7-digit-pad-ans-zero"
+  run_name: nanogpt_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
