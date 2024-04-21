@@ -73,7 +73,12 @@ def train(
         warmup_iters=warmup_iters,
     )
 
-    run_dir = CHECKPOINTS_DIR / run_name
+    # run dir wandb_project / run_name or just run_name if no project
+    run_dir = (
+        CHECKPOINTS_DIR / wandb_project / run_name
+        if wandb_project
+        else CHECKPOINTS_DIR / run_name
+    )
     run_dir.mkdir(exist_ok=True, parents=True)
 
     checkpoint_callback = L.pytorch.callbacks.ModelCheckpoint(
