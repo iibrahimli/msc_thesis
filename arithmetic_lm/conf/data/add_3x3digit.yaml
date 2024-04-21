@@ -1,5 +1,6 @@
 format:
   pad: $
+  pad_ops_zero: null
   pad_ans_zero: null
   reverse_ans: ???
   encdec: ???
