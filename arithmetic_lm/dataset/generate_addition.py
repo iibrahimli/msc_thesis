@@ -6,8 +6,6 @@ import math
 import random
 from pathlib import Path
 
-from loguru import logger
-
 from .. import formatting
 from ..constants import DATA_DIR
 from ..utils import set_seed
@@ -61,7 +59,7 @@ def generate_balanced(
             ), f"Can't generate more than {n_possible_examples(i)} examples for {i} digit (requested {n})"
 
     num_total_examples = sum(num_examples.values())
-    logger.info(
+    print(
         f"Number of examples for each digit: {num_examples} (total: {num_total_examples})"
     )
     num_digits = len(num_examples)
@@ -70,13 +68,13 @@ def generate_balanced(
     target_num_carry_examples = math.ceil(num_total_examples / (num_digits + 1))
     num_carry_list = [0 for _ in range(num_digits + 1)]
 
-    logger.info(f"Target number of carry examples: {target_num_carry_examples}")
+    print(f"Target number of carry examples: {target_num_carry_examples}")
 
     with open(filepath, "w") as f:
 
         for num_digit, num_digit_examples in num_examples.items():
             if num_digit == 1 or num_digit_examples == n_possible_examples(num_digit):
-                logger.info(
+                print(
                     f"Generating all possible {num_digit} digit examples ({num_digit_examples})"
                 )
                 # generate all examples
@@ -90,7 +88,7 @@ def generate_balanced(
                         num_carry_list[num_carry] += 1
                 continue
 
-            logger.info(f"Using random sampling for {num_digit} digit examples")
+            print(f"Using random sampling for {num_digit} digit examples")
 
             num_current_digit_examples = 0
             generated_examples = set()
@@ -117,7 +115,7 @@ def generate_balanced(
                 else:
                     continue
 
-    logger.info(f"Number of carries for each digit: {num_carry_list}")
+    print(f"Number of carries for each digit: {num_carry_list}")
 
 
 # for N digit tasks
@@ -200,12 +198,12 @@ def generate_experiment_1(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Generating data for Experiment 1 to {out_dir}")
+    print(f"Generating data for Experiment 1 to {out_dir}")
 
     # 1. generate balanced dataset
     bal_path = out_dir / "add_1-2-3digit_10k_bal.txt"
     n_bal_examples = 10_000
-    logger.info(f"Generating {bal_path}")
+    print(f"Generating {bal_path}")
     generate_balanced(
         filepath=bal_path,
         num_examples={
@@ -221,7 +219,7 @@ def generate_experiment_1(out_dir: str | Path):
         return len(a.strip()) != 2 and len(b.strip()) != 2
 
     # 2. remove 2 digit examples
-    logger.info("Removing 2 digit examples")
+    print("Removing 2 digit examples")
     with open(bal_path, "r") as f:
         lines = f.readlines()
     lines = list(filter(_does_not_feature_2_digit_operand, lines))
@@ -232,7 +230,7 @@ def generate_experiment_1(out_dir: str | Path):
     n_test_examples = 100
     for n_digits in (1, 2, 3, 4):
         digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
-        logger.info(f"Generating {digit_path}")
+        print(f"Generating {digit_path}")
         generate_only_digit(digit_path, num_digits=n_digits, num_examples=100)
 
 
@@ -248,11 +246,11 @@ def generate_experiment_2(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     assert out_dir.exists(), "Expected experiment 1 data to already exist"
-    logger.info(f"Generating data for Experiment 2 to {out_dir}")
+    print(f"Generating data for Experiment 2 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_1-7digit.txt"
-    logger.info(f"Generating {train_path}")
+    print(f"Generating {train_path}")
     generate_balanced(
         filepath=train_path,
         num_examples={
@@ -270,7 +268,7 @@ def generate_experiment_2(out_dir: str | Path):
     n_test_examples = 100
     for n_digits in (5, 6, 7, 8):
         digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
-        logger.info(f"Generating {digit_path}")
+        print(f"Generating {digit_path}")
         generate_only_digit(
             digit_path,
             num_digits=n_digits,
@@ -288,16 +286,16 @@ def generate_experiment_3(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Generating data for Experiment 3 to {out_dir}")
+    print(f"Generating data for Experiment 3 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_3x3digit_800k.txt"
-    logger.info(f"Generating {train_path}")
+    print(f"Generating {train_path}")
     generate_only_digit(train_path, num_digits=3, num_examples=800_000)
 
     # 2. generate test dataset
     test_path = out_dir / "test_add_3x3digit_200k.txt"
-    logger.info(f"Generating {test_path}")
+    print(f"Generating {test_path}")
     generate_only_digit(
         test_path,
         num_digits=3,
@@ -314,16 +312,16 @@ def generate_experiment_4(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Generating data for Experiment 4 to {out_dir}")
+    print(f"Generating data for Experiment 4 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_7x7digit_800k.txt"
-    logger.info(f"Generating {train_path}")
+    print(f"Generating {train_path}")
     generate_only_digit(train_path, num_digits=7, num_examples=800_000)
 
     # 2. generate test dataset
     test_path = out_dir / "test_add_7x7digit_200k.txt"
-    logger.info(f"Generating {test_path}")
+    print(f"Generating {test_path}")
     generate_only_digit(
         test_path,
         num_digits=7,
