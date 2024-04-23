@@ -2,6 +2,7 @@ import torch
 from torch import Tensor, nn
 
 from .pos_encoding import CoordinateEncoding, RelativeMultiheadAttention
+from .utils import init_weights
 
 
 class UniversalTransformer(nn.Module):
@@ -94,15 +95,7 @@ class UniversalTransformer(nn.Module):
         self.lm_head.weight = self.embedding.weight
 
         # init all weights
-        self.apply(self._init_weights)
-
-    def _init_weights(self, module: nn.Module):
-        if isinstance(module, nn.Linear):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
-            if module.bias is not None:
-                torch.nn.init.zeros_(module.bias)
-        elif isinstance(module, nn.Embedding):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+        self.apply(init_weights)
 
     def encode(
         self,
