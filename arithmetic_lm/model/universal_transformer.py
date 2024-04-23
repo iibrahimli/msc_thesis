@@ -95,7 +95,7 @@ class UniversalTransformer(nn.Module):
         self.lm_head.weight = self.embedding.weight
 
         # init all weights
-        self.apply(init_weights)
+        # self.apply(init_weights)
 
     def encode(
         self,
