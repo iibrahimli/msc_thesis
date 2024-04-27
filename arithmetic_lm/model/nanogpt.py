@@ -81,8 +81,8 @@ class NanoGPT(nn.Module):
         # weight tying
         self.lm_head.weight = self.embedding.weight
 
-        # init all weights
-        self.apply(init_weights)
+        # TODO init all weights
+        # self.apply(init_weights)
 
     def forward(self, x: Tensor) -> Tensor:
         """
