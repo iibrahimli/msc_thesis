@@ -7,7 +7,9 @@ import lightning as L
 import torch
 
 import wandb
+from arithmetic_lm.dataset.generate_addition import num_carry_ops
 from arithmetic_lm.eval_utils import eval_sample
+from arithmetic_lm.formatting import split_operands_and_op
 
 
 def lr_cosine_annealing_with_warmup(
@@ -52,7 +54,7 @@ class SampleCallback(L.Callback):
         prompts: list[torch.Tensor],
         answers: list[torch.Tensor],
     ):
-        cols = ["dataset", "prompt", "answer", "pred_answer", "correct"]
+        cols = ["dataset", "num_carries", "prompt", "answer", "pred_answer", "correct"]
         rows = []
 
         for dset, prompt, ans in zip(dsets, prompts, answers):
@@ -64,9 +66,16 @@ class SampleCallback(L.Callback):
             pred_ans_str = repr(pl_module.tokenizer.decode(pred_ans.squeeze().tolist()))
             ans_str = repr(pl_module.tokenizer.decode(ans.squeeze().tolist()))
 
+            a, op, b = split_operands_and_op(prompt_str)
+            assert (
+                op.strip() == "+"
+            ), f"Computing carries only supported for + for now, got op='{op}'"
+            num_carries = num_carry_ops(int(a), int(b))
+
             rows.append(
                 [
                     dset,
+                    num_carries,
                     prompt_str,
                     ans_str,
                     pred_ans_str,

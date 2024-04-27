@@ -7,6 +7,12 @@ import re
 PLAIN_FORMAT_STR = "{a}{op}{b}={ans}\n"
 
 
+def split_operands_and_op(prompt: str) -> tuple[str, str, str]:
+    a, b = re.findall(r"\d+", prompt)
+    op = re.sub(r"\d+", "", prompt)
+    return a, op, b
+
+
 def format_line(
     line: str,
     pad: str = None,
@@ -27,8 +33,7 @@ def format_line(
 
     if pad_ops_zero:
         # split by non-digit char and pad operands with zeros
-        a, b = re.findall(r"\d+", ab)
-        op = re.sub(r"\d+", "", ab)
+        a, op, b = split_operands_and_op(ab)
         a = a.zfill(pad_ops_zero)
         b = b.zfill(pad_ops_zero)
         ab = f"{a}{op}{b}"
