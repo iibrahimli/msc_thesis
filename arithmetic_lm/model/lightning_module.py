@@ -19,6 +19,7 @@ class LightningModel(L.LightningModule):
         betas: tuple[float, float] = (0.9, 0.99),
         weight_decay: float = 0.1,
         warmup_iters: int = 100,
+        model_hparams_to_save: dict = None,
     ):
         super().__init__()
         self.model = model
@@ -30,8 +31,8 @@ class LightningModel(L.LightningModule):
         self.test_dataloader_names = test_dataloader_names
         # whether is encoder-decoder model
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
-        self.save_hyperparameters(
-            ignore=[
+        hparams_args = {
+            "ignore": [
                 "model",
                 "lr",
                 "betas",
@@ -41,7 +42,10 @@ class LightningModel(L.LightningModule):
                 "test_dataloader",
                 "enc_dec",
             ]
-        )
+        }
+        if model_hparams_to_save is not None:
+            hparams_args["args"] = model_hparams_to_save
+        self.save_hyperparameters(**hparams_args)
 
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
         if isinstance(x, Tensor):
