@@ -97,8 +97,7 @@ class Transformer(nn.Module):
         # weight tying
         self.lm_head.weight = self.embedding.weight
 
-        # TODO init all weights
-        # self.apply(init_weights)
+        self.apply(init_weights)
 
     def encode(
         self, source: Tensor, src_padding_mask: Tensor = None
