@@ -69,7 +69,7 @@ class SampleCallback(L.Callback):
             a, op, b = split_operands_and_op(prompt_str)
             assert (
                 op.strip() == "+"
-            ), f"Computing carries only supported for + for now, got op='{op}'"
+            ), f"Computing carries only supported for + for now, got op={op}"
             num_carries = num_carry_ops(int(a), int(b))
 
             rows.append(
