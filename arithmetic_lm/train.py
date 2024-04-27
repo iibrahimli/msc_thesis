@@ -82,7 +82,7 @@ def train(
     run_dir.mkdir(exist_ok=True, parents=True)
 
     checkpoint_callback = L.pytorch.callbacks.ModelCheckpoint(
-        monitor="val_loss",
+        monitor="train_loss",
         save_top_k=1,
         mode="min",
         dirpath=run_dir,
