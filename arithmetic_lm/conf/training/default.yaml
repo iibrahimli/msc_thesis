@@ -5,7 +5,7 @@ warmup_iters: 100
 max_iters: 10000
 num_dl_workers: 4
 val_ratio: 0.1
-val_interval: 250
+val_interval: 500
 limit_val_batches: null
 limit_test_examples: null
 devices: null
