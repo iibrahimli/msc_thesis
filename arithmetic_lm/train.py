@@ -71,6 +71,7 @@ def train(
         lr=lr,
         weight_decay=weight_decay,
         warmup_iters=warmup_iters,
+        model_hparams=cfg.model.args,
     )
 
     # run dir wandb_project / run_name or just run_name if no project
