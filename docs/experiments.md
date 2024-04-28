@@ -35,3 +35,7 @@ As Experiment 5, but with 7x7 digit addition.
 ## Experiment 7
 
 Like Experiment 2, but with operands zero-padded to 8 digits, answers padded to 9 digits, and not reversing the answers for enc-dec models.
+
+## Experiment 8
+
+Training set: 1-9 digit addition EXCEPT 8 digit addition. Test on 1-10 digit addition. Padding operands to 10 digits, answers to 11 digits, and not reversing the answers for enc-dec models.

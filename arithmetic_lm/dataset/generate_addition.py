@@ -43,6 +43,7 @@ def n_possible_examples(num_digits: int) -> int:
 def generate_balanced(
     filepath: str | Path,
     num_examples: dict[int, int],  # digit -> num_examples
+    exclude: set[str] = None,
     seed: int = 42,
 ) -> None:
     """Generate addition problems with balanced number of digits (<= num_digits) and carries"""
@@ -58,21 +59,14 @@ def generate_balanced(
                 i
             ), f"Can't generate more than {n_possible_examples(i)} examples for {i} digit (requested {n})"
 
-    num_total_examples = sum(num_examples.values())
-    print(
-        f"Number of examples for each digit: {num_examples} (total: {num_total_examples})"
-    )
-    num_digits = len(num_examples)
-
-    # we target each number of carries (0...N) to have the same number of examples
-    target_num_carry_examples = math.ceil(num_total_examples / (num_digits + 1))
-    num_carry_list = [0 for _ in range(num_digits + 1)]
-
-    print(f"Target number of carry examples: {target_num_carry_examples}")
+    # for each digit, we target each number of carries (0...N) to have the same number of examples
+    num_carries = {i: [0] * (i + 1) for i in num_examples}
+    num_target_carries = {i: math.ceil(n / (i + 1)) for i, n in num_examples.items()}
 
     with open(filepath, "w") as f:
 
         for num_digit, num_digit_examples in num_examples.items():
+
             if num_digit == 1 or num_digit_examples == n_possible_examples(num_digit):
                 print(
                     f"Generating all possible {num_digit} digit examples ({num_digit_examples})"
@@ -83,9 +77,13 @@ def generate_balanced(
                 for a in range(min_val, max_val + 1):
                     for b in range(min_val, max_val + 1):
                         ans = str(a + b)
-                        f.write(FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans))
+                        example_str = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
+                        if exclude and example_str in exclude:
+                            continue
+                        f.write(example_str)
+                        # increment the number of examples for this carry
                         num_carry = num_carry_ops(a, b)
-                        num_carry_list[num_carry] += 1
+                        num_carries[num_digit][num_carry] += 1
                 continue
 
             print(f"Using random sampling for {num_digit} digit examples")
@@ -100,8 +98,13 @@ def generate_balanced(
 
                 # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
-                if num_carry_list[num_carry] < target_num_carry_examples:
+
+                if num_carries[num_digit][num_carry] < num_target_carries[num_digit]:
                     example_str = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
+
+                    if exclude and example_str in exclude:
+                        continue
+
                     if example_str in generated_examples:
                         continue
                     generated_examples.add(example_str)
@@ -109,13 +112,16 @@ def generate_balanced(
                     # write the example to file
                     f.write(example_str)
 
-                    # increment num_carry_list[num_carry]
-                    num_carry_list[num_carry] += 1
+                    # increment the number of examples for this carry
+                    num_carries[num_digit][num_carry] += 1
                     num_current_digit_examples += 1
                 else:
                     continue
 
-    print(f"Number of carries for each digit: {num_carry_list}")
+    carry_summary = {
+        i: f"{num_carries[i]} target={num_target_carries[i]}" for i in num_examples
+    }
+    print(f"Number of carries for each digit / target: {carry_summary}")
 
 
 # for N digit tasks
@@ -330,11 +336,48 @@ def generate_experiment_4(out_dir: str | Path):
     )
 
 
+def generate_experiment_8(out_dir: str | Path):
+    """
+    Experiment 8: ~1M examples of 1 to 9 digit addition problems for training
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Generating data for Experiment 4 to {out_dir}")
+
+    # 1. generate train dataset
+    train_path = out_dir / "train_add_1-9digit_except8_1M.txt"
+    print(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples={
+            1: 100,
+            2: 9901,  # exactly all possible 2 digit examples
+        }
+        | {i: 100_000 for i in [3, 4, 5, 6, 7, 9]},  # NOTE no 8 digit examples
+    )
+
+    # 2. generate test datasets
+    # 1-7 already generated in Experiment 2, 8-9 to be generated here
+    n_test_examples = 100
+    for n_digits in (8, 9, 10):
+        digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
+        print(f"Generating {digit_path}")
+        generate_only_digit(
+            digit_path,
+            num_digits=n_digits,
+            num_examples=100,
+            exclude=get_set_from_file(train_path),
+            seed=n_digits,  # different seed to avoid overlap
+        )
+
+
 def main():
     generate_experiment_1(DATA_DIR / "addition")
     generate_experiment_2(DATA_DIR / "addition")
     generate_experiment_3(DATA_DIR / "addition")
     generate_experiment_4(DATA_DIR / "addition")
+    generate_experiment_8(DATA_DIR / "addition")
 
 
 if __name__ == "__main__":
