@@ -36,6 +36,7 @@ class LightningModel(L.LightningModule):
         # save model class and hparams for instantiation as well
         self.model_class = model.__class__.__name__
         self.model_hparams = model_hparams
+        self.model_hparams["vocab_size"] = tokenizer.vocab_size
 
         self.save_hyperparameters(
             ignore=[
