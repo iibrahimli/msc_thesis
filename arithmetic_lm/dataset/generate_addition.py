@@ -367,7 +367,9 @@ def generate_experiment_8(out_dir: str | Path):
             digit_path,
             num_digits=n_digits,
             num_examples=100,
-            exclude=excluded,
+            exclude=(
+                excluded if n_digits > 2 else None
+            ),  # not enough samples to exclude in 1-2 digits
             seed=n_digits,  # different seed to avoid overlap
         )
 
