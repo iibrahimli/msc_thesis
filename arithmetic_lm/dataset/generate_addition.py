@@ -358,16 +358,16 @@ def generate_experiment_8(out_dir: str | Path):
     )
 
     # 2. generate test datasets
-    # 1-7 already generated in Experiment 2, 8-9 to be generated here
     n_test_examples = 100
-    for n_digits in (8, 9, 10):
+    excluded = get_set_from_file(train_path)
+    for n_digits in range(1, 11):
         digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
         print(f"Generating {digit_path}")
         generate_only_digit(
             digit_path,
             num_digits=n_digits,
             num_examples=100,
-            exclude=get_set_from_file(train_path),
+            exclude=excluded,
             seed=n_digits,  # different seed to avoid overlap
         )
 
@@ -377,7 +377,7 @@ def main():
     generate_experiment_2(DATA_DIR / "addition")
     generate_experiment_3(DATA_DIR / "addition")
     generate_experiment_4(DATA_DIR / "addition")
-    generate_experiment_8(DATA_DIR / "addition")
+    generate_experiment_8(DATA_DIR / "addition" / "exp_8")
 
 
 if __name__ == "__main__":
