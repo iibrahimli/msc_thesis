@@ -59,7 +59,7 @@ class SampleCallback(L.Callback):
 
         for dset, prompt, ans in zip(dsets, prompts, answers):
             pred_ans = pl_module.generate(
-                prompt, **self.gen_kwargs, max_new_tokens=ans.numel()
+                prompt, **self.gen_kwargs, max_new_tokens=ans.numel() + 1
             )
 
             prompt_str = repr(pl_module.tokenizer.decode(prompt.squeeze().tolist()))
