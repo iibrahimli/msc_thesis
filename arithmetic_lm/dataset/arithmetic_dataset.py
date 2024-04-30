@@ -118,7 +118,7 @@ class ArithmeticExampleDataset(Dataset):
             reverse_ans=reverse_ans,
             pad_ops_zero=pad_ops_zero,
             pad_ans_zero=pad_ans_zero,
-            prepend_newline=True,  # prompt with starting \n
+            prepend_newline=False,
         )
         self.prompts = []
         self.answers = []
