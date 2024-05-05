@@ -42,11 +42,11 @@ def format_line(
     ab = ab.lstrip()
     ans = ans.rstrip()
 
-    if pad_ans_zero:
-        ans = ans.zfill(pad_ans_zero)
-
     if reverse_ans:
         ans = ans[::-1]
+
+    if pad_ans_zero:
+        ans = ans.zfill(pad_ans_zero)
 
     pad = pad if pad else ""
     res = f"{pad}{ab}={ans}{pad}"
