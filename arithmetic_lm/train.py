@@ -122,7 +122,7 @@ def train(
                     n_samples=10,
                     temperature=gen_temp,
                     top_k=gen_top_k,
-                    stop_token=tokenizer.encode("\n")[0],
+                    stop_token=tokenizer.encode("$")[0],
                 ),
                 L.pytorch.callbacks.LearningRateMonitor(),
             ]

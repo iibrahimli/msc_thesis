@@ -20,6 +20,7 @@ def format_line(
     pad_ops_zero: int | None = None,
     pad_ans_zero: int | None = None,
     prepend_newline: bool = False,
+    append_newline: bool = False,
 ) -> str:
     """
     Format line based on args, assumes line has ends with \n,
@@ -48,8 +49,10 @@ def format_line(
         ans = ans[::-1]
 
     pad = pad if pad else ""
-    res = f"{pad}{ab}={ans}{pad}\n"
+    res = f"{pad}{ab}={ans}{pad}"
     if prepend_newline:
         res = "\n" + res
+    if append_newline:
+        res += "\n"
 
     return res
