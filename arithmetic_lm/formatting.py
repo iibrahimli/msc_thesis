@@ -35,19 +35,18 @@ def format_line(
 
     ab, ans = line.split("=")
 
+    if random_zero_padding:
+        assert (
+            pad_ops_zero is not None and pad_ans_zero is not None
+        ), "pad_ops_zero and pad_ans_zero must be provided if random_zero_padding is True"
+        pad_ops_zero = random.randint(1, pad_ops_zero)
+        pad_ans_zero = random.randint(1, pad_ans_zero)
+
     if pad_ops_zero:
         # split by non-digit char and pad operands with zeros
         a, op, b = split_operands_and_op(ab)
-        a = a.zfill(
-            pad_ops_zero
-            if not random_zero_padding
-            else random.randint(len(a), pad_ops_zero)
-        )
-        b = b.zfill(
-            pad_ops_zero
-            if not random_zero_padding
-            else random.randint(len(b), pad_ops_zero)
-        )
+        a = a.zfill(pad_ops_zero)
+        b = b.zfill(pad_ops_zero)
         ab = f"{a}{op}{b}"
 
     ab = ab.lstrip()
