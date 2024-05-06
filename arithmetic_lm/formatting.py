@@ -22,7 +22,7 @@ def format_line(
     pad_ans_zero: int | None = None,
     prepend_newline: bool = False,
     append_newline: bool = False,
-    random_zero_padding: bool = True,
+    random_zero_padding: bool = False,
 ) -> str:
     """
     Format line based on args, assumes line has ends with \n,
