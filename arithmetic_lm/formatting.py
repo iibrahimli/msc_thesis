@@ -20,6 +20,7 @@ def format_line(
     reverse_ans: bool = False,
     pad_ops_zero: int | None = None,
     pad_ans_zero: int | None = None,
+    filler_tokens: int | None = None,
     prepend_newline: bool = False,
     append_newline: bool = False,
     random_zero_padding: bool = False,
@@ -31,6 +32,7 @@ def format_line(
     the number of digits to pad the operands with zeros to, e.g. 43+3 -> 043+003
     if pad_ops_zero=3. If random_zero_padding is True, pad operands and answers
     with a random number of zeros between length of number and pad_*_zero.
+    filler_tokens is the number of filler tokens to prepend before the line.
     """
 
     ab, ans = line.split("=")
@@ -60,6 +62,9 @@ def format_line(
 
     pad = pad if pad else ""
     res = f"{pad}{ab}={ans}{pad}"
+    filler_token = "."
+    if filler_tokens:
+        res = filler_token * filler_tokens + res
     if prepend_newline:
         res = "\n" + res
     if append_newline:

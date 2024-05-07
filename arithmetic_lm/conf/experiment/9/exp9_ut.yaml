@@ -1,0 +1,34 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_1-9digit
+  - override /training: default
+  - override /wandb: default
+  - override /model: universal_transformer
+  - _self_
+
+data:
+  format:
+    pad: $
+    reverse_ans: false
+    encdec: true
+    filler_tokens: 3
+
+training:
+  batch_size: 1024
+  lr: 0.0005
+  max_iters: 20000
+  limit_test_examples: 1000 # since test set is large
+  devices: [0]
+
+model:
+  args:
+    max_steps: 3
+    n_embd: 96
+    n_head: 1
+
+wandb:
+  project: "addition-1-9-digit-filler"
+  run_name: ut_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head

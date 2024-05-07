@@ -4,6 +4,7 @@ format:
   pad_ans_zero: null
   reverse_ans: ???
   encdec: ???
+  filler_tokens: null
 train: data/addition/train_add_7x7digit_800k.txt
 test: 
   7x7digit: data/addition/test_add_7x7digit_200k.txt

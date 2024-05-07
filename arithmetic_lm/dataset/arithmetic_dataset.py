@@ -42,6 +42,7 @@ class ArithmeticLMDataset(Dataset):
         reverse_ans: bool,
         pad_ops_zero: int | None = None,
         pad_ans_zero: int | None = None,
+        filler_tokens: int | None = None,
         limit_examples: int | None = None,
         **kwargs,
     ):
@@ -58,7 +59,7 @@ class ArithmeticLMDataset(Dataset):
             reverse_ans=reverse_ans,
             pad_ops_zero=pad_ops_zero,
             pad_ans_zero=pad_ans_zero,
-            prepend_newline=False,
+            filler_tokens=filler_tokens,
         )
         # number of lines, not sequences (a seq contains many examples)
         self.n_examples = len(lines)
@@ -91,6 +92,7 @@ class ArithmeticExampleDataset(Dataset):
         reverse_ans: bool,
         pad_ops_zero: int | None = None,
         pad_ans_zero: int | None = None,
+        filler_tokens: int | None = None,
         equal_in_prompt: bool = True,
         limit_examples: int | None = None,
     ):
@@ -110,7 +112,6 @@ class ArithmeticExampleDataset(Dataset):
             lines = f.readlines()
         if limit_examples is not None:
             lines = lines[:limit_examples]
-        self.n_examples = len(lines)
         lines = _format_lines(
             format_line,
             lines,
@@ -118,8 +119,9 @@ class ArithmeticExampleDataset(Dataset):
             reverse_ans=reverse_ans,
             pad_ops_zero=pad_ops_zero,
             pad_ans_zero=pad_ans_zero,
-            prepend_newline=False,
+            filler_tokens=filler_tokens,
         )
+        self.n_examples = len(lines)
         self.prompts = []
         self.answers = []
         for line in lines:
