@@ -31,4 +31,4 @@ model:
 
 wandb:
   project: "addition-1-9-digit-filler"
-  run_name: ut_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head
+  run_name: ut_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens}filler
