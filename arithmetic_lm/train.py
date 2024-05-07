@@ -72,6 +72,11 @@ def train(
         weight_decay=weight_decay,
         warmup_iters=warmup_iters,
         model_hparams=omegaconf.OmegaConf.to_container(cfg.model.args, resolve=True),
+        extra_hparams={
+            "data_format": omegaconf.OmegaConf.to_container(
+                cfg.data.format, resolve=True
+            )
+        },
     )
 
     # run dir wandb_project / run_name or just run_name if no project

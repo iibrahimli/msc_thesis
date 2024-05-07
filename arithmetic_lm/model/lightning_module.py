@@ -20,6 +20,7 @@ class LightningModel(L.LightningModule):
         weight_decay: float = 0.1,
         warmup_iters: int = 100,
         model_hparams: dict = None,
+        extra_hparams: dict = None,
     ):
         super().__init__()
         self.model = model
@@ -37,6 +38,9 @@ class LightningModel(L.LightningModule):
         self.model_class = model.__class__.__name__
         self.model_hparams = model_hparams
         self.model_hparams["vocab_size"] = tokenizer.vocab_size
+
+        # save extra hparams
+        self.extra_hparams = extra_hparams
 
         self.save_hyperparameters(
             ignore=[
