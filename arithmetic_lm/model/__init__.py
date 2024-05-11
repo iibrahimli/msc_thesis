@@ -7,12 +7,12 @@ from .pos_encoding import (
     RelativeMultiheadAttention,
 )
 from .transformer import Transformer
-from .universal_nanogpt import UniversalNanoGPT
+from .universal_nanogpt import UniversalTransformerDecoder
 from .universal_transformer import UniversalTransformer
 
 MODELS = {
     "NanoGPT": NanoGPT,
     "Transformer": Transformer,
-    "UniversalNanoGPT": UniversalNanoGPT,
+    "UniversalTransformerDecoder": UniversalTransformerDecoder,
     "UniversalTransformer": UniversalTransformer,
 }

@@ -6,7 +6,7 @@ defaults:
   - override /data: add_1-7digit
   - override /training: default
   - override /wandb: default
-  - override /model: universal_nanogpt
+  - override /model: ut_dec
   - _self_
 
 data:
