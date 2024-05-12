@@ -103,8 +103,14 @@ class LightningModel(L.LightningModule):
             else:
                 tgt = y
 
+            print(
+                f"x: {x.shape}, y: {y.shape}, logits: {logits.shape}, tgt: {tgt.shape}"
+            )
+
             loss = nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)), tgt.reshape(-1)
+                logits.view(-1, logits.size(-1)),
+                tgt.reshape(-1),
+                ignore_index=self.tokenizer.pad_token_id,
             )
             self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
             return loss
