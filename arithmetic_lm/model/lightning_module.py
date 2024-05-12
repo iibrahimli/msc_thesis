@@ -103,11 +103,6 @@ class LightningModel(L.LightningModule):
             else:
                 tgt = y
 
-            print(
-                f"x: {x.shape}, y: {y.shape}, logits: {logits.shape}, tgt: {tgt.shape}",
-                flush=True,
-            )
-
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)),
                 tgt.reshape(-1),
