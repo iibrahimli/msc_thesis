@@ -13,7 +13,7 @@ data:
   format:
     pad: $
     reverse_ans: false
-    encdec: true
+    encdec: false
     filler_tokens: 3
 
 training:
