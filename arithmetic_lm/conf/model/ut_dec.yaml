@@ -1,4 +1,4 @@
-name: "UniversalNanoGPT"
+name: "UniversalTransformerDecoder"
 args:
   context_len: 256
   n_embd: 768

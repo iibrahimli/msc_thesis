@@ -6,7 +6,7 @@ defaults:
   - override /data: add_1-3digit
   - override /training: default
   - override /wandb: default
-  - override /model: universal_transformer
+  - override /model: ut
   - _self_
 
 data:

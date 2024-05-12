@@ -5,7 +5,7 @@ from .pos_encoding import CoordinateEncoding, RelativeMultiheadAttention
 from .utils import init_weights
 
 
-class UniversalNanoGPT(nn.Module):
+class UniversalTransformerDecoder(nn.Module):
     """A decoder-only universal transformer model"""
 
     def __init__(
