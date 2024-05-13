@@ -33,7 +33,7 @@ def format_line(
     the number of digits to pad the operands with zeros to, e.g. 43+3 -> 043+003
     if pad_ops_zero=3. If random_zero_padding is True, pad operands and answers
     with a random number of zeros between length of number and pad_*_zero.
-    filler_tokens is the number of filler tokens to prepend before the line.
+    filler_tokens_* is the number of filler tokens to prepend before the prompt/ans.
     """
 
     ab, ans = line.split("=")
