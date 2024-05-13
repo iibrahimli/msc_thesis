@@ -115,11 +115,10 @@ def train(
         loggers.append(wandb_logger)
         wandb_logger.watch(model, log_freq=grad_log_interval)
 
-        # add experiment hparams from omegaconf excluding redundant
-        wandb_config = omegaconf.OmegaConf.to_container(cfg, resolve=True)
-        del wandb_config["model_hparams"]
-        del wandb_config["extra_hparams"]
-        wandb_logger.experiment.config.update(wandb_config)
+        # add experiment hparams from omegaconf
+        wandb_logger.experiment.config.update(
+            omegaconf.OmegaConf.to_container(cfg, resolve=True)
+        )
 
         # sampler and LR monitor callbacks
         callbacks.extend(
