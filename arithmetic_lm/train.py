@@ -163,8 +163,14 @@ def main(cfg: omegaconf.DictConfig):
     ds_args = {
         "tokenizer": tokenizer,
         "seq_len": cfg.model.args.context_len,
+        "pad": cfg.data.format.pad,
+        "pad_ops_zero": cfg.data.format.pad_ops_zero,
+        "pad_ans_zero": cfg.data.format.pad_ans_zero,
+        "reverse_ans": cfg.data.format.reverse_ans,
+        "filler_tokens_prompt": cfg.data.format.filler_tokens_prompt,
+        "filler_tokens_ans": cfg.data.format.filler_tokens_ans,
         "equal_in_prompt": not cfg.data.format.encdec,
-    } | omegaconf.OmegaConf.to_container(cfg.data.format)
+    }
     # TODO: add support for multiple train files
     train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
     test_data_dict = {
