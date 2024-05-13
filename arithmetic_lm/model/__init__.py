@@ -4,6 +4,8 @@ from .nanogpt import NanoGPT
 from .pos_encoding import (
     AbsolutePositionalEncoding,
     CoordinateEncoding,
+    RandomCoordinateEncoding,
+    RandomPositionalEncoding,
     RelativeMultiheadAttention,
 )
 from .transformer import Transformer

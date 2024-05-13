@@ -30,6 +30,35 @@ class AbsolutePositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
+class RandomPositionalEncoding(AbsolutePositionalEncoding):
+    """
+    Like absolute, but sample ordered random indices
+    Paper: https://arxiv.org/abs/2305.16843
+    """
+
+    def __init__(
+        self,
+        d_model: int,
+        max_len: int,
+        dropout: float,
+        max_rand_len: int = 32,
+    ):
+        super().__init__(d_model, max_len, dropout)
+        self.max_rand_len = max_rand_len
+
+    def forward(self, x: Tensor) -> Tensor:
+        """
+        Arguments:
+            x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
+        """
+        # uniformly sample indices
+        random_idxs = torch.randperm(self.max_rand_len)[: x.shape[1]]
+        # sort
+        random_idxs, _ = random_idxs.sort()
+        x = x + self.pe[:, random_idxs]
+        return self.dropout(x)
+
+
 class CoordinateEncoding(nn.Module):
     """Like position encoding, but with added timestep information."""
 
@@ -56,6 +85,38 @@ class CoordinateEncoding(nn.Module):
         # add timestep to the positional encoding
         x[:, :, 0::2] += torch.sin(timestep * self.div_term)
         x[:, :, 1::2] += torch.cos(timestep * self.div_term)
+        return self.dropout(x)
+
+
+class RandomCoordinateEncoding(CoordinateEncoding):
+    """Random positional encoding for UT"""
+
+    def __init__(
+        self,
+        d_model: int,
+        max_len: int,
+        dropout: float,
+        max_rand_len: int = 32,
+    ):
+        super().__init__(d_model, max_len, dropout)
+        self.max_rand_len = max_rand_len
+
+    def forward(self, x: Tensor, timestep: int) -> Tensor:
+        """
+        Arguments:
+            x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
+        """
+
+        # uniformly sample indices
+        random_idxs = torch.randperm(self.max_rand_len)[: x.shape[0]]
+        # sort
+        random_idxs, _ = random_idxs.sort()
+        x = x + self.pe[:, random_idxs]
+
+        # add timestep to the positional encoding
+        x[:, :, 0::2] += torch.sin(timestep * self.div_term)
+        x[:, :, 1::2] += torch.cos(timestep * self.div_term)
+
         return self.dropout(x)
 
 
