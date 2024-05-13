@@ -20,7 +20,8 @@ def format_line(
     reverse_ans: bool = False,
     pad_ops_zero: int | None = None,
     pad_ans_zero: int | None = None,
-    filler_tokens: int | None = None,
+    filler_tokens_prompt: int | None = None,
+    filler_tokens_ans: int | None = None,
     prepend_newline: bool = False,
     append_newline: bool = False,
     random_zero_padding: bool = False,
@@ -60,11 +61,15 @@ def format_line(
     if pad_ans_zero:
         ans = ans.zfill(pad_ans_zero)
 
+    filler_token = "."
+    if filler_tokens_prompt:
+        ab = filler_token * filler_tokens_prompt + ab
+    if filler_tokens_ans:
+        ans = filler_token * filler_tokens_ans + ans
+
     pad = pad if pad else ""
     res = f"{pad}{ab}={ans}{pad}"
-    filler_token = "."
-    if filler_tokens:
-        res = filler_token * filler_tokens + res
+
     if prepend_newline:
         res = "\n" + res
     if append_newline:
