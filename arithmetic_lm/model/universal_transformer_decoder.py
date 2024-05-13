@@ -18,6 +18,7 @@ class UniversalTransformerDecoder(nn.Module):
         ff_factor: int = 4,
         dropout: float = 0.1,
         pos_enc: str = "abs",
+        emb_weight_sharing: bool = True,
     ):
         """
         Arguments:
@@ -74,7 +75,8 @@ class UniversalTransformerDecoder(nn.Module):
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
 
         # weight tying
-        self.lm_head.weight = self.embedding.weight
+        if emb_weight_sharing:
+            self.lm_head.weight = self.embedding.weight
 
         self.apply(init_weights)
 
