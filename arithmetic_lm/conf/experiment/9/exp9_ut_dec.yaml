@@ -14,8 +14,8 @@ data:
     pad: $
     reverse_ans: false
     encdec: false
-    filler_tokens_prompt: 0
-    filler_tokens_ans: 3
+    filler_tokens_prompt: 6
+    filler_tokens_ans: 6
 
 training:
   batch_size: 512
