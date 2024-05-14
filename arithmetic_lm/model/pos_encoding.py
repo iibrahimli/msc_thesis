@@ -44,7 +44,7 @@ class RandomPositionalEncoding(AbsolutePositionalEncoding):
         max_rand_len: int = 32,
     ):
         super().__init__(d_model, max_len, dropout)
-        self.max_rand_len = max_rand_len
+        self.max_rand_len = max_rand_len or max_len
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -99,7 +99,7 @@ class RandomCoordinateEncoding(CoordinateEncoding):
         max_rand_len: int = 32,
     ):
         super().__init__(d_model, max_len, dropout)
-        self.max_rand_len = max_rand_len
+        self.max_rand_len = max_rand_len or max_len
 
     def forward(self, x: Tensor, timestep: int) -> Tensor:
         """
@@ -111,8 +111,6 @@ class RandomCoordinateEncoding(CoordinateEncoding):
         random_idxs = torch.randperm(self.max_rand_len)[: x.shape[0]]
         # sort
         random_idxs, _ = random_idxs.sort()
-        print("random_idxs:", random_idxs)
-        print("self.pe[:, random_idxs].shape:", self.pe[:, random_idxs].shape)
         x = x + self.pe[:, random_idxs]
 
         # add timestep to the positional encoding
