@@ -120,7 +120,7 @@ class ArithmeticLMDataset(DatasetBase):
         return x, y
 
 
-class ArithmeticExampleDataset(Dataset):
+class ArithmeticExampleDataset(DatasetBase):
     """Dataset but instead of pure language modeling, we want keep examples separate"""
 
     def __init__(
