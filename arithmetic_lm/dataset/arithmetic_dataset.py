@@ -26,11 +26,50 @@ from arithmetic_lm.formatting import format_line
 from arithmetic_lm.tokenizer import Tokenizer
 
 
-def _format_lines(format_func: callable, lines: list[str], **kwargs) -> list[str]:
-    return list(map(partial(format_func, **kwargs), lines))
+class DatasetBase(Dataset):
+    def __init__(
+        self,
+        txtfile: str | Path,
+        tokenizer: Tokenizer,
+        seq_len: int,
+        pad: str,
+        reverse_ans: bool,
+        pad_ops_zero: int | None = None,
+        pad_ans_zero: int | None = None,
+        filler_tokens_prompt: int | None = None,
+        filler_tokens_ans: int | None = None,
+        limit_examples: int | None = None,
+        equal_in_prompt: bool = False,
+    ):
+        self.txtfile = txtfile
+        self.tokenizer = tokenizer
+        self.seq_len = seq_len
+        self.fmt_kwargs = dict(
+            pad=pad,
+            reverse_ans=reverse_ans,
+            pad_ops_zero=pad_ops_zero,
+            pad_ans_zero=pad_ans_zero,
+            filler_tokens_prompt=filler_tokens_prompt,
+            filler_tokens_ans=filler_tokens_ans,
+        )
+        self.limit_examples = limit_examples
+        self.equal_in_prompt = equal_in_prompt
+
+    def _get_lines(self) -> list[str]:
+        # read lines
+        with open(self.txtfile, "r") as f:
+            lines = f.readlines()
+        if self.limit_examples is not None:
+            lines = lines[: self.limit_examples]
+        lines = self._format_lines(format_line, lines)
+        # number of lines, not sequences (a seq contains many examples)
+        self.n_examples = len(lines)
+
+    def _format_lines(self, format_func: callable, lines: list[str]) -> list[str]:
+        return list(map(partial(format_func, **self.fmt_kwargs), lines))
 
 
-class ArithmeticLMDataset(Dataset):
+class ArithmeticLMDataset(DatasetBase):
     """Concatenate lines in file and split into sequences of length seq_len"""
 
     def __init__(
@@ -45,26 +84,24 @@ class ArithmeticLMDataset(Dataset):
         filler_tokens_prompt: int | None = None,
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
-        **kwargs,
+        equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
     ):
-        self.tokenizer = tokenizer
-        self.seq_len = seq_len
-        with open(txtfile, "r") as f:
-            lines = f.readlines()
-        if limit_examples is not None:
-            lines = lines[:limit_examples]
-        lines = _format_lines(
-            format_line,
-            lines,
+        super().__init__(
+            txtfile=txtfile,
+            tokenizer=tokenizer,
+            seq_len=seq_len,
             pad=pad,
             reverse_ans=reverse_ans,
             pad_ops_zero=pad_ops_zero,
             pad_ans_zero=pad_ans_zero,
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
+            limit_examples=limit_examples,
+            equal_in_prompt=equal_in_prompt,
         )
-        # number of lines, not sequences (a seq contains many examples)
-        self.n_examples = len(lines)
+
+        lines = self._get_lines()
+
         # merge lines into one string
         text = "".join(lines)
         # keep seq_len * n_seq + 1 tokens (+1 to make target)
@@ -96,8 +133,8 @@ class ArithmeticExampleDataset(Dataset):
         pad_ans_zero: int | None = None,
         filler_tokens_prompt: int | None = None,
         filler_tokens_ans: int | None = None,
-        equal_in_prompt: bool = True,
         limit_examples: int | None = None,
+        equal_in_prompt: bool = True,
     ):
         """
         Args:
@@ -109,23 +146,23 @@ class ArithmeticExampleDataset(Dataset):
             equal_in_prompt: whether to include the `=` in the prompt or answer
             limit_examples: limit the number of examples (lines) to load
         """
-        self.tokenizer = tokenizer
-        self.seq_len = seq_len
-        with open(txtfile, "r") as f:
-            lines = f.readlines()
-        if limit_examples is not None:
-            lines = lines[:limit_examples]
-        lines = _format_lines(
-            format_line,
-            lines,
+
+        super().__init__(
+            txtfile=txtfile,
+            tokenizer=tokenizer,
+            seq_len=seq_len,
             pad=pad,
             reverse_ans=reverse_ans,
             pad_ops_zero=pad_ops_zero,
             pad_ans_zero=pad_ans_zero,
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
+            limit_examples=limit_examples,
+            equal_in_prompt=equal_in_prompt,
         )
-        self.n_examples = len(lines)
+
+        lines = self._get_lines()
+
         self.prompts = []
         self.answers = []
         for line in lines:
