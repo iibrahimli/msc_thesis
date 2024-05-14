@@ -29,7 +29,6 @@ model:
     max_steps: 3
     n_embd: 192
     n_head: 2
-    emb_weight_sharing: true
 
 wandb:
   project: "addition-1-9-digit-filler"

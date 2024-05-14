@@ -6,4 +6,4 @@ args:
   max_steps: 10
   dropout: 0.1
   pos_enc: "abs"
-  emb_weight_sharing: false
+  emb_weight_sharing: true
