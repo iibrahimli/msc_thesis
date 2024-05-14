@@ -14,11 +14,11 @@ data:
     pad: $
     reverse_ans: false
     encdec: false
-    filler_tokens_prompt: 6
-    filler_tokens_ans: 6
+    filler_tokens_prompt: 0
+    filler_tokens_ans: 0
 
 training:
-  batch_size: 512
+  batch_size: 224
   lr: 0.0005
   max_iters: 20000
   limit_test_examples: 1000 # since test set is large
@@ -26,10 +26,10 @@ training:
 
 model:
   args:
-    max_steps: 3
-    n_embd: 192
-    n_head: 2
+    max_steps: 6
+    n_embd: 768
+    n_head: 8
 
 wandb:
   project: "addition-1-9-digit-filler"
-  run_name: ut_dec_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-${data.format.filler_tokens_ans}filler
+  run_name: ut_dec_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-${data.format.filler_tokens_ans}fill
