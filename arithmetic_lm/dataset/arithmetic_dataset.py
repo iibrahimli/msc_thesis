@@ -64,6 +64,7 @@ class DatasetBase(Dataset):
         lines = self._format_lines(format_line, lines)
         # number of lines, not sequences (a seq contains many examples)
         self.n_examples = len(lines)
+        return lines
 
     def _format_lines(self, format_func: callable, lines: list[str]) -> list[str]:
         return list(map(partial(format_func, **self.fmt_kwargs), lines))
