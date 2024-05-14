@@ -108,7 +108,7 @@ class RandomCoordinateEncoding(CoordinateEncoding):
         """
 
         # uniformly sample indices
-        random_idxs = torch.randperm(self.max_rand_len)[: x.shape[0]]
+        random_idxs = torch.randperm(self.max_rand_len)[: x.shape[1]]
         # sort
         random_idxs, _ = random_idxs.sort()
         x = x + self.pe[:, random_idxs]
