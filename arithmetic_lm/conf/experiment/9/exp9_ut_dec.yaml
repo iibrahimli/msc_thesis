@@ -18,7 +18,7 @@ data:
     filler_tokens_ans: 0
 
 training:
-  batch_size: 512
+  batch_size: 256
   lr: 0.0005
   max_iters: 20000
   limit_test_examples: 1000 # since test set is large
@@ -26,9 +26,9 @@ training:
 
 model:
   args:
-    max_steps: 1
-    n_embd: 768
-    n_head: 8
+    max_steps: 10
+    n_embd: 192
+    n_head: 4
 
 wandb:
   project: "addition-1-9-digit-filler"
