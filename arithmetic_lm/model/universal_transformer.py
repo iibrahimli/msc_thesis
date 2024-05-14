@@ -1,7 +1,11 @@
 import torch
 from torch import Tensor, nn
 
-from .pos_encoding import CoordinateEncoding, RelativeMultiheadAttention
+from .pos_encoding import (
+    CoordinateEncoding,
+    RandomCoordinateEncoding,
+    RelativeMultiheadAttention,
+)
 from .utils import init_weights
 
 
@@ -45,9 +49,15 @@ class UniversalTransformer(nn.Module):
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.coord_encoder = CoordinateEncoding(
-            n_embd, max_len=context_len, dropout=dropout
-        )
+
+        if pos_enc == "abs":
+            self.coord_encoder = CoordinateEncoding(
+                n_embd, max_len=context_len, dropout=dropout
+            )
+        elif pos_enc == "random":
+            self.coord_encoder = RandomCoordinateEncoding(
+                n_embd, max_len=context_len, dropout=dropout
+            )
 
         self.encoder_layer = nn.TransformerEncoderLayer(
             d_model=n_embd,
