@@ -111,6 +111,8 @@ class RandomCoordinateEncoding(CoordinateEncoding):
         random_idxs = torch.randperm(self.max_rand_len)[: x.shape[0]]
         # sort
         random_idxs, _ = random_idxs.sort()
+        print("random_idxs:", random_idxs)
+        print("self.pe[:, random_idxs].shape:", self.pe[:, random_idxs].shape)
         x = x + self.pe[:, random_idxs]
 
         # add timestep to the positional encoding
