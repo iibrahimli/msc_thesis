@@ -68,7 +68,6 @@ class UniversalTransformerDecoder(nn.Module):
             batch_first=True,
             activation="gelu",
         )
-        self.norm = nn.LayerNorm(n_embd)
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
@@ -111,7 +110,6 @@ class UniversalTransformerDecoder(nn.Module):
                 ),
             )
 
-        x = self.norm(x)
         x = self.lm_head(x)
         return x
 
