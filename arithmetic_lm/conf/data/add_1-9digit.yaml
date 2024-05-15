@@ -1,3 +1,4 @@
+train_ds_class: ArithmeticLMSequenceDataset
 format:
   pad: $
   pad_ops_zero: null

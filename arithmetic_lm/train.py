@@ -13,6 +13,7 @@ import torch
 import wandb
 from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
+    DATASET_CLASSES,
     ArithmeticExampleDataset,
     ArithmeticLMDataset,
     LightningArithmeticDataModule,
@@ -156,9 +157,11 @@ def main(cfg: omegaconf.DictConfig):
     tokenizer = TOKENIZERS[cfg.tokenizer.name](**cfg.tokenizer.get("args"))
 
     # datasets
-    train_ds_type = (
-        ArithmeticExampleDataset if cfg.data.format.encdec else ArithmeticLMDataset
-    )
+    train_ds_class = DATASET_CLASSES[cfg.data.get("train_ds_class")]
+    if not train_ds_class:
+        train_ds_class = (
+            ArithmeticExampleDataset if cfg.data.format.encdec else ArithmeticLMDataset
+        )
     ds_args = {
         "tokenizer": tokenizer,
         "seq_len": cfg.model.args.context_len,
@@ -171,7 +174,7 @@ def main(cfg: omegaconf.DictConfig):
         "equal_in_prompt": not cfg.data.format.encdec,
     }
     # TODO: add support for multiple train files
-    train_dataset = train_ds_type(txtfile=cfg.data.train, **ds_args)
+    train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_args)
     test_data_dict = {
         n: ArithmeticExampleDataset(
             txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_args

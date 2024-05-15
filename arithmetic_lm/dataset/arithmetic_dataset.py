@@ -120,8 +120,61 @@ class ArithmeticLMDataset(DatasetBase):
         return x, y
 
 
+class ArithmeticLMSequenceDataset(DatasetBase):
+    """LM dataset but with one example (prompt and answer together) per sequence"""
+
+    def __init__(
+        self,
+        txtfile: str | Path,
+        tokenizer: Tokenizer,
+        seq_len: int,  # unused here
+        pad: str,
+        reverse_ans: bool,
+        pad_ops_zero: int | None = None,
+        pad_ans_zero: int | None = None,
+        filler_tokens_prompt: int | None = None,
+        filler_tokens_ans: int | None = None,
+        limit_examples: int | None = None,
+        equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
+    ):
+        super().__init__(
+            txtfile=txtfile,
+            tokenizer=tokenizer,
+            seq_len=seq_len,
+            pad=pad,
+            reverse_ans=reverse_ans,
+            pad_ops_zero=pad_ops_zero,
+            pad_ans_zero=pad_ans_zero,
+            filler_tokens_prompt=filler_tokens_prompt,
+            filler_tokens_ans=filler_tokens_ans,
+            limit_examples=limit_examples,
+            equal_in_prompt=equal_in_prompt,
+        )
+
+        lines = self._get_lines()
+
+        self.examples = [torch.tensor(self.tokenizer.encode(e)) for e in lines]
+        self.n_tokens = sum(len(e) for e in self.examples)
+
+    def __len__(self) -> int:
+        return len(self.examples)
+
+    def __getitem__(self, idx: int) -> Tensor:
+        return self.examples[idx][:-1], self.examples[idx][1:]
+
+    def collate_fn(self, batch: list[tuple[Tensor, Tensor]]) -> tuple[Tensor, Tensor]:
+        """
+        Pads sequences to longest in batch. Used only for training.
+        """
+        pad_val = self.tokenizer.pad_token_id
+        xs, ys = zip(*batch)
+        xs = pad_sequence(xs, batch_first=True, padding_value=pad_val)
+        ys = pad_sequence(ys, batch_first=True, padding_value=pad_val)
+        return xs, ys
+
+
 class ArithmeticExampleDataset(DatasetBase):
-    """Dataset but instead of pure language modeling, we want keep examples separate"""
+    """Dataset but instead of pure language modeling, we want keep prompts and answers separate"""
 
     def __init__(
         self,
