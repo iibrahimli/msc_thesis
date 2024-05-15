@@ -12,7 +12,7 @@ class Tokenizer(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def decode(self, tokens: int | list[int] | Tensor[int]) -> str:
+    def decode(self, tokens: int | list[int] | Tensor) -> str:
         raise NotImplementedError
 
 
@@ -32,7 +32,7 @@ class CharTokenizer(Tokenizer):
     def encode(self, text: str) -> list[int]:
         return [self.stoi[char] for char in text]
 
-    def decode(self, tokens: int | list[int] | Tensor[int]) -> str:
+    def decode(self, tokens: int | list[int] | Tensor) -> str:
         if isinstance(tokens, int):
             tokens = [tokens]
         if isinstance(tokens, Tensor):
