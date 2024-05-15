@@ -1,6 +1,8 @@
 import string
 from abc import ABC, abstractmethod
 
+from torch import Tensor
+
 
 class Tokenizer(ABC):
     """Abstract tokenizer class"""
@@ -10,7 +12,7 @@ class Tokenizer(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def decode(self, tokens: list[int]) -> str:
+    def decode(self, tokens: int | list[int] | Tensor[int]) -> str:
         raise NotImplementedError
 
 
@@ -30,9 +32,11 @@ class CharTokenizer(Tokenizer):
     def encode(self, text: str) -> list[int]:
         return [self.stoi[char] for char in text]
 
-    def decode(self, tokens: list[int]) -> str:
+    def decode(self, tokens: int | list[int] | Tensor[int]) -> str:
         if isinstance(tokens, int):
             tokens = [tokens]
+        if isinstance(tokens, Tensor):
+            tokens = tokens.tolist()
         return "".join([self.itos[token] for token in tokens])
 
 
