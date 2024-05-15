@@ -1,6 +1,6 @@
 defaults:
   - data: add_1-3digit
-  - model: nanogpt
+  - model: transformer_dec
   - tokenizer: char
   - sampling: default
   - training: default

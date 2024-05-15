@@ -5,7 +5,7 @@ from .pos_encoding import AbsolutePositionalEncoding, RelativeMultiheadAttention
 from .utils import init_weights
 
 
-class NanoGPT(nn.Module):
+class TransformerDecoder(nn.Module):
     """Simple small decoder-only transformer model"""
 
     def __init__(
