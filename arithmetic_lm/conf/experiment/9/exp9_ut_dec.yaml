@@ -10,6 +10,7 @@ defaults:
   - _self_
 
 data:
+  train_ds_class: ArithmeticLMSequenceDataset
   format:
     pad: $
     reverse_ans: false
