@@ -26,9 +26,9 @@ training:
 
 model:
   args:
-    max_steps: 10
+    max_steps: 3
     n_embd: 192
-    n_head: 4
+    n_head: 2
 
 wandb:
   project: "addition-1-9-digit-filler"
