@@ -66,8 +66,12 @@ class Transformer(nn.Module):
             activation="gelu",
         )
 
-        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=n_layers)
-        self.decoder = nn.TransformerDecoder(self.decoder_layer, num_layers=n_layers)
+        self.encoder = nn.TransformerEncoder(
+            self.encoder_layer, num_layers=n_layers, norm=nn.LayerNorm(n_embd)
+        )
+        self.decoder = nn.TransformerDecoder(
+            self.decoder_layer, num_layers=n_layers, norm=nn.LayerNorm(n_embd)
+        )
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
