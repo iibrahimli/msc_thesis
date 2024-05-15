@@ -25,9 +25,9 @@ class CharTokenizer(Tokenizer):
     def __init__(self, vocab: list | str = CHAR_VOCAB):
         self.vocab = vocab if isinstance(vocab, list) else list(vocab)
         self.vocab_size = len(self.vocab)
-        self.pad_token_id = 99
         self.stoi = {char: i for i, char in enumerate(self.vocab)}
         self.itos = {i: char for i, char in enumerate(self.vocab)}
+        self.pad_token_id = 99
 
     def encode(self, text: str) -> list[int]:
         return [self.stoi[char] for char in text]
