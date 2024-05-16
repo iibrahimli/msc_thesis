@@ -1,0 +1,20 @@
+# Training on 8 digits, test on 1-7 digits
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ans: ???
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: data/addition/exp_10/train_add_8digit_1M.txt
+test:
+  1digit: data/addition/exp_10/test_add_1digit_100.txt
+  2digit: data/addition/exp_10/test_add_2digit_100.txt
+  3digit: data/addition/exp_10/test_add_3digit_100.txt
+  4digit: data/addition/exp_10/test_add_4digit_100.txt
+  5digit: data/addition/exp_10/test_add_5digit_100.txt
+  6digit: data/addition/exp_10/test_add_6digit_100.txt
+  7digit: data/addition/exp_10/test_add_7digit_100.txt
+  8digit: data/addition/exp_10/test_add_8digit_100.txt
