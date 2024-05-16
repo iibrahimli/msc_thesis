@@ -382,7 +382,7 @@ def generate_experiment_10(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 4 to {out_dir}")
+    print(f"Generating data for Experiment 10 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_8digit_1M.txt"
