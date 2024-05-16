@@ -343,7 +343,7 @@ def generate_experiment_8(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 4 to {out_dir}")
+    print(f"Generating data for Experiment 8 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_1-9digit_except8_1M.txt"
@@ -374,12 +374,48 @@ def generate_experiment_8(out_dir: str | Path):
         )
 
 
+def generate_experiment_10(out_dir: str | Path):
+    """
+    Experiment 10: ~1M examples of 8 digit addition problems for training,
+    100 examples of 1-7 for testing
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Generating data for Experiment 10 to {out_dir}")
+
+    # 1. generate train dataset
+    train_path = out_dir / "train_add_8digit_1M.txt"
+    print(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples={8: 1_000_000},
+    )
+
+    # 2. generate test datasets
+    n_test_examples = 100
+    excluded = get_set_from_file(train_path)
+    for n_digits in range(1, 9):
+        digit_path = out_dir / f"test_add_{n_digits}digit_{n_test_examples}.txt"
+        print(f"Generating {digit_path}")
+        generate_only_digit(
+            digit_path,
+            num_digits=n_digits,
+            num_examples=100,
+            exclude=(
+                excluded if n_digits > 2 else None
+            ),  # not enough samples to exclude in 1-2 digits
+            seed=n_digits,  # different seed to avoid overlap
+        )
+
+
 def main():
     generate_experiment_1(DATA_DIR / "addition")
     generate_experiment_2(DATA_DIR / "addition")
     generate_experiment_3(DATA_DIR / "addition")
     generate_experiment_4(DATA_DIR / "addition")
     generate_experiment_8(DATA_DIR / "addition" / "exp_8")
+    generate_experiment_10(DATA_DIR / "addition" / "exp_10")
 
 
 if __name__ == "__main__":

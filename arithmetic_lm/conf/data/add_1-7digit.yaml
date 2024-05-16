@@ -3,7 +3,7 @@ format:
   pad_ops_zero: null
   pad_ans_zero: null
   reverse_ans: ???
-  encdec: ???
+  encdec: false
   filler_tokens_prompt: null
   filler_tokens_ans: null
 train: data/addition/train_add_1-7digit.txt
