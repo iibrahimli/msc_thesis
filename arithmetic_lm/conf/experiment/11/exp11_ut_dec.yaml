@@ -32,4 +32,4 @@ model:
 
 wandb:
   project: "addition-gen-to-lower-number-of-digits"
-  run_name: ut_dec_7-8train_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-${data.format.filler_tokens_ans}fill
+  run_name: ut_dec_7-8train_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-${data.format.filler_tokens_ans}fill-rand
