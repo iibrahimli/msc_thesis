@@ -3,10 +3,10 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_generalize_to_lower
+  - override /data: add_generalize_to_lower_7-8
   - override /training: default
   - override /wandb: default
-  - override /model: transformer_dec
+  - override /model: ut_dec
   - _self_
 
 data:
@@ -26,10 +26,10 @@ training:
 
 model:
   args:
-    n_layers: 3
+    max_steps: 3
     n_embd: 384
     n_head: 2
 
 wandb:
   project: "addition-gen-to-lower-number-of-digits"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}filler
+  run_name: ut_dec_7-8train_${model.args.max_steps}steps_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-${data.format.filler_tokens_ans}fill

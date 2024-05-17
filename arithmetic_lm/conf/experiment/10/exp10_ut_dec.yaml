@@ -27,7 +27,7 @@ training:
 model:
   args:
     max_steps: 3
-    n_embd: 192
+    n_embd: 384
     n_head: 2
 
 wandb:

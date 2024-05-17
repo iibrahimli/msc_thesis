@@ -50,4 +50,9 @@ Go back, no zero padding. Like experiment 8, but no zero padding, but with fixed
 
 ## [Experiment 10](../arithmetic_lm/conf/experiment/10)
 
-Train UT-dec and Trans-dec on 8 digits, evaluate on 1-7 to see if it can generalize to a lower number of digits.
+Train UT-dec and Trans-dec on 8 digits, evaluate on 1-8 to see if it can generalize to a lower number of digits. Dataset: [add_generalize_to_lower.yaml](../arithmetic_lm/conf/data/add_generalize_to_lower.yaml)
+
+
+## [Experiment 11](../arithmetic_lm/conf/experiment/11)
+
+Like Experiment 10, but trained on 7 and 8 digits, evaluated on 1-8. Dataset: [add_generalize_to_lower_7-8.yaml](../arithmetic_lm/conf/data/add_generalize_to_lower_7-8.yaml)

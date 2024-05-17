@@ -3,7 +3,7 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_generalize_to_lower
+  - override /data: add_generalize_to_lower_7-8
   - override /training: default
   - override /wandb: default
   - override /model: transformer_dec
@@ -32,4 +32,4 @@ model:
 
 wandb:
   project: "addition-gen-to-lower-number-of-digits"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}filler
+  run_name: trans_dec_7-8train_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}filler
