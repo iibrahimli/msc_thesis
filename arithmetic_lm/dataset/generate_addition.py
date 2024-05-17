@@ -44,9 +44,10 @@ def generate_balanced(
     filepath: str | Path,
     num_examples: dict[int, int],  # digit -> num_examples
     exclude: set[str] = None,
+    balance_carries: bool = True,
     seed: int = 42,
 ) -> None:
-    """Generate addition problems with balanced number of digits (<= num_digits) and carries"""
+    """Generate addition problems with balanced number of carries"""
     set_seed(seed)
 
     if 1 in num_examples:
@@ -99,24 +100,30 @@ def generate_balanced(
                 # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
 
-                if num_carries[num_digit][num_carry] < num_target_carries[num_digit]:
-                    example_str = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
-
-                    if exclude and example_str in exclude:
+                if balance_carries:
+                    # check if we have enough examples for this carry
+                    if (
+                        num_carries[num_digit][num_carry]
+                        >= num_target_carries[num_digit]
+                    ):
+                        # enough carries for this digit
                         continue
 
-                    if example_str in generated_examples:
-                        continue
-                    generated_examples.add(example_str)
+                example_str = FMT_STR.format(a=a, op=OPERATOR, b=b, ans=ans)
 
-                    # write the example to file
-                    f.write(example_str)
-
-                    # increment the number of examples for this carry
-                    num_carries[num_digit][num_carry] += 1
-                    num_current_digit_examples += 1
-                else:
+                if exclude and example_str in exclude:
                     continue
+
+                if example_str in generated_examples:
+                    continue
+                generated_examples.add(example_str)
+
+                # write the example to file
+                f.write(example_str)
+
+                # increment the number of examples for this carry
+                num_carries[num_digit][num_carry] += 1
+                num_current_digit_examples += 1
 
     carry_summary = {
         i: f"{num_carries[i]} target={num_target_carries[i]}" for i in num_examples
@@ -204,7 +211,8 @@ def generate_experiment_1(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 1 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 1 to {out_dir}")
 
     # 1. generate balanced dataset
     bal_path = out_dir / "add_1-2-3digit_10k_bal.txt"
@@ -252,7 +260,8 @@ def generate_experiment_2(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     assert out_dir.exists(), "Expected experiment 1 data to already exist"
-    print(f"Generating data for Experiment 2 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 2 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_1-7digit.txt"
@@ -292,7 +301,8 @@ def generate_experiment_3(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 3 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 3 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_3x3digit_800k.txt"
@@ -318,7 +328,8 @@ def generate_experiment_4(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 4 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 4 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_7x7digit_800k.txt"
@@ -343,7 +354,8 @@ def generate_experiment_8(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 8 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 8 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_1-9digit_except8_1M.txt"
@@ -382,7 +394,8 @@ def generate_experiment_10(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 10 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 10 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_8digit_1M.txt"
@@ -417,7 +430,8 @@ def generate_experiment_11(out_dir: str | Path):
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Generating data for Experiment 11 to {out_dir}")
+    print()
+    print(f" > Generating data for Experiment 11 to {out_dir}")
 
     # 1. generate train dataset
     train_path = out_dir / "train_add_7-8digit_1M.txt"
@@ -444,14 +458,67 @@ def generate_experiment_11(out_dir: str | Path):
         )
 
 
+def generate_experiment_12(out_dir: str | Path):
+    """
+    Experiment 12: train on 1M 1x1-50x50 digit addition examples
+    except 1x1-5x5, 20x20, and 45x45. Test on a different set of excluded
+    pairs and 51x51
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for Experiment 12 to {out_dir}")
+
+    # out of distribution
+    out_dist = {1, 2, 3, 4, 5, 20, 45, 51}
+    in_dist = set(range(1, 51)) - out_dist
+    train_num_examples = {i: 1_000_000 // len(in_dist) for i in in_dist}
+
+    # generate train dataset
+    train_path = out_dir / "train_add_6-50digit_except_20-45_1M.txt"
+    print(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples=train_num_examples,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+
+    # train examples excluded from test
+    excluded = get_set_from_file(train_path)
+
+    # generate test dataset with trained digit lengths (in distribution)
+    in_distribution_test_path = out_dir / "test_add_in_distribution_2000.txt"
+    print(f"Generating {in_distribution_test_path}")
+    generate_balanced(
+        filepath=in_distribution_test_path,
+        num_examples={i: 2000 / len(in_dist) for i in in_dist},
+        exclude=excluded,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+
+    # generate test dataset with out of distribution digit lengths
+    for i in out_dist:
+        out_dist_test_path = out_dir / f"test_add_ood_{i}digit_100.txt"
+        print(f"Generating {out_dist_test_path}")
+        generate_only_digit(
+            out_dist_test_path,
+            num_digits=i,
+            num_examples=100,
+            exclude=excluded,
+            seed=i,
+        )
+
+
 def main():
-    generate_experiment_1(DATA_DIR / "addition")
-    generate_experiment_2(DATA_DIR / "addition")
-    generate_experiment_3(DATA_DIR / "addition")
-    generate_experiment_4(DATA_DIR / "addition")
-    generate_experiment_8(DATA_DIR / "addition" / "exp_8")
-    generate_experiment_10(DATA_DIR / "addition" / "exp_10")
-    generate_experiment_11(DATA_DIR / "addition" / "exp_11")
+    # generate_experiment_1(DATA_DIR / "addition")
+    # generate_experiment_2(DATA_DIR / "addition")
+    # generate_experiment_3(DATA_DIR / "addition")
+    # generate_experiment_4(DATA_DIR / "addition")
+    # generate_experiment_8(DATA_DIR / "addition" / "exp_8")
+    # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
+    # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
+    generate_experiment_12(DATA_DIR / "addition" / "exp_12")
 
 
 if __name__ == "__main__":

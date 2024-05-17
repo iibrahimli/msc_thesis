@@ -1,0 +1,21 @@
+# Training on 6-50 digits excluding 20 and 45, test on all
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ans: ???
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: data/addition/exp_12/train_add_6-50digit_except_20-45_1M.txt
+test:
+  in_dist: data/addition/exp_12/test_add_in_distribution_2000.txt
+  ood_1digit: data/addition/exp_12/test_add_ood_1digit_100.txt
+  ood_2digit: data/addition/exp_12/test_add_ood_2digit_100.txt
+  ood_3digit: data/addition/exp_12/test_add_ood_3digit_100.txt
+  ood_4digit: data/addition/exp_12/test_add_ood_4digit_100.txt
+  ood_5digit: data/addition/exp_12/test_add_ood_5digit_100.txt
+  ood_20digit: data/addition/exp_12/test_add_ood_20digit_100.txt
+  ood_45digit: data/addition/exp_12/test_add_ood_45digit_100.txt
+  ood_51digit: data/addition/exp_12/test_add_ood_51digit_100.txt

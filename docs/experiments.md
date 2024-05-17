@@ -56,3 +56,8 @@ Train UT-dec and Trans-dec on 8 digits, evaluate on 1-8 to see if it can general
 ## [Experiment 11](../arithmetic_lm/conf/experiment/11)
 
 Like Experiment 10, but trained on 7 and 8 digits, evaluated on 1-8. Dataset: [add_generalize_to_lower_7-8.yaml](../arithmetic_lm/conf/data/add_generalize_to_lower_7-8.yaml)
+
+
+## [Experiment 12](../arithmetic_lm/conf/experiment/12)
+
+Train on 1M 1x1-50x50 digit addition examples except 1x1-5x5, 20x20, and 45x45. Test on a different set of excluded pairs and 51x51. Dataset: [add_high_n_digit_variation.yaml](../arithmetic_lm/conf/data/add_high_n_digit_variation.yaml)
