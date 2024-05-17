@@ -22,6 +22,7 @@ def format_line(
     pad_ans_zero: int | None = None,
     filler_tokens_prompt: int | None = None,
     filler_tokens_ans: int | None = None,
+    random_fillers: bool = False,
     prepend_newline: bool = False,
     append_newline: bool = False,
     random_zero_padding: bool = False,
@@ -63,8 +64,12 @@ def format_line(
 
     filler_token = "."
     if filler_tokens_prompt:
+        if random_fillers:
+            filler_tokens_prompt = random.randint(0, filler_tokens_prompt)
         ab = filler_token * filler_tokens_prompt + ab
     if filler_tokens_ans:
+        if random_fillers:
+            filler_tokens_ans = random.randint(0, filler_tokens_ans)
         ans = filler_token * filler_tokens_ans + ans
 
     pad = pad if pad else ""

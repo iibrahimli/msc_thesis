@@ -51,6 +51,7 @@ class DatasetBase(Dataset):
             pad_ans_zero=pad_ans_zero,
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
+            random_fillers=True,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt
