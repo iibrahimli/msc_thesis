@@ -31,5 +31,5 @@ model:
     n_head: 2
 
 wandb:
-  project: "addition-gen-to-lower-number-of-digits"
+  project: "addition-high-n-digit-variation"
   run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.format.filler_tokens_prompt}-{data.format.filler_tokens_ans}fill
