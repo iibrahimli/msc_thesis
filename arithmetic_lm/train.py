@@ -10,8 +10,6 @@ import lightning as L
 import omegaconf
 import torch
 
-torch.multiprocessing.set_sharing_strategy("file_system")
-
 import wandb
 from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (

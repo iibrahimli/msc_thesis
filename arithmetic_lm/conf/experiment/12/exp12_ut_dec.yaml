@@ -22,12 +22,12 @@ training:
   lr: 0.0005
   max_iters: 50000
   limit_test_examples: 1000 # since test set is large
-  devices: [1]
+  devices: [0, 1]
 
 model:
   args:
-    max_steps: 3
-    n_embd: 384
+    max_steps: 6
+    n_embd: 768
     n_head: 2
 
 wandb:
