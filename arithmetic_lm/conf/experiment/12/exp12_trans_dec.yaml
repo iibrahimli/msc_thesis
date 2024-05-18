@@ -18,8 +18,8 @@ data:
     filler_tokens_ans: 0
 
 training:
-  batch_size: 256
-  lr: 0.0005
+  batch_size: 128
+  lr: 0.00025
   max_iters: 50000
   limit_test_examples: 2000 # since test set is large
   devices: [0, 1]
