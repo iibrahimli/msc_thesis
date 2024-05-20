@@ -286,6 +286,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             pin_memory=True,
             num_workers=self.num_workers,
             collate_fn=self.train_val_collate_fn,
+            persistent_workers=True,
         )
 
     def val_dataloader(self):
@@ -296,6 +297,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 pin_memory=True,
                 num_workers=self.num_workers,
                 collate_fn=self.train_val_collate_fn,
+                persistent_workers=True,
             ),
         ]
         for td in self.test_ds_list:
@@ -306,6 +308,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                     shuffle=False,
                     pin_memory=True,
                     num_workers=self.num_workers,
+                    persistent_workers=True,
                 )
             )
         return dls
