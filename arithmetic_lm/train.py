@@ -48,6 +48,7 @@ def train(
     grad_log_interval: int,
     gen_temp: float,
     gen_top_k: int,
+    resume_ckpt_path: str | None = None,
 ):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
@@ -91,6 +92,7 @@ def train(
     checkpoint_callback = L.pytorch.callbacks.ModelCheckpoint(
         monitor="train_loss",
         save_top_k=1,
+        save_last="link",
         mode="min",
         dirpath=run_dir,
         filename="{step}-{train_loss:.4f}-{val_loss:.4f}",
@@ -150,7 +152,11 @@ def train(
                 omegaconf.OmegaConf.to_container(cfg, resolve=True)
             )
 
-    trainer.fit(lmodel, ldm)
+    trainer.fit(
+        lmodel,
+        ldm,
+        ckpt_path=resume_ckpt_path,
+    )
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="train")
@@ -220,6 +226,7 @@ def main(cfg: omegaconf.DictConfig):
         grad_log_interval=cfg.wandb.grad_log_interval,
         gen_temp=cfg.sampling.temp,
         gen_top_k=cfg.sampling.top_k,
+        resume_ckpt_path=cfg.training.resume_ckpt_path,
     )
 
 

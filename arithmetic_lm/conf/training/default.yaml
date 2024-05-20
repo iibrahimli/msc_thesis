@@ -9,3 +9,4 @@ val_interval: 500
 limit_val_batches: null
 limit_test_examples: null
 devices: null
+resume_ckpt_path: null
