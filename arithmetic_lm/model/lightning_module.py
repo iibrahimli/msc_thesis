@@ -82,7 +82,7 @@ class LightningModel(L.LightningModule):
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
         )
-        self.log("train_loss", loss, prog_bar=True)
+        self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         return loss
 
     def validation_step(
@@ -108,7 +108,13 @@ class LightningModel(L.LightningModule):
                 tgt.reshape(-1),
                 ignore_index=self.tokenizer.pad_token_id,
             )
-            self.log("val_loss", loss, prog_bar=True, add_dataloader_idx=False)
+            self.log(
+                "val_loss",
+                loss,
+                prog_bar=True,
+                add_dataloader_idx=False,
+                sync_dist=True,
+            )
             return loss
         else:
             # evaluate accuracy on TEST set (other val dataloaders than 0)
@@ -124,6 +130,7 @@ class LightningModel(L.LightningModule):
                 batch_size=1,  # since ArithmeticEvalDataset returns 1 example
                 add_dataloader_idx=False,
                 prog_bar=True,
+                sync_dist=True,
             )
 
     def configure_optimizers(self):
