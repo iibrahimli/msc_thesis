@@ -130,7 +130,6 @@ class LightningModel(L.LightningModule):
                 batch_size=1,  # since ArithmeticEvalDataset returns 1 example
                 add_dataloader_idx=False,
                 prog_bar=True,
-                sync_dist=True,
             )
 
     def configure_optimizers(self):
