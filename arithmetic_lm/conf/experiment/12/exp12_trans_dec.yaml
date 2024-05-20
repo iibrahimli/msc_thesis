@@ -22,6 +22,7 @@ training:
   lr: 0.0005
   max_iters: 100000
   limit_test_examples: 2000 # since test set is large
+  val_interval: 1000
   devices: [0, 1]
 
 model:
