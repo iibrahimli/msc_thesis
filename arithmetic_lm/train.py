@@ -2,6 +2,8 @@
 
 import os
 
+import wandb.util
+
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
@@ -106,15 +108,17 @@ def train(
         # finish previous run if exists (e.g. hydra multirun)
         wandb.finish()
 
+        run_id = wandb.util.generate_id()
+
         # if resuming
         if resume_ckpt_path:
             # TODO: automatically save and retrieve
-            prev_run_id = cfg.training.get("prev_id")
+            run_id = cfg.training.get("prev_run_id")
 
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
             name=run_name,
-            id=prev_run_id if resume_ckpt_path else None,
+            id=run_id if resume_ckpt_path else None,
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
@@ -154,7 +158,8 @@ def train(
         # add experiment hparams from omegaconf
         if trainer.global_rank == 0:
             wandb_logger.experiment.config.update(
-                omegaconf.OmegaConf.to_container(cfg, resolve=True)
+                omegaconf.OmegaConf.to_container(cfg, resolve=True),
+                allow_val_change=True,
             )
 
     trainer.fit(
