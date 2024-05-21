@@ -86,7 +86,7 @@ class SampleCallback(L.Callback):
         trainer.logger.experiment.log(
             {"samples": wandb.Table(columns=cols, data=rows)},
             # {"samples": wandb.Html(out)},
-            step=trainer.global_step,
+            # step=trainer.global_step,
         )
 
     def on_validation_end(
