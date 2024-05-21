@@ -90,10 +90,7 @@ def train(
     run_dir.mkdir(exist_ok=True, parents=True)
 
     checkpoint_callback = L.pytorch.callbacks.ModelCheckpoint(
-        monitor="train_loss",
-        save_top_k=1,
         save_last="link",
-        mode="min",
         dirpath=run_dir,
         filename="step{step}-train_loss{train_loss:.4f}-val_loss{val_loss:.4f}",
         auto_insert_metric_name=False,
