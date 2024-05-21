@@ -34,7 +34,7 @@ def generate(
     assert isinstance(idx, torch.Tensor), "idx must be a torch.Tensor"
     assert idx.dim() == 2, "idx must be a 2D tensor of shape [batch, seq_len]"
     assert idx.size(1) <= model.context_len, "sequence length must be <= context_len"
-    assert idx.size(0) == 1, "only batch size = 1 supported"
+    # assert idx.size(0) == 1, "only batch size = 1 supported"
 
     # keep track of where generated part starts to only return it
     gen_start_idx = idx.size(-1)
