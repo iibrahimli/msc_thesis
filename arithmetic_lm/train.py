@@ -55,6 +55,9 @@ def train(
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
+    # generate run id to pass lmodel for saving
+    run_id = wandb.util.generate_id() if wandb_enabled else None
+
     # test datasets
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
     test_datasets = list(test_data_dict.values())
@@ -79,7 +82,8 @@ def train(
         extra_hparams={
             "data_format": omegaconf.OmegaConf.to_container(
                 cfg.data.format, resolve=True
-            )
+            ),
+            "wandb_run_id": run_id,
         },
     )
 
@@ -108,17 +112,22 @@ def train(
         # finish previous run if exists (e.g. hydra multirun)
         wandb.finish()
 
-        run_id = wandb.util.generate_id()
-
         # if resuming
         if resume_ckpt_path:
-            # TODO: automatically save and retrieve
-            run_id = cfg.training.get("prev_run_id")
+            # get run id from checkpoint
+            ckpt_data = torch.load(resume_ckpt_path, map_location="cpu")
+            run_id = ckpt_data["hyper_parameters"].get("wandb_run_id")
+            del ckpt_data
+
+            if not run_id:
+                raise ValueError(
+                    "Could not find wandb_run_id in checkpoint, please provide run_id manually"
+                )
 
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
             name=run_name,
-            id=run_id if resume_ckpt_path else None,
+            id=run_id,  # either a fresh one or previous run id
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
