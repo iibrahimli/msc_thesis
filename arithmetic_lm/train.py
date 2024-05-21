@@ -95,7 +95,8 @@ def train(
         save_last="link",
         mode="min",
         dirpath=run_dir,
-        filename="{step}-{train_loss:.4f}-{val_loss:.4f}",
+        filename="step{step}-train_loss{train_loss:.4f}-val_loss{val_loss:.4f}",
+        auto_insert_metric_name=False,
     )
 
     callbacks = [
