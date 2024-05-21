@@ -106,12 +106,19 @@ def train(
         # finish previous run if exists (e.g. hydra multirun)
         wandb.finish()
 
+        # if resuming
+        if resume_ckpt_path:
+            # TODO: automatically save and retrieve
+            prev_run_id = cfg.training.get("prev_id")
+
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
             name=run_name,
+            id=prev_run_id if resume_ckpt_path else None,
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
+            resume="must" if resume_ckpt_path else "never",
         )
         loggers.append(wandb_logger)
         wandb_logger.watch(model, log_freq=grad_log_interval)
