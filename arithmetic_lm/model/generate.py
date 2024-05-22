@@ -14,12 +14,13 @@ def generate(
     seed: int = 42,
 ) -> Tensor:
     """
-    Take a conditioning sequence of indices idx (tensor of shape [batch, seq_len]) and complete
-    the sequence max_new_tokens times, feeding the predictions back into the model each time.
-    Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+    Take a conditioning sequence of indices idx (tensor of shape [batch, seq_len])
+    and complete the sequence max_new_tokens times, feeding the predictions back
+    into the model each time. Most likely you'll want to make sure to be in
+    model.eval() mode of operation for this.
 
-    encoder_source hints that the model is an encoder-decoder model and the encoder_source
-    will be encoded and used as memory for the decoder.
+    encoder_source hints that the model is an encoder-decoder model and the
+    encoder_source will be encoded and used as memory for the decoder.
     """
 
     # TODO implement seed w/ device support
@@ -73,17 +74,14 @@ def generate(
         # apply softmax
         probs = nn.functional.softmax(logits, dim=-1)
 
-        # sample from the distribution
-        next_token = torch.multinomial(
-            probs,
-            num_samples=1,
-        )
+        # sample from the distribution, next_tokens [B, 1]
+        next_tokens = torch.multinomial(probs, num_samples=1)
 
         # append to the sequence
-        idx = torch.cat([idx, next_token], dim=1)
+        idx = torch.cat([idx, next_tokens], dim=1)
 
         # stop if stop_token is generated
-        if stop_token is not None and next_token.item() == stop_token:
+        if stop_token is not None and next_tokens.item() == stop_token:
             break
 
     return idx[:, gen_start_idx:]

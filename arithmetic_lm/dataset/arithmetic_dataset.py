@@ -283,7 +283,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             self.train_ds,
             batch_size=self.batch_size,
             shuffle=True,
-            pin_memory=True,
             num_workers=self.num_workers,
             collate_fn=self.train_val_collate_fn,
             persistent_workers=True,
@@ -294,7 +293,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             torch.utils.data.DataLoader(
                 self.val_ds,
                 batch_size=self.batch_size,
-                pin_memory=True,
                 num_workers=self.num_workers,
                 collate_fn=self.train_val_collate_fn,
                 persistent_workers=True,
@@ -306,7 +304,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                     td,
                     batch_size=None,  # disable automatic batching, return samples
                     shuffle=False,
-                    pin_memory=True,
                     num_workers=self.num_workers,
                     persistent_workers=True,
                 )
