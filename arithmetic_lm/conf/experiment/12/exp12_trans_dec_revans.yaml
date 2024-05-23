@@ -13,7 +13,7 @@ data:
   train_ds_class: ArithmeticLMSequenceDataset
   format:
     pad: $
-    reverse_ans: true
+    reverse_ans: false
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
 
@@ -33,4 +33,4 @@ model:
 
 wandb:
   project: "addition-high-n-digit-variation"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_rev
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
