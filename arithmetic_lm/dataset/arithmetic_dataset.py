@@ -285,7 +285,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
             shuffle=True,
             num_workers=self.num_workers,
             collate_fn=self.train_val_collate_fn,
-            persistent_workers=True,
+            persistent_workers=True if self.num_workers > 0 else False,
             pin_memory=True,
         )
 
@@ -296,7 +296,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                 batch_size=self.batch_size,
                 num_workers=self.num_workers,
                 collate_fn=self.train_val_collate_fn,
-                persistent_workers=True,
+                persistent_workers=True if self.num_workers > 0 else False,
                 pin_memory=True,
             ),
         ]
@@ -307,7 +307,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
                     batch_size=None,  # disable automatic batching, return samples
                     shuffle=False,
                     num_workers=self.num_workers,
-                    persistent_workers=True,
+                    persistent_workers=True if self.num_workers > 0 else False,
                     pin_memory=True,
                 )
             )
