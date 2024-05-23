@@ -116,7 +116,7 @@ def train(
         if resume_ckpt_path:
             # get run id from checkpoint
             ckpt_data = torch.load(resume_ckpt_path, map_location="cpu")
-            run_id = ckpt_data["hyper_parameters"].get("wandb_run_id")
+            run_id = ckpt_data["hyper_parameters"]["extra_hparams"].get("wandb_run_id")
             del ckpt_data
 
             # try to get from cfg.wandb.run_id (used only for this as backup)
