@@ -119,16 +119,10 @@ def train(
             run_id = ckpt_data["hyper_parameters"]["extra_hparams"].get("wandb_run_id")
             del ckpt_data
 
-            if run_id is not None:
-                print(f"Got wandb run id {run_id} from ckpt")
-
             # try to get from cfg.wandb.run_id (used only for this as backup)
             if not run_id:
                 run_id = cfg.wandb.get("run_id")
             
-            if run_id is not None:
-                print(f"Got wandb run id {run_id} from cfg.wandb_run_id")
-
             if not run_id:
                 raise ValueError(
                     "Could not find wandb_run_id in checkpoint, please provide run_id manually"
