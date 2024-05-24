@@ -127,6 +127,11 @@ def train(
                 raise ValueError(
                     "Could not find wandb_run_id in checkpoint, please provide run_id manually"
                 )
+        
+        # override manually set run id
+        manual_run_id = cfg.wandb.get("run_id")
+        if manual_run_id is not None:
+            run_id = manual_run_id
 
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
