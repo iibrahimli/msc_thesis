@@ -55,8 +55,26 @@ def train(
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
-    # generate run id to pass lmodel for saving
-    run_id = wandb.util.generate_id() if wandb_enabled else None
+    # determine wandb run id
+    if resume_ckpt_path:
+        # use explicitly provided run id from cli
+        wandb_run_id = cfg.wandb.get("run_id")
+
+        if not wandb_run_id:
+            # otherwise, try to get it from checkpoint
+            ckpt_data = torch.load(resume_ckpt_path, map_location="cpu")
+            wandb_run_id = ckpt_data["hyper_parameters"]["extra_hparams"].get(
+                "wandb_run_id"
+            )
+            del ckpt_data
+
+        if not wandb_run_id:
+            raise ValueError(
+                "Could not find wandb_run_id in checkpoint, please provide run_id manually"
+            )
+    else:
+        # new run, generate new id
+        wandb_run_id = wandb.util.generate_id()
 
     # test datasets
     test_ds_names = list(test_data_dict.keys())  # extract names to pass to lmodule
@@ -83,7 +101,7 @@ def train(
             "data_format": omegaconf.OmegaConf.to_container(
                 cfg.data.format, resolve=True
             ),
-            "wandb_run_id": run_id,
+            "wandb_run_id": wandb_run_id,
         },
     )
 
@@ -112,31 +130,10 @@ def train(
         # finish previous run if exists (e.g. hydra multirun)
         wandb.finish()
 
-        # if resuming
-        if resume_ckpt_path:
-            # get run id from checkpoint
-            ckpt_data = torch.load(resume_ckpt_path, map_location="cpu")
-            run_id = ckpt_data["hyper_parameters"]["extra_hparams"].get("wandb_run_id")
-            del ckpt_data
-
-            # try to get from cfg.wandb.run_id (used only for this as backup)
-            if not run_id:
-                run_id = cfg.wandb.get("run_id")
-
-            if not run_id:
-                raise ValueError(
-                    "Could not find wandb_run_id in checkpoint, please provide run_id manually"
-                )
-
-        # override manually set run id
-        manual_run_id = cfg.wandb.get("run_id")
-        if manual_run_id is not None:
-            run_id = manual_run_id
-
         wandb_logger = L.pytorch.loggers.WandbLogger(
             project=wandb_project,
             name=run_name,
-            id=run_id,  # either a fresh one or previous run id
+            id=wandb_run_id,  # either a fresh one or previous run id
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
