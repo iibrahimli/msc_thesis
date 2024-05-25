@@ -122,12 +122,12 @@ def train(
             # try to get from cfg.wandb.run_id (used only for this as backup)
             if not run_id:
                 run_id = cfg.wandb.get("run_id")
-            
+
             if not run_id:
                 raise ValueError(
                     "Could not find wandb_run_id in checkpoint, please provide run_id manually"
                 )
-        
+
         # override manually set run id
         manual_run_id = cfg.wandb.get("run_id")
         if manual_run_id is not None:
