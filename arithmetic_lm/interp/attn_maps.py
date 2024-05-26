@@ -80,6 +80,7 @@ def plot_attn_maps(
     filler_tokens_prompt: int = 0,
     save: bool = False,
     figsize: tuple[int, int] = (8, 8),
+    reverse_ans: bool = False,
 ):
     astr = str(a)
     bstr = str(b)
@@ -88,7 +89,9 @@ def plot_attn_maps(
     )
     # prompt_str = "\n" + prompt_str
     print("prompt:", repr(prompt_str), f"{len(astr)}+{len(bstr)}")
-    true_ans = a + b
+    true_ans = str(a + b)
+    if reverse_ans:
+        true_ans = true_ans[::-1]
     print("true_ans:", true_ans)
 
     prompt = torch.tensor([tokenizer.encode(prompt_str)])
@@ -111,7 +114,7 @@ def plot_attn_maps(
     )
 
     pred_answer_str = tokenizer.decode(pred_tensor[0].tolist())
-    pred_answer_num = int("".join(c for c in pred_answer_str if c.isdigit()))
+    pred_answer_num = "".join(c for c in pred_answer_str if c.isdigit())
     print("pred_answer:", pred_answer_str)
 
     for mn, matts in attn_maps.items():
@@ -124,8 +127,8 @@ def plot_attn_maps(
     # for each module, in a subfigure plot heads as subplots
     fig = plt.figure(layout="constrained", figsize=figsize)
     fig.suptitle(
-        f"Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, pred: {repr(pred_answer_str).replace('$', '\$')} [{len(astr)}+{len(bstr)}]"
-        f"\n predicted answer: {pred_answer_num} ({'correct' if int(pred_answer_num) == true_ans else 'incorrect, true: ' + str(true_ans)})",
+        f"Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, [{len(astr)}+{len(bstr)}]"
+        f"\n predicted answer: {repr(pred_answer_str).replace('$', '\$')} ({'correct' if pred_answer_num == true_ans else 'incorrect, true: ' + true_ans})",
     )
 
     subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
