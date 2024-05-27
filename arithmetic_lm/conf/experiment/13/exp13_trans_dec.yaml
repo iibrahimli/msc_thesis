@@ -19,8 +19,8 @@ data:
 
 training:
   batch_size: 512
-  lr: 0.0003
-  max_iters: 1000000
+  lr: 0.0002
+  max_iters: 1200000
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
   devices: [1]
