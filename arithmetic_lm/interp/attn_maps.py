@@ -82,7 +82,7 @@ def plot_attn_maps(
     figsize: tuple[int, int] = (8, 8),
     reverse_ans: bool = False,
     figtitle_prefix: str = "",
-):
+) -> dict[str, torch.Tensor]:
     astr = str(a)
     bstr = str(b)
     prompt_str = (
@@ -139,3 +139,26 @@ def plot_attn_maps(
     if save:
         plt.savefig(savepath, dpi=90)
     plt.show()
+
+    return attn_maps
+
+
+def merge_heads_across_layers(attn_maps: list[torch.Tensor]) -> torch.Tensor:
+    """
+    Merge attention maps, such that non-zero weights in result indicate a
+    possible indirect connection between the corresponding tokens in the
+    input and output sequences. This is just a matrix multiply with second
+    attention map transposed, over last 2 dims.
+
+    Args:
+        attn_maps: List of attention maps for each layer in order, each map has shape
+            [batch_size, n_heads, tgt_seq_len, src_seq_len].
+
+    Returns:
+        A tensor of merged attention maps, of shape [batch_size, n_heads, tgt_seq_len, src_seq_len]
+    """
+
+    assert len(attn_maps) > 1, "Need at least 2 attention maps to merge"
+
+    merged = attn_maps[0]
+    # TODO
