@@ -81,6 +81,7 @@ def plot_attn_maps(
     save: bool = False,
     figsize: tuple[int, int] = (8, 8),
     reverse_ans: bool = False,
+    figtitle_prefix: str = "",
 ):
     astr = str(a)
     bstr = str(b)
@@ -127,7 +128,7 @@ def plot_attn_maps(
     # for each module, in a subfigure plot heads as subplots
     fig = plt.figure(layout="constrained", figsize=figsize)
     fig.suptitle(
-        f"Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, [{len(astr)}+{len(bstr)}]"
+        f"{figtitle_prefix} Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, [{len(astr)}+{len(bstr)}]"
         f"\n predicted answer: {repr(pred_answer_str).replace('$', '\$')} ({'correct' if pred_answer_num == true_ans else 'incorrect, true: ' + true_ans})",
     )
 
