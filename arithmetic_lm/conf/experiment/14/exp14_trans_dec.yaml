@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 data:
-  train: data/addition/exp_14/train_add_1-7digit_1M.txt
+  train: data/addition/exp_14/train_add_1-9digit_1M.txt
   train_ds_class: ArithmeticLMSequenceDataset
   format:
     pad: $
