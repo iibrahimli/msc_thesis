@@ -66,3 +66,8 @@ Train on 1M 1x1-50x50 digit addition examples except 1x1-5x5, 20x20, and 45x45. 
 ## [Experiment 13](../arithmetic_lm/conf/experiment/13)
 
 Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for in-between OOD, 20 longer OOD generalization). Dataset: [add_generalize_to_longer_20.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20.yaml)
+
+
+## [Experiment 14](../arithmetic_lm/conf/experiment/14)
+
+Curriculum learning, start training with 1x1, then add 2x2, 3x3, etc. Since this is the first curriculum training, the stages are manually started/resumed.

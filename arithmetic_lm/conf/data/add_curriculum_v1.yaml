@@ -1,0 +1,26 @@
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ans: ???
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: ???
+test:
+  3digit: data/addition/exp_14/test_add_3digit_100.txt
+  4digit: data/addition/exp_14/test_add_4digit_100.txt
+  5digit: data/addition/exp_14/test_add_5digit_100.txt
+  6digit: data/addition/exp_14/test_add_6digit_100.txt
+  7digit: data/addition/exp_14/test_add_7digit_100.txt
+  8digit: data/addition/exp_14/test_add_8digit_100.txt
+  9digit: data/addition/exp_14/test_add_9digit_100.txt
+  10digit: data/addition/exp_14/test_add_10digit_100.txt
+  # 11digit: data/addition/exp_14/test_add_11digit_100.txt
+  # 12digit: data/addition/exp_14/test_add_12digit_100.txt
+  # 13digit: data/addition/exp_14/test_add_13digit_100.txt
+  # 14digit: data/addition/exp_14/test_add_14digit_100.txt
+  # 15digit: data/addition/exp_14/test_add_15digit_100.txt
+  # 16digit: data/addition/exp_14/test_add_16digit_100.txt
+  # 17digit: data/addition/exp_14/test_add_17digit_100.txt

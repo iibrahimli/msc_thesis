@@ -568,6 +568,49 @@ def generate_experiment_13(out_dir: str | Path):
         )
 
 
+def generate_experiment_14(out_dir: str | Path):
+    """
+    Curriculum learning
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for Experiment 14 to {out_dir}")
+
+    excluded = set()
+
+    # generate train datasets
+    for i in range(3, 11):
+        train_path = out_dir / f"train_add_1-{i}digit_1M.txt"
+        print(f"Generating {train_path}")
+        train_digits = list(range(1, i + 1))
+        generate_balanced(
+            filepath=train_path,
+            num_examples={i: 999_000 // len(train_digits) for i in train_digits}
+            | {
+                1: 100,
+                2: 9901,
+            },
+            balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+        )
+
+        # train examples excluded from test
+        excluded |= get_set_from_file(train_path)
+
+    # generate test dataset with 1-10 digits
+    for i in range(3, 11):
+        out_dist_test_path = out_dir / f"test_add_{i}digit_100.txt"
+        print(f"Generating {out_dist_test_path}")
+        generate_only_digit(
+            out_dist_test_path,
+            num_digits=i,
+            num_examples=100,
+            exclude=excluded,
+            seed=i,
+        )
+
+
 def main():
     # generate_experiment_1(DATA_DIR / "addition")
     # generate_experiment_2(DATA_DIR / "addition")
@@ -578,6 +621,7 @@ def main():
     # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
     # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
     generate_experiment_13(DATA_DIR / "addition" / "exp_13")
+    generate_experiment_14(DATA_DIR / "addition" / "exp_14")
 
 
 if __name__ == "__main__":
