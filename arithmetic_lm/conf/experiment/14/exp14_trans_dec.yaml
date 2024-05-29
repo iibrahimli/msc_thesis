@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 data:
-  train: data/addition/exp_14/train_add_1-5digit_1M.txt
+  train: data/addition/exp_14/train_add_1-7digit_1M.txt
   train_ds_class: ArithmeticLMSequenceDataset
   format:
     pad: $
@@ -20,7 +20,7 @@ data:
 
 training:
   batch_size: 2048
-  lr: 0.0001
+  lr: 0.0003
   max_iters: 1000000
   limit_test_examples: 1000 # since test set is large
   val_interval: 1000
