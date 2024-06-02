@@ -202,6 +202,7 @@ def main(cfg: omegaconf.DictConfig):
         "pad": cfg.data.format.pad,
         "pad_ops_zero": cfg.data.format.pad_ops_zero,
         "pad_ans_zero": cfg.data.format.pad_ans_zero,
+        "reverse_ops": cfg.data.format.reverse_ops,
         "reverse_ans": cfg.data.format.reverse_ans,
         "filler_tokens_prompt": cfg.data.format.filler_tokens_prompt,
         "filler_tokens_ans": cfg.data.format.filler_tokens_ans,
