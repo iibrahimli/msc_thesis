@@ -4,6 +4,7 @@ format:
   pad: $
   pad_ops_zero: null
   pad_ans_zero: null
+  reverse_ops: false
   reverse_ans: ???
   encdec: false
   filler_tokens_prompt: null

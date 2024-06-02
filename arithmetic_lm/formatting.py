@@ -17,6 +17,7 @@ def split_operands_and_op(prompt: str) -> tuple[str, str, str]:
 def format_line(
     line: str,
     pad: str = None,
+    reverse_ops: bool = False,
     reverse_ans: bool = False,
     pad_ops_zero: int | None = None,
     pad_ans_zero: int | None = None,
@@ -46,13 +47,18 @@ def format_line(
         pad_ops_zero = random.randint(0, pad_ops_zero)
         pad_ans_zero = random.randint(0, pad_ans_zero)
 
+    a, op, b = split_operands_and_op(ab)
+
+    if reverse_ops:
+        a = a[::-1]
+        b = b[::-1]
+
     if pad_ops_zero:
         # split by non-digit char and pad operands with zeros
-        a, op, b = split_operands_and_op(ab)
         a = a.zfill(pad_ops_zero)
         b = b.zfill(pad_ops_zero)
-        ab = f"{a}{op}{b}"
 
+    ab = f"{a}{op}{b}"
     ab = ab.lstrip()
     ans = ans.rstrip()
 
