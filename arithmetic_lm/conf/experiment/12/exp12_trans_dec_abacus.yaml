@@ -13,7 +13,8 @@ data:
   train_ds_class: ArithmeticLMSequenceDataset
   format:
     pad: $
-    reverse_ans: false
+    reverse_ops: true
+    reverse_ans: true
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
 
