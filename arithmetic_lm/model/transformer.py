@@ -1,7 +1,11 @@
 import torch
 from torch import Tensor, nn
 
-from .pos_encoding import AbsolutePositionalEncoding, RelativeMultiheadAttention
+from .pos_encoding import (
+    AbacusEncoding,
+    AbsolutePositionalEncoding,
+    RelativeMultiheadAttention,
+)
 from .utils import init_weights
 
 
@@ -45,9 +49,14 @@ class Transformer(nn.Module):
 
         # embedding (TODO: hardcoded pad index for char tokenizer)
         self.embedding = nn.Embedding(vocab_size, n_embd, padding_idx=99)
-        self.pos_encoder = AbsolutePositionalEncoding(
-            n_embd, max_len=context_len, dropout=dropout
-        )
+        if self.pos_enc == "abs":
+            self.pos_encoder = AbsolutePositionalEncoding(
+                n_embd, max_len=context_len, dropout=dropout
+            )
+        elif self.pos_enc == "abacus":
+            self.pos_encoder = AbacusEncoding(
+                embedding_dim=n_embd, max_seq_length=context_len
+            )
 
         self.encoder_layer = nn.TransformerEncoderLayer(
             d_model=n_embd,
