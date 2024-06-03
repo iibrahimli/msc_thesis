@@ -1,11 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .pos_encoding import (
-    CoordinateEncoding,
-    RandomCoordinateEncoding,
-    RelativeMultiheadAttention,
-)
+from .pos_encoding import AbacusEncoding, CoordinateEncoding, RelativeMultiheadAttention
 from .utils import init_weights
 
 
@@ -54,9 +50,9 @@ class UniversalTransformer(nn.Module):
             self.coord_encoder = CoordinateEncoding(
                 n_embd, max_len=context_len, dropout=dropout
             )
-        elif pos_enc == "random":
-            self.coord_encoder = RandomCoordinateEncoding(
-                n_embd, max_len=context_len, dropout=dropout
+        elif pos_enc == "abacus":
+            self.pos_encoder = AbacusEncoding(
+                embedding_dim=n_embd, max_seq_length=context_len
             )
 
         self.encoder_layer = nn.TransformerEncoderLayer(
