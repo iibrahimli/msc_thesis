@@ -163,7 +163,7 @@ class AbacusEncoding(nn.Module):
         # digit_tokens: list[int],
         embedding_dim: int,
         max_seq_length: int = 256,
-        max_k: int = 99,
+        max_k: int = 30,
     ):
         """
         digit_tokens (list): list of the tokens for each of the 10 digits, in pseudocode:
