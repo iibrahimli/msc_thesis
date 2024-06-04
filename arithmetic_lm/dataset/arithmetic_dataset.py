@@ -236,7 +236,7 @@ class ArithmeticExampleDataset(DatasetBase):
         self.prompts = []
         self.answers = []
         for line in lines:
-            prompt, ans = line.split("=")
+            prompt, ans = line.split("=", 1)
             if equal_in_prompt:
                 prompt += "="
             else:
