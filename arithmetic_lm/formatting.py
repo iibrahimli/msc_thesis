@@ -29,6 +29,7 @@ def format_line(
     prepend_newline: bool = False,
     append_newline: bool = False,
     random_zero_padding: bool = False,
+    chain_of_thought: bool = False,
 ) -> str:
     """
     Format line based on args, assumes line has ends with \n,
@@ -81,7 +82,12 @@ def format_line(
         ans = filler_token * filler_tokens_ans + ans
 
     pad = pad if pad else ""
-    res = f"{pad}{ab}={ans}{pad}"
+
+    if chain_of_thought:
+        cot = chain_of_thought_addition(a, b)
+        res = f"{pad}{ab}={cot}{pad}"
+    else:
+        res = f"{pad}{ab}={ans}{pad}"
 
     if prepend_newline:
         res = "\n" + res
