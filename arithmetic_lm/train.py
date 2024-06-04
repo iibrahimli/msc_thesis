@@ -207,6 +207,7 @@ def main(cfg: omegaconf.DictConfig):
         "filler_tokens_prompt": cfg.data.format.filler_tokens_prompt,
         "filler_tokens_ans": cfg.data.format.filler_tokens_ans,
         "equal_in_prompt": not cfg.data.format.encdec,
+        "chain_of_thought": cfg.data.format.get("chain_of_thought", False),
     }
     # TODO: add support for multiple train files
     train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_args)
