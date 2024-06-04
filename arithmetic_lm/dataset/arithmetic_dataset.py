@@ -41,6 +41,7 @@ class DatasetBase(Dataset):
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,
+        chain_of_thought: bool = False,
     ):
         self.txtfile = txtfile
         self.tokenizer = tokenizer
@@ -53,6 +54,7 @@ class DatasetBase(Dataset):
             pad_ans_zero=pad_ans_zero,
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
+            chain_of_thought=chain_of_thought,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt
@@ -89,6 +91,7 @@ class ArithmeticLMDataset(DatasetBase):
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
+        chain_of_thought: bool = False,
     ):
         super().__init__(
             txtfile=txtfile,
@@ -103,6 +106,7 @@ class ArithmeticLMDataset(DatasetBase):
             filler_tokens_ans=filler_tokens_ans,
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
+            chain_of_thought=chain_of_thought,
         )
 
         lines = self._get_lines()
@@ -141,6 +145,7 @@ class ArithmeticLMSequenceDataset(DatasetBase):
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
+        chain_of_thought: bool = False,
     ):
         super().__init__(
             txtfile=txtfile,
@@ -155,6 +160,7 @@ class ArithmeticLMSequenceDataset(DatasetBase):
             filler_tokens_ans=filler_tokens_ans,
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
+            chain_of_thought=chain_of_thought,
         )
 
         lines = self._get_lines()
@@ -196,6 +202,7 @@ class ArithmeticExampleDataset(DatasetBase):
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
         equal_in_prompt: bool = True,
+        chain_of_thought: bool = False,
     ):
         """
         Args:
@@ -221,6 +228,7 @@ class ArithmeticExampleDataset(DatasetBase):
             filler_tokens_ans=filler_tokens_ans,
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
+            chain_of_thought=chain_of_thought,
         )
 
         lines = self._get_lines()
