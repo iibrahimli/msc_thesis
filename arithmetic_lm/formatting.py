@@ -9,6 +9,8 @@ PLAIN_FORMAT_STR = "{a}{op}{b}={ans}\n"
 
 
 def split_operands_and_op(prompt: str) -> tuple[str, str, str]:
+    if "=" in prompt:
+        prompt = prompt[: prompt.index("=")]
     a, b = re.findall(r"\d+", prompt)
     op = re.findall(r"[+\-*]", prompt)[0]
     return a, op, b
