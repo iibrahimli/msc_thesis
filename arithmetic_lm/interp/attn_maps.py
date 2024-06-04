@@ -80,11 +80,17 @@ def plot_attn_maps(
     filler_tokens_prompt: int = 0,
     save: bool = False,
     figsize: tuple[int, int] = (8, 8),
+    reverse_ops: bool = False,
     reverse_ans: bool = False,
     figtitle_prefix: str = "",
 ) -> dict[str, torch.Tensor]:
     astr = str(a)
     bstr = str(b)
+
+    if reverse_ops:
+        astr = astr[::-1]
+        bstr = bstr[::-1]
+
     prompt_str = (
         f"${'.' * filler_tokens_prompt}{astr.zfill(pad_zeros)}+{bstr.zfill(pad_zeros)}="
     )
