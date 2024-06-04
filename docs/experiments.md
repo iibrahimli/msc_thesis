@@ -71,3 +71,8 @@ Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for in-b
 ## [Experiment 14](../arithmetic_lm/conf/experiment/14)
 
 Curriculum learning, start training with 1x1, then add 2x2, 3x3, etc. Since this is the first curriculum training, the stages are manually started/resumed.
+
+
+## [Experiment 15](../arithmetic_lm/conf/experiment/15)
+
+Like Experiment 13, but with chain of thought.

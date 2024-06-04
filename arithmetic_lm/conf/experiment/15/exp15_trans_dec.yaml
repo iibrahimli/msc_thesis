@@ -3,7 +3,7 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_high_n_digit_variation
+  - override /data: add_generalize_to_longer_20
   - override /training: default
   - override /wandb: default
   - override /model: transformer_dec
@@ -16,21 +16,22 @@ data:
     reverse_ans: false
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
+    chain_of_thought: true
 
 training:
-  batch_size: 800
-  lr: 0.0004
-  max_iters: 3000000
+  batch_size: 256
+  lr: 0.0001
+  max_iters: 1000000
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
-  devices: [0]
+  devices: [1]
 
 model:
   args:
-    n_layers: 2
-    n_embd: 384
-    n_head: 3
+    n_layers: 6
+    n_embd: 768
+    n_head: 4
 
 wandb:
-  project: "addition-high-n-digit-variation"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
+  project: "addition-generalize-to-longer"
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_cot
