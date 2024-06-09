@@ -16,15 +16,15 @@ data:
     reverse_ans: false
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
-    chain_of_thought: false
+    chain_of_thought: true
 
 training:
   batch_size: 256
   lr: 0.0001
-  max_iters: 500000
+  max_iters: 1000000
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
-  devices: [0]
+  devices: [1]
 
 model:
   args:
@@ -34,4 +34,4 @@ model:
 
 wandb:
   project: "addition-generalize-to-longer"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_cot
