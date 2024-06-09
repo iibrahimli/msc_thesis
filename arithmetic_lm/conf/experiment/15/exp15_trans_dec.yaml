@@ -16,10 +16,10 @@ data:
     reverse_ans: false
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
-    chain_of_thought: true
+    chain_of_thought: false
 
 training:
-  batch_size: 64
+  batch_size: 512
   lr: 0.0001
   max_iters: 1000000
   limit_test_examples: 1000 # since test set is large
