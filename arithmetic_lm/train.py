@@ -23,7 +23,7 @@ from arithmetic_lm.dataset import (
 from arithmetic_lm.model import MODELS
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import TOKENIZERS, Tokenizer
-from arithmetic_lm.train_utils import SampleCallback
+from arithmetic_lm.train_utils import LogAttnMapsCallback, SampleCallback
 from arithmetic_lm.utils import set_seed
 
 
@@ -143,14 +143,15 @@ def train(
         wandb_logger.watch(model, log_freq=grad_log_interval)
 
         # sampler and LR monitor callbacks
+        gen_params = dict(
+            temperature=gen_temp,
+            top_k=gen_top_k,
+            stop_token=tokenizer.encode("$")[0],
+        )
         callbacks.extend(
             [
-                SampleCallback(
-                    n_samples=10,
-                    temperature=gen_temp,
-                    top_k=gen_top_k,
-                    stop_token=tokenizer.encode("$")[0],
-                ),
+                SampleCallback(n_samples=10, **gen_params),
+                LogAttnMapsCallback(**gen_params),
                 L.pytorch.callbacks.LearningRateMonitor(),
             ]
         )

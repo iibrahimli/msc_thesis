@@ -4,9 +4,10 @@ import math
 import random
 
 import lightning as L
+import matplotlib.pyplot as plt
 import torch
-
 import wandb
+
 from arithmetic_lm.dataset.generate_addition import num_carry_ops
 from arithmetic_lm.eval_utils import eval_sample
 from arithmetic_lm.formatting import split_operands_and_op
@@ -114,6 +115,26 @@ class SampleCallback(L.Callback):
                 answers.append(ans.to(pl_module.device))
 
         self._log(trainer, pl_module, ds_labels, prompts, answers)
+
+        # restore module training state
+        pl_module.train(m_training)
+
+
+class LogAttnMapsCallback(L.Callback):
+
+    def __init__(self, **gen_kwargs):
+        super().__init__()
+        self.gen_kwargs = gen_kwargs
+
+    def on_validation_end(self, trainer: L.Trainer, pl_module: L.LightningModule):
+        # save whether module is in train/eval
+        m_training = pl_module.training
+        pl_module.eval()
+
+        # dummy fig for now
+        fig, ax = plt.subplots()
+        ax.imshow(torch.rand(10, 10).cpu().numpy())
+        trainer.logger.experiment.log({"attn_maps": wandb.Image(fig)})
 
         # restore module training state
         pl_module.train(m_training)
