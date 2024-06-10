@@ -148,7 +148,7 @@ class LogAttnMapsCallback(L.Callback):
         figs = {}
         for ds_name, prompt in self.prompts.items():
             figs[ds_name] = get_attn_maps_fig_for_model(
-                pl_module, pl_module.tokenizer, prompt
+                pl_module.model, pl_module.tokenizer, prompt
             )
 
         trainer.logger.experiment.log(
