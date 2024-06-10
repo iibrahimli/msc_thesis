@@ -23,7 +23,7 @@ training:
   max_iters: 2000
   limit_test_examples: 1000 # since test set is large
   val_interval: 100
-  # devices: [0]
+  devices: "auto"
 
 model:
   args:

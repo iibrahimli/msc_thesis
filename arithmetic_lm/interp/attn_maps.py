@@ -37,9 +37,10 @@ def plot_module(
     module_name: str,
     attn_map: torch.Tensor,
     ticks: list[str],
+    plot_combined: bool = True,
 ):
     n_heads = attn_map.shape[1]
-    axs = fig.subplots(1, n_heads + 1)  # +1 for combined attn map
+    axs = fig.subplots(1, n_heads + 1 if plot_combined else n_heads)
     fig.suptitle(module_name)
 
     # choose cmaps for combined attn map
@@ -54,16 +55,17 @@ def plot_module(
             yticks=ticks,
         )
         # combined attn map
-        plot_head(
-            axs[-1],
-            attn_map[0, i],
-            title="combined",
-            cmap=cmaps[i % len(cmaps)],
-            alpha=0.5,
-            xticks=ticks,
-            yticks=ticks,
-            colorbar=False,
-        )
+        if plot_combined:
+            plot_head(
+                axs[-1],
+                attn_map[0, i],
+                title="combined",
+                cmap=cmaps[i % len(cmaps)],
+                alpha=0.5,
+                xticks=ticks,
+                yticks=ticks,
+                colorbar=False,
+            )
     # rotate yticks
     for ax in axs:
         ax.tick_params(axis="y", rotation=90)
@@ -147,3 +149,46 @@ def plot_attn_maps(
     plt.show()
 
     return attn_maps
+
+
+def get_attn_maps_fig_for_model(
+    model: torch.nn.Module, tokenizer: Tokenizer, prompt: torch.Tensor
+):
+    """
+    TODO: refactor, mostly copy-paste from plot_attn_maps
+    """
+    prompt_str = repr(tokenizer.decode(prompt.squeeze().tolist()))
+    stop_token_id = tokenizer.encode("$")[0]
+
+    # all attn modules
+    module_names = [mn for mn, _ in model.named_modules() if "attn" in mn]
+
+    attn_maps = {}
+
+    # generate answer
+    pred_tensor = generate_hooked(
+        model,
+        prompt=prompt,
+        stop_token=stop_token_id,
+        hook_config={
+            mn: {
+                "hook": get_attention_map(mn, attn_maps),
+                "pre_hook": set_attn_kwargs_prehook,
+            }
+            for mn in module_names
+        },
+    )
+
+    n_heads = attn_maps[module_names[0]].shape[1]
+    ticks = list(prompt_str + repr(tokenizer.decode(pred_tensor.squeeze().tolist())))
+
+    # adjust figsize based on n_heads (width) and n_modules (height)
+    figsize = (n_heads * 2, len(module_names) * 2)
+    fig = plt.figure(layout="constrained", figsize=figsize)
+    fig.suptitle(f"Attention maps for prompt: {prompt_str}")
+
+    subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
+    for i, (module_name, attn_map) in enumerate(attn_maps.items()):
+        plot_module(subfigs[i], module_name, attn_map, ticks, plot_combined=False)
+
+    return fig
