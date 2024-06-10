@@ -10,8 +10,6 @@ def get_attention_map(name: str, cache: dict):
         # - the attention map (weights) with shape [bs, n_heads, tgt_len, src_len]
         # keeps only last output, which is fine for our purposes
         cache[name] = output[1].detach()
-        print(f"HOOK CALLED for name: {name}, module: {module}")
-        print(f"cache: {cache}")
 
     return hook
 
@@ -39,9 +37,6 @@ def generate_hooked(
 
     for module_name, hook_dict in hook_config.items():
         module = eval(f"model.{module_name}", {"model": model})
-
-        print(module)
-        print(hook_dict)
 
         if pre_hook := hook_dict.get("pre_hook"):
             handles.append(module.register_forward_pre_hook(pre_hook, with_kwargs=True))
