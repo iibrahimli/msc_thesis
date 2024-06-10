@@ -123,9 +123,7 @@ class SampleCallback(L.Callback):
 
 class LogAttnMapsCallback(L.Callback):
 
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         super().__init__()
         self.prompts = {}
 

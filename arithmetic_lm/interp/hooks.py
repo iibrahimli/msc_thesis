@@ -38,6 +38,9 @@ def generate_hooked(
     for module_name, hook_dict in hook_config.items():
         module = eval(f"model.{module_name}", {"model": model})
 
+        print(module)
+        print(hook_dict)
+
         if pre_hook := hook_dict.get("pre_hook"):
             handles.append(module.register_forward_pre_hook(pre_hook, with_kwargs=True))
 
