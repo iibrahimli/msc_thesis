@@ -151,7 +151,8 @@ def train(
         callbacks.extend(
             [
                 SampleCallback(n_samples=10, **gen_params),
-                LogAttnMapsCallback(),
+                # TODO: fix log attn map
+                # LogAttnMapsCallback(),
                 L.pytorch.callbacks.LearningRateMonitor(),
             ]
         )
