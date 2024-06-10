@@ -183,8 +183,6 @@ def get_attn_maps_fig_for_model(
         },
     )
 
-    print(list(attn_maps.keys()))
-
     n_heads = attn_maps[module_names[0]].shape[1]
     ticks = list(prompt_str + repr(tokenizer.decode(pred_tensor.squeeze().tolist())))
 
