@@ -10,6 +10,8 @@ def get_attention_map(name: str, cache: dict):
         # - the attention map (weights) with shape [bs, n_heads, tgt_len, src_len]
         # keeps only last output, which is fine for our purposes
         cache[name] = output[1].detach()
+        print(f"HOOK CALLED for name: {name}, module: {module}")
+        print(f"cache: {cache}")
 
     return hook
 
