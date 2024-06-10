@@ -140,16 +140,15 @@ class LogAttnMapsCallback(L.Callback):
                     self.prompts[ds_name] = prompt.to(pl_module.device)
 
         # save whether module is in train/eval
-        model = pl_module.model
-        device_before = model.device
-        model.to("cpu")
-        m_training = model.training
-        model.eval()
+        device_before = pl_module.device
+        pl_module.to("cpu")
+        m_training = pl_module.training
+        pl_module.eval()
 
         figs = {}
         for ds_name, prompt in self.prompts.items():
             figs[ds_name] = get_attn_maps_fig_for_model(
-                model, pl_module.tokenizer, prompt
+                pl_module, pl_module.tokenizer, prompt
             )
 
         trainer.logger.experiment.log(
@@ -161,5 +160,5 @@ class LogAttnMapsCallback(L.Callback):
             plt.close(fig)
 
         # restore module training state and device
-        model.train(m_training)
-        model.to(device_before)
+        pl_module.train(m_training)
+        pl_module.to(device_before)
