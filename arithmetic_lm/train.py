@@ -11,8 +11,8 @@ import hydra
 import lightning as L
 import omegaconf
 import torch
-import wandb
 
+import wandb
 from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
     DATASET_CLASSES,
@@ -151,7 +151,7 @@ def train(
         callbacks.extend(
             [
                 SampleCallback(n_samples=10, **gen_params),
-                LogAttnMapsCallback(**gen_params),
+                LogAttnMapsCallback(),
                 L.pytorch.callbacks.LearningRateMonitor(),
             ]
         )

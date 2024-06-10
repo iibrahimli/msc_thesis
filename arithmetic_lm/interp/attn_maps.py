@@ -1,3 +1,5 @@
+import re
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -161,7 +163,9 @@ def get_attn_maps_fig_for_model(
     stop_token_id = tokenizer.encode("$")[0]
 
     # all attn modules
-    module_names = [mn for mn, _ in model.named_modules() if "attn" in mn]
+    module_names = [mn for mn, _ in model.named_modules() if mn.endswith("self_attn")]
+    # HACK change model.transformer_encoder.layers.0.self_attn to model.transformer_encoder.layers[0].self_attn
+    module_names = [re.sub(r"\.(\d+)\.", r"[\1].", mn) for mn in module_names]
 
     attn_maps = {}
 
@@ -188,7 +192,11 @@ def get_attn_maps_fig_for_model(
     fig.suptitle(f"Attention maps for prompt: {prompt_str}")
 
     subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
+    if len(attn_maps) == 1:
+        subfigs = [subfigs]
     for i, (module_name, attn_map) in enumerate(attn_maps.items()):
-        plot_module(subfigs[i], module_name, attn_map, ticks, plot_combined=False)
+        plot_module(
+            subfigs[i], module_name, attn_map.cpu().detach(), ticks, plot_combined=False
+        )
 
     return fig
