@@ -137,7 +137,7 @@ class LogAttnMapsCallback(L.Callback):
                 test_idxs = random.sample(range(len(test_ds)), 1)
                 for idx in test_idxs:
                     prompt, _ = test_ds[idx]
-                    self.prompts[ds_name] = prompt.to(pl_module.device)
+                    self.prompts[ds_name] = prompt
 
         # save whether module is in train/eval
         device_before = pl_module.device
