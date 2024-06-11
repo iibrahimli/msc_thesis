@@ -140,8 +140,6 @@ class LogAttnMapsCallback(L.Callback):
                     self.prompts[ds_name] = prompt
 
         # save whether module is in train/eval
-        device_before = pl_module.device
-        pl_module.to("cpu")
         m_training = pl_module.training
         pl_module.eval()
 
@@ -159,6 +157,5 @@ class LogAttnMapsCallback(L.Callback):
         for fig in figs.values():
             plt.close(fig)
 
-        # restore module training state and device
+        # restore module training state
         pl_module.train(m_training)
-        pl_module.to(device_before)

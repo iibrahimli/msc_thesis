@@ -39,7 +39,7 @@ def plot_module(
     module_name: str,
     attn_map: torch.Tensor,
     ticks: list[str],
-    plot_combined: bool = True,
+    plot_combined: bool = False,
 ):
     n_heads = attn_map.shape[1]
     axs = fig.subplots(1, n_heads + 1 if plot_combined else n_heads)
@@ -83,7 +83,7 @@ def plot_attn_maps(
     pad_zeros: int = 0,
     filler_tokens_prompt: int = 0,
     save: bool = False,
-    figsize: tuple[int, int] = (8, 8),
+    fig_scale: float = 1,
     reverse_ops: bool = False,
     reverse_ans: bool = False,
     figtitle_prefix: str = "",
@@ -136,6 +136,8 @@ def plot_attn_maps(
     ticks[0] = "\\n" if ticks[0] == "\n" else ticks[0]
 
     # for each module, in a subfigure plot heads as subplots
+    n_heads = attn_maps[module_names[0]].shape[1]
+    figsize = (n_heads * fig_scale, len(attn_maps) * fig_scale)
     fig = plt.figure(layout="constrained", figsize=figsize)
     fig.suptitle(
         f"{figtitle_prefix} Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, [{len(astr)}+{len(bstr)}]"
@@ -143,6 +145,8 @@ def plot_attn_maps(
     )
 
     subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
+    if len(attn_maps) == 1:
+        subfigs = [subfigs]
     for i, (module_name, attn_map) in enumerate(attn_maps.items()):
         plot_module(subfigs[i], module_name, attn_map, ticks)
 
@@ -154,7 +158,10 @@ def plot_attn_maps(
 
 
 def get_attn_maps_fig_for_model(
-    model: torch.nn.Module, tokenizer: Tokenizer, prompt: torch.Tensor
+    model: torch.nn.Module,
+    tokenizer: Tokenizer,
+    prompt: torch.Tensor,
+    fig_scale: float = 1,
 ):
     """
     TODO: refactor, mostly copy-paste from plot_attn_maps
@@ -187,7 +194,7 @@ def get_attn_maps_fig_for_model(
     ticks = list(prompt_str + repr(tokenizer.decode(pred_tensor.squeeze().tolist())))
 
     # adjust figsize based on n_heads (width) and n_modules (height)
-    figsize = (n_heads * 2, len(module_names) * 2)
+    figsize = (n_heads * fig_scale, len(module_names) * fig_scale)
     fig = plt.figure(layout="constrained", figsize=figsize)
     fig.suptitle(f"Attention maps for prompt: {prompt_str}")
 

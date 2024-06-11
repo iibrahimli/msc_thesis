@@ -151,7 +151,7 @@ def train(
         callbacks.extend(
             [
                 SampleCallback(n_samples=10, **gen_params),
-                # TODO: fix log attn map
+                # TODO: re-enable after torch fix, or use odd number of heads
                 # LogAttnMapsCallback(),
                 L.pytorch.callbacks.LearningRateMonitor(),
             ]
