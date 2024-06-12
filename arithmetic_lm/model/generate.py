@@ -47,7 +47,7 @@ def generate(
             encoder_source = encoder_source.unsqueeze(0)
         memory = model.encode(encoder_source)
 
-    for _ in range(max_new_tokens):
+    for i in range(max_new_tokens):
         # crop to context_len if necessary
         if idx.size(1) > model.context_len:
             idx_cond = idx[:, -model.context_len :]
@@ -82,6 +82,11 @@ def generate(
 
         # stop if stop_token is generated
         if stop_token is not None and next_tokens.item() == stop_token:
+            break
+
+        # HACK: stop generating if last 20 tokens are the same
+        same_tok_tol = 20
+        if i > same_tok_tol and (idx[:, -same_tok_tol:] == idx[:, -1]).all():
             break
 
     return idx[:, gen_start_idx:]
