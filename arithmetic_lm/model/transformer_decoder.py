@@ -22,6 +22,7 @@ class TransformerDecoder(nn.Module):
         ff_factor: int = 4,
         dropout: float = 0.1,
         pos_enc: str = "abs",
+        pos_enc_max_shift: int = 0,
     ):
         """
         Arguments:
@@ -50,7 +51,7 @@ class TransformerDecoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, n_embd)
         if self.pos_enc == "abs":
             self.pos_encoder = AbsolutePositionalEncoding(
-                n_embd, max_len=context_len, dropout=dropout
+                n_embd, max_len=context_len, dropout=dropout, max_shift=pos_enc_max_shift,
             )
         elif self.pos_enc == "abacus":
             self.pos_encoder = AbacusEncoding(
