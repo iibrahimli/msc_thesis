@@ -612,15 +612,15 @@ def generate_experiment_14(out_dir: str | Path):
 
 
 def main():
-    # generate_experiment_1(DATA_DIR / "addition")
-    # generate_experiment_2(DATA_DIR / "addition")
-    # generate_experiment_3(DATA_DIR / "addition")
-    # generate_experiment_4(DATA_DIR / "addition")
-    # generate_experiment_8(DATA_DIR / "addition" / "exp_8")
-    # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
-    # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
-    # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
-    # generate_experiment_13(DATA_DIR / "addition" / "exp_13")
+    generate_experiment_1(DATA_DIR / "addition")
+    generate_experiment_2(DATA_DIR / "addition")
+    generate_experiment_3(DATA_DIR / "addition")
+    generate_experiment_4(DATA_DIR / "addition")
+    generate_experiment_8(DATA_DIR / "addition" / "exp_8")
+    generate_experiment_10(DATA_DIR / "addition" / "exp_10")
+    generate_experiment_11(DATA_DIR / "addition" / "exp_11")
+    generate_experiment_12(DATA_DIR / "addition" / "exp_12")
+    generate_experiment_13(DATA_DIR / "addition" / "exp_13")
     generate_experiment_14(DATA_DIR / "addition" / "exp_14")
 
 
