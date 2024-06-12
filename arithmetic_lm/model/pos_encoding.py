@@ -29,7 +29,7 @@ class AbsolutePositionalEncoding(nn.Module):
             x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
         """
         shift = random.randint(0, self.max_shift)
-        x = x + self.pe[:, : x.size(1) + shift]
+        x = x + self.pe[:, shift : x.size(1) + shift]
         return self.dropout(x)
 
 
