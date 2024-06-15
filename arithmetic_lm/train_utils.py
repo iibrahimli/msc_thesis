@@ -74,11 +74,15 @@ class SampleCallback(L.Callback):
             pred_ans_str = repr(pl_module.tokenizer.decode(pred_ans.squeeze().tolist()))
             ans_str = repr(pl_module.tokenizer.decode(ans.squeeze().tolist()))
 
-            a, op, b = split_operands_and_op(prompt_str)
-            assert (
-                op.strip() == "+"
-            ), f"Computing carries only supported for + for now, got op={op}"
-            num_carries = num_carry_ops(int(a), int(b))
+            # HACK if non-numeric addition
+            if any(c.isalpha() for c in prompt_str):
+                num_carries = None
+            else:
+                a, op, b = split_operands_and_op(prompt_str)
+                assert (
+                    op.strip() == "+"
+                ), f"Computing carries only supported for + for now, got op={op}"
+                num_carries = num_carry_ops(int(a), int(b))
 
             rows.append(
                 [
