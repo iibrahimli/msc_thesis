@@ -24,7 +24,7 @@ def build_matching_example(a: str, b: str) -> str:
 
 def generate_experiment_16(out_dir: str | Path):
     """
-    Generate 10M training samples of 1-15 chars, and testing samples of in-dist
+    Generate 5M training samples of 1-15 chars, and testing samples of in-dist
     and 16 chars, 2000 samples each
     """
 
@@ -34,9 +34,9 @@ def generate_experiment_16(out_dir: str | Path):
     print(f" > Generating data for Experiment 16 to {out_dir}")
 
     # generate train dataset
-    n_train = 10_000_000
+    n_train = 5_000_000
     max_train_len = 15
-    train_path = out_dir / "train_match_1-15chars_10M.txt"
+    train_path = out_dir / "train_match_1-15chars_5M.txt"
     print(f"Generating {train_path}")
     with open(train_path, "w") as f:
         for _ in range(n_train):
