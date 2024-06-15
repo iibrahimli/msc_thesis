@@ -33,7 +33,7 @@ class TransformerDecoder(nn.Module):
             vocab_size: size of the vocabulary
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
-            pos_enc: type of positional encoding to use, either "abs" for absolute or "rel" for relative
+            pos_enc: type of positional encoding to use
         """
 
         super().__init__()
@@ -57,6 +57,8 @@ class TransformerDecoder(nn.Module):
             self.pos_encoder = AbacusEncoding(
                 embedding_dim=n_embd, max_seq_length=context_len
             )
+        elif self.pos_enc == "nope":
+            self.pos_encoder = nn.Identity()
 
         # same as decoder layer essentially, but without cross attention
         layer = nn.TransformerEncoderLayer(
