@@ -45,7 +45,7 @@ def format_line(
 
     # HACK if non-numeric (e.g. matching)
     if generic:
-        return f"{pad}{line}{pad}"
+        return f"{pad}{line.strip()}{pad}"
 
     ab, ans = line.split("=")
 
