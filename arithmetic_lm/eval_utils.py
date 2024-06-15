@@ -5,7 +5,7 @@ import torch
 from arithmetic_lm.tokenizer import Tokenizer
 
 
-def eval_sample(pred_answer: str, answer: str, strict: bool = False) -> bool:
+def eval_sample_numeric(pred_answer: str, answer: str, strict: bool = False) -> bool:
     """Evaluate a single example, true if correct, strict = whether to only compare digit chars"""
 
     if strict:
@@ -21,8 +21,24 @@ def eval_sample(pred_answer: str, answer: str, strict: bool = False) -> bool:
         return pred_answer_digits == answer_digits
 
 
+def eval_sample_string_match(
+    pred_answer: str, answer: str, strict: bool = False
+) -> bool | float:
+    """Evaluate by full string match"""
+    if strict:
+        return pred_answer.strip() == answer.strip()
+    else:
+        # check how many chars match, return float
+        n_correct = sum(1 for a, b in zip(pred_answer, answer) if a == b)
+        return n_correct / len(answer)
+
+
 def eval_on_batch(
-    model, tokenizer: Tokenizer, batch: tuple[torch.Tensor, torch.Tensor], **gen_kwargs
+    model,
+    tokenizer: Tokenizer,
+    batch: tuple[torch.Tensor, torch.Tensor],
+    eval_func: callable = eval_sample_numeric,
+    **gen_kwargs
 ) -> dict:
     """Returns dict"""
     prompt, answer = batch
@@ -33,11 +49,14 @@ def eval_on_batch(
     if model.enc_dec:
         # enc-dec are prompted with `=` and don't return it, so remove it from `answer`
         answer = answer[0:]
-    correct = int(
-        eval_sample(
-            tokenizer.decode(pred_answer.squeeze().tolist()),
-            tokenizer.decode(answer.tolist()),
-        )
+        tokenizer.decode(pred_answer.squeeze().tolist()),
+    correct = eval_func(
+        tokenizer.decode(answer.tolist()),
     )
+    if isinstance(correct, bool):
+        correct = int(correct)
 
     return {"accuracy": correct}
+
+
+EVAL_FUNCS = {"numeric": eval_sample_numeric, "string_match": eval_sample_string_match}

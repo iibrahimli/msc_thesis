@@ -2,7 +2,7 @@ import lightning as L
 import torch
 from torch import Tensor, nn
 
-from arithmetic_lm.eval_utils import eval_on_batch
+from arithmetic_lm.eval_utils import eval_on_batch, eval_sample_numeric
 from arithmetic_lm.tokenizer import Tokenizer
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
@@ -21,6 +21,7 @@ class LightningModel(L.LightningModule):
         warmup_iters: int = 100,
         model_hparams: dict = None,
         extra_hparams: dict = None,
+        eval_func: callable = eval_sample_numeric,
     ):
         super().__init__()
         self.model = model
@@ -30,6 +31,7 @@ class LightningModel(L.LightningModule):
         self.warmup_iters = warmup_iters
         self.tokenizer = tokenizer
         self.test_dataloader_names = test_dataloader_names
+        self.eval_func = eval_func
 
         # whether is encoder-decoder model
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
@@ -119,7 +121,11 @@ class LightningModel(L.LightningModule):
         else:
             # evaluate accuracy on TEST set (other val dataloaders than 0)
             res = eval_on_batch(
-                self, self.tokenizer, batch, stop_token=self.tokenizer.encode("$")[0]
+                self,
+                self.tokenizer,
+                batch,
+                stop_token=self.tokenizer.encode("$")[0],
+                eval_func=self.eval_func,
             )
             # index - 1 coz 0 is val
             test_dl_name = self.test_dataloader_names[dataloader_idx - 1]

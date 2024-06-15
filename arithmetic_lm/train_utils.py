@@ -9,7 +9,7 @@ import torch
 
 import wandb
 from arithmetic_lm.dataset.generate_addition import num_carry_ops
-from arithmetic_lm.eval_utils import eval_sample
+from arithmetic_lm.eval_utils import eval_sample_numeric
 from arithmetic_lm.formatting import split_operands_and_op
 from arithmetic_lm.interp import get_attn_maps_fig_for_model
 
@@ -43,10 +43,16 @@ def lr_cosine_annealing_with_warmup(
 class SampleCallback(L.Callback):
     """Sample from the model and log to wandb"""
 
-    def __init__(self, n_samples: int = 10, **gen_kwargs):
+    def __init__(
+        self,
+        n_samples: int = 10,
+        eval_func: callable = eval_sample_numeric,
+        **gen_kwargs,
+    ):
         super().__init__()
         self.n_samples = n_samples
         self.gen_kwargs = gen_kwargs
+        self.eval_func = eval_func
 
     def _log(
         self,
@@ -81,7 +87,7 @@ class SampleCallback(L.Callback):
                     prompt_str,
                     ans_str,
                     pred_ans_str,
-                    eval_sample(pred_ans_str, ans_str),
+                    self.eval_func(pred_ans_str, ans_str),
                 ]
             )
 

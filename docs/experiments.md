@@ -76,3 +76,8 @@ Curriculum learning, start training with 1x1, then add 2x2, 3x3, etc. Since this
 ## [Experiment 15](../arithmetic_lm/conf/experiment/15)
 
 Like Experiment 13, but with chain of thought.
+
+
+## [Experiment 16](../arithmetic_lm/conf/experiment/16)
+
+Pretrain on a character matching task, 5M training examples of 1-15 mixed operand length, test on in-distribution and OOD of 13-17 chars. Lowercase letters and numbers are used. Dataset: [matching_v1.yaml](../arithmetic_lm/conf/data/matching_v1.yaml)

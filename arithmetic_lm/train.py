@@ -20,6 +20,7 @@ from arithmetic_lm.dataset import (
     ArithmeticLMDataset,
     LightningArithmeticDataModule,
 )
+from arithmetic_lm.eval_utils import EVAL_FUNCS
 from arithmetic_lm.model import MODELS
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import TOKENIZERS, Tokenizer
@@ -51,6 +52,7 @@ def train(
     gen_temp: float,
     gen_top_k: int,
     resume_ckpt_path: str | None = None,
+    eval_func: str = "numeric",
 ):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
@@ -103,6 +105,7 @@ def train(
             ),
             "wandb_run_id": wandb_run_id,
         },
+        eval_func=EVAL_FUNCS[eval_func],
     )
 
     # run dir wandb_project / run_name or just run_name if no project
@@ -256,6 +259,7 @@ def main(cfg: omegaconf.DictConfig):
         gen_temp=cfg.sampling.temp,
         gen_top_k=cfg.sampling.top_k,
         resume_ckpt_path=cfg.training.resume_ckpt_path,
+        eval_func=cfg.training.eval_func,
     )
 
 
