@@ -75,7 +75,7 @@ class DatasetBase(Dataset):
         # HACK decide if non-numeric task
         generic = False
         for line in random.sample(lines, min(10, len(lines))):
-            if any(c.alpha() for c in line):
+            if any(c.isalpha() for c in line):
                 generic = True
                 break
         return list(
