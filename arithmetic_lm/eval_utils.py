@@ -51,6 +51,7 @@ def eval_on_batch(
         answer = answer[0:]
         tokenizer.decode(pred_answer.squeeze().tolist()),
     correct = eval_func(
+        tokenizer.decode(pred_answer.squeeze().tolist()),
         tokenizer.decode(answer.tolist()),
     )
     if isinstance(correct, bool):
