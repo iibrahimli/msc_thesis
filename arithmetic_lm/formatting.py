@@ -41,6 +41,10 @@ def format_line(
     filler_tokens_* is the number of filler tokens to prepend before the prompt/ans.
     """
 
+    # HACK if non-numeric (e.g. matching)
+    if any(c.isalpha() for c in line):
+        return f"{pad}{line}{pad}"
+
     ab, ans = line.split("=")
 
     if random_zero_padding:
