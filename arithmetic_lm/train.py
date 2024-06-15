@@ -153,7 +153,9 @@ def train(
         )
         callbacks.extend(
             [
-                SampleCallback(n_samples=10, **gen_params),
+                SampleCallback(
+                    n_samples=10, eval_func=EVAL_FUNCS[eval_func], **gen_params
+                ),
                 # TODO: re-enable after torch fix, or use odd number of heads
                 # LogAttnMapsCallback(),
                 L.pytorch.callbacks.LearningRateMonitor(),
