@@ -30,6 +30,7 @@ def format_line(
     append_newline: bool = False,
     random_zero_padding: bool = False,
     chain_of_thought: bool = False,
+    generic: bool = False,
 ) -> str:
     """
     Format line based on args, assumes line has ends with \n,
@@ -39,10 +40,11 @@ def format_line(
     if pad_ops_zero=3. If random_zero_padding is True, pad operands and answers
     with a random number of zeros between length of number and pad_*_zero.
     filler_tokens_* is the number of filler tokens to prepend before the prompt/ans.
+    generic: whether to only apply pad, do not try to split numeric ops and answer.
     """
 
     # HACK if non-numeric (e.g. matching)
-    if any(c.isalpha() for c in line):
+    if generic:
         return f"{pad}{line}{pad}"
 
     ab, ans = line.split("=")

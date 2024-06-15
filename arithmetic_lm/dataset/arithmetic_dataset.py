@@ -13,6 +13,7 @@ appropriate formatting of the examples. The datasets return tokenized sequences.
     -> "32+11=" and "43".
 """
 
+import random
 from functools import partial
 from pathlib import Path
 
@@ -71,7 +72,15 @@ class DatasetBase(Dataset):
         return lines
 
     def _format_lines(self, format_func: callable, lines: list[str]) -> list[str]:
-        return list(map(partial(format_func, **self.fmt_kwargs), lines))
+        # HACK decide if non-numeric task
+        generic = False
+        for line in random.sample(lines, min(10, len(lines))):
+            if any(c.alpha() for c in line):
+                generic = True
+                break
+        return list(
+            map(partial(format_func, generic=generic, **self.fmt_kwargs), lines)
+        )
 
 
 class ArithmeticLMDataset(DatasetBase):
