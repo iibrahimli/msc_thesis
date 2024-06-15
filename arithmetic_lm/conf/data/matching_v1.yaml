@@ -9,7 +9,7 @@ format:
   encdec: false
   filler_tokens_prompt: null
   filler_tokens_ans: null
-train: data/matching/exp_16/train_match_1-15chars_5M.txt
+train: data/matching/exp_16/train_match_1-15chars_10M.txt
 test:
   in_dist: data/matching/exp_16/test_match_in_dist_2000.txt
   16chars: data/matching/exp_16/test_match_ood_13-17chars_2000.txt
