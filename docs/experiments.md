@@ -80,4 +80,4 @@ Like Experiment 13, but with chain of thought.
 
 ## [Experiment 16](../arithmetic_lm/conf/experiment/16)
 
-Pretrain on a character matching task, 5M training examples of 1-15 mixed operand length, test on in-distribution and OOD of 13-17 chars. Lowercase letters and numbers are used. Dataset: [matching_v1.yaml](../arithmetic_lm/conf/data/matching_v1.yaml)
+Pretrain on a character matching task, 10M training examples of 1-15 mixed operand length, test on in-distribution and OOD of 13-17 chars. Lowercase letters and numbers are used. Dataset: [matching_v1.yaml](../arithmetic_lm/conf/data/matching_v1.yaml)
