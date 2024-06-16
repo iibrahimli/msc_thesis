@@ -58,10 +58,10 @@ def train(
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
-    resume_wandb_run_from_ckpt = resume_ckpt_path and not ckpt_weights_only
+    full_resume_from_ckpt = resume_ckpt_path and not ckpt_weights_only
 
     # determine wandb run id
-    if resume_wandb_run_from_ckpt:
+    if full_resume_from_ckpt:
         # use explicitly provided run id from cli
         wandb_run_id = cfg.wandb.get("run_id")
 
@@ -143,7 +143,7 @@ def train(
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
-            resume="must" if resume_wandb_run_from_ckpt else "never",
+            resume="must" if full_resume_from_ckpt else "never",
         )
         loggers.append(wandb_logger)
         wandb_logger.watch(model, log_freq=grad_log_interval)
@@ -187,10 +187,16 @@ def train(
                 allow_val_change=True,
             )
 
+    # if load weights only
+    if resume_ckpt_path and ckpt_weights_only:
+        lmodel.load_state_dict(torch.load(resume_ckpt_path)["state_dict"])
+
     trainer.fit(
         lmodel,
         ldm,
-        ckpt_path=resume_ckpt_path,
+        ckpt_path=(
+            resume_ckpt_path if full_resume_from_ckpt else None
+        ),  # if resume from full ckpt
     )
 
 
