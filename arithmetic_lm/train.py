@@ -196,9 +196,7 @@ def train(
     trainer.fit(
         lmodel,
         ldm,
-        ckpt_path=(
-            resume_ckpt_path if full_resume_from_ckpt else None
-        ),  # if resume from full ckpt
+        ckpt_path=resume_ckpt_path if full_resume_from_ckpt else None,
     )
 
 
