@@ -52,13 +52,16 @@ def train(
     gen_temp: float,
     gen_top_k: int,
     resume_ckpt_path: str | None = None,
+    ckpt_weights_only: bool = False,
     eval_func: str = "numeric",
 ):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
 
+    resume_wandb_run_from_ckpt = resume_ckpt_path and not ckpt_weights_only
+
     # determine wandb run id
-    if resume_ckpt_path:
+    if resume_wandb_run_from_ckpt:
         # use explicitly provided run id from cli
         wandb_run_id = cfg.wandb.get("run_id")
 
@@ -140,7 +143,7 @@ def train(
             save_dir=ROOT_DIR,
             log_model=True,
             entity=wandb_entity,
-            resume="must" if resume_ckpt_path else "never",
+            resume="must" if resume_wandb_run_from_ckpt else "never",
         )
         loggers.append(wandb_logger)
         wandb_logger.watch(model, log_freq=grad_log_interval)
@@ -261,6 +264,7 @@ def main(cfg: omegaconf.DictConfig):
         gen_temp=cfg.sampling.temp,
         gen_top_k=cfg.sampling.top_k,
         resume_ckpt_path=cfg.training.resume_ckpt_path,
+        ckpt_weights_only=cfg.training.ckpt_weights_only,
         eval_func=cfg.training.eval_func,
     )
 

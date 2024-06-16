@@ -10,4 +10,5 @@ limit_val_batches: null
 limit_test_examples: null
 devices: null
 resume_ckpt_path: null
+ckpt_weights_only: false
 eval_func: "numeric"

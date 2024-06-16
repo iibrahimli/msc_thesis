@@ -31,8 +31,7 @@ model:
     n_layers: 6
     n_embd: 768
     n_head: 4
-    pos_enc: "nope"
 
 wandb:
   project: "addition-generalize-to-longer"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_nope
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_pre_matching_v1
