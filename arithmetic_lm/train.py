@@ -189,7 +189,9 @@ def train(
 
     # if load weights only
     if resume_ckpt_path and ckpt_weights_only:
-        lmodel.load_state_dict(torch.load(resume_ckpt_path)["state_dict"])
+        lmodel.load_state_dict(
+            torch.load(resume_ckpt_path, map_location="cpu")["state_dict"]
+        )
 
     trainer.fit(
         lmodel,
