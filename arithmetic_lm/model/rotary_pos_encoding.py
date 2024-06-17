@@ -313,6 +313,7 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
         self,
         query: Tensor,
         key: Tensor,
+        value: Tensor,
         **kwargs,
     ) -> tuple[Tensor, Tensor | None]:
         """
@@ -344,4 +345,4 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
         # reshape query and key back into [batch,  seq_len, d_model]
         query, key = [rearrange(x, "b h l d -> b l (h d)") for x in (query, key)]
 
-        return super().forward(query, key, **kwargs)
+        return super().forward(query, key, value, **kwargs)
