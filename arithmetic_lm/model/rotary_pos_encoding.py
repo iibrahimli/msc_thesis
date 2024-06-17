@@ -307,7 +307,7 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rotary_emb = RotaryEmbedding(dim=self.embed_dim)
+        self.rotary_emb = RotaryEmbedding(dim=self.head_dim)
 
     def forward(
         self,
