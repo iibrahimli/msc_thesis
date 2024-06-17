@@ -5,6 +5,7 @@ from .pos_encoding import (
     CoordinateEncoding,
     RelativeMultiheadAttention,
 )
+from .rotary_pos_encoding import RotaryMultiheadAttention
 from .transformer import Transformer
 from .transformer_decoder import TransformerDecoder
 from .universal_transformer import UniversalTransformer

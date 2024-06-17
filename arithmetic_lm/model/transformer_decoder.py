@@ -1,4 +1,3 @@
-import torch
 from torch import Tensor, nn
 
 from .pos_encoding import (
@@ -6,6 +5,7 @@ from .pos_encoding import (
     AbsolutePositionalEncoding,
     RelativeMultiheadAttention,
 )
+from .rotary_pos_encoding import RotaryMultiheadAttention
 from .utils import init_weights
 
 
@@ -51,7 +51,10 @@ class TransformerDecoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, n_embd)
         if self.pos_enc == "abs":
             self.pos_encoder = AbsolutePositionalEncoding(
-                n_embd, max_len=context_len, dropout=dropout, max_shift=pos_enc_max_shift,
+                n_embd,
+                max_len=context_len,
+                dropout=dropout,
+                max_shift=pos_enc_max_shift,
             )
         elif self.pos_enc == "abacus":
             self.pos_encoder = AbacusEncoding(
@@ -85,6 +88,15 @@ class TransformerDecoder(nn.Module):
                     bias=True,  # is true by default
                     batch_first=True,
                     rel_pos_k=16,
+                )
+        elif self.pos_enc == "rotary":
+            for layer in self.transformer_encoder.layers:
+                layer.self_attn = RotaryMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
                 )
 
         # output to vocab dim
