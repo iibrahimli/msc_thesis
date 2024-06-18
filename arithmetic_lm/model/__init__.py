@@ -3,6 +3,7 @@ from .lightning_module import LightningModel
 from .pos_encoding import (
     AbsolutePositionalEncoding,
     CoordinateEncoding,
+    LearnedPositionalEncoding,
     RelativeMultiheadAttention,
 )
 from .rotary_pos_encoding import RotaryMultiheadAttention
