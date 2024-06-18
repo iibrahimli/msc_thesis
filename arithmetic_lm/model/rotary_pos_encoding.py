@@ -97,7 +97,7 @@ class RotaryEmbedding(Module):
         xpos_scale_base=512,
         interpolate_factor=1.0,
         theta_rescale_factor=1.0,
-        seq_before_head_dim=False,
+        seq_before_head_dim=True,
         cache_if_possible=True,
     ):
         super().__init__()
@@ -333,16 +333,16 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
             See "Attention Is All You Need" for more details.
         """
 
-        # reshape query and key into [batch, n_heads, seq_len, d_head]
+        # reshape query and key into [batch, seq_len, n_heads, d_head]
         query, key = [
-            rearrange(x, "b l (h d) -> b h l d", h=self.num_heads) for x in (query, key)
+            rearrange(x, "b l (h d) -> b l h d", h=self.num_heads) for x in (query, key)
         ]
 
         # apply rotary positional encoding to queries and keys
         query = self.rotary_emb.rotate_queries_or_keys(query)
         key = self.rotary_emb.rotate_queries_or_keys(key)
 
-        # reshape query and key back into [batch,  seq_len, d_model]
-        query, key = [rearrange(x, "b h l d -> b l (h d)") for x in (query, key)]
+        # reshape query and key back into [batch, seq_len, d_model]
+        query, key = [rearrange(x, "b l h d -> b l (h d)") for x in (query, key)]
 
         return super().forward(query, key, value, **kwargs)
