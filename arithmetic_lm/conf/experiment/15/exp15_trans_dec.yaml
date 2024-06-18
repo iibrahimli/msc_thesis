@@ -31,8 +31,8 @@ model:
     n_layers: 6
     n_embd: 768
     n_head: 4
-    pos_enc: "rotary"
+    pos_enc: "learned"
 
 wandb:
   project: "addition-generalize-to-longer"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_rotary
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_learned
