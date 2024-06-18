@@ -53,6 +53,7 @@ class SampleCallback(L.Callback):
         self.n_samples = n_samples
         self.gen_kwargs = gen_kwargs
         self.eval_func = eval_func
+        self.is_numeric = True
 
     def _log(
         self,
@@ -75,7 +76,8 @@ class SampleCallback(L.Callback):
             ans_str = repr(pl_module.tokenizer.decode(ans.squeeze().tolist()))
 
             # HACK if non-numeric addition
-            if any(c.isalpha() for c in prompt_str):
+            if not self.is_numeric and any(c.isalpha() for c in prompt_str):
+                self.is_numeric = False
                 num_carries = None
             else:
                 a, op, b = split_operands_and_op(prompt_str)
