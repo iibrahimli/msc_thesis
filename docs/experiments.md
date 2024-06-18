@@ -81,3 +81,8 @@ Like Experiment 13, but with chain of thought.
 ## [Experiment 16](../arithmetic_lm/conf/experiment/16)
 
 Pretrain on a character matching task, 5M training examples of 1-15 mixed operand length, test on in-distribution and OOD of 13-17 chars. Lowercase letters and numbers are used. Dataset: [matching_v1.yaml](../arithmetic_lm/conf/data/matching_v1.yaml)
+
+
+## [Experiment 17](../arithmetic_lm/conf/experiment/17)
+
+Step back to a simpler problem: string length in range 1-20 and test on in-distribution 1-20 and OOD lengths 21-30 and 31-40. e.g. prompt "$somestringhere=" to answer "14$". Dataset: [string_length_v1.yaml](../arithmetic_lm/conf/data/string_length_v1.yaml). 1M training examples.

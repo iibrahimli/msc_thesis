@@ -1,0 +1,16 @@
+# String length
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ops: false
+  reverse_ans: false
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: data/strlen/exp_17/train_strlen_1-20chars_1M.txt
+test:
+  in_dist: data/strlen/exp_17/test_strlen_in_dist_2000.txt
+  ood_21_30chars: data/strlen/exp_17/test_strlen_ood_21-30chars_2000.txt
+  ood_31_40chars: data/strlen/exp_17/test_strlen_ood_31-40chars_2000.txt

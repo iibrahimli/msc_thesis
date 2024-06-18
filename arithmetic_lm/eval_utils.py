@@ -60,4 +60,7 @@ def eval_on_batch(
     return {"accuracy": correct}
 
 
-EVAL_FUNCS = {"numeric": eval_sample_numeric, "string_match": eval_sample_string_match}
+EVAL_FUNCS = {
+    "numeric": eval_sample_numeric,
+    "string_match": eval_sample_string_match,
+}
