@@ -335,7 +335,7 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
 
         # reshape query and key into [batch, n_heads, seq_len, d_head]
         query, key = [
-            rearrange(x, "b l (h d) -> b h l d", h=self.num_heads) for x in (query, key)
+            rearrange(x, "b l (d h) -> b h l d", h=self.num_heads) for x in (query, key)
         ]
 
         # apply rotary positional encoding to queries and keys
@@ -343,6 +343,6 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
         key = self.rotary_emb.rotate_queries_or_keys(key)
 
         # reshape query and key back into [batch,  seq_len, d_model]
-        query, key = [rearrange(x, "b h l d -> b l (h d)") for x in (query, key)]
+        query, key = [rearrange(x, "b h l d -> b l (d h)") for x in (query, key)]
 
         return super().forward(query, key, value, **kwargs)
