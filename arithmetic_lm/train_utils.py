@@ -78,9 +78,10 @@ class SampleCallback(L.Callback):
             # HACK if non-numeric addition
             if not self.is_numeric:
                 num_carries = None
+            elif any(c.isalpha() for c in prompt_str):
+                self.is_numeric = False
+                num_carries = None
             else:
-                if any(c.isalpha() for c in prompt_str):
-                    self.is_numeric = False
                 a, op, b = split_operands_and_op(prompt_str)
                 assert (
                     op.strip() == "+"
