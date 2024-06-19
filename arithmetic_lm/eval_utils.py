@@ -1,5 +1,7 @@
 """Evaluation utility functions"""
 
+from functools import partial
+
 import torch
 
 from arithmetic_lm.tokenizer import Tokenizer
@@ -63,4 +65,5 @@ def eval_on_batch(
 EVAL_FUNCS = {
     "numeric": eval_sample_numeric,
     "string_match": eval_sample_string_match,
+    "string_match_exact": partial(eval_sample_string_match, strict=True),
 }
