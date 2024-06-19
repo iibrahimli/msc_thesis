@@ -3,7 +3,7 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: strlen_v1
+  - override /data: strlen_v1_1M
   - override /training: default
   - override /wandb: default
   - override /model: transformer_dec
@@ -25,7 +25,7 @@ training:
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
   devices: [6]
-  eval_func: "numeric"
+  eval_func: "string_match_exact"
 
 model:
   args:

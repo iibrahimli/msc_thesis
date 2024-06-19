@@ -74,7 +74,26 @@ def generate_experiment_16(out_dir: str | Path):
             f.write(example)
 
 
-def generate_experiment_17(out_dir: str | Path):
+def single_str_generator(
+    min_len: int,
+    max_len: int,
+    n_examples: int,
+    ans_gen_func: callable,
+    exclude: set[str] | None = None,
+):
+    """Generator for simple string functions"""
+
+    count = 0
+    while count < n_examples:
+        a = "".join(random.choices(CHARS, k=random.randint(min_len, max_len)))
+        if exclude and a in exclude:
+            continue
+        ans = ans_gen_func(a)
+        yield f"{a}={ans}\n"
+        count += 1
+
+
+def generate_strlen_v1_1M(out_dir: str | Path):
     """
     String length, train 1-20 symbols, test 1-20 in-dist, 21-30 out-of-dist
     """
@@ -90,9 +109,10 @@ def generate_experiment_17(out_dir: str | Path):
     train_path = out_dir / "train_strlen_1-20chars_1M.txt"
     print(f"Generating {train_path}")
     with open(train_path, "w") as f:
-        for _ in range(n_train):
-            a = "".join(random.choices(CHARS, k=random.randint(1, max_train_len)))
-            f.write(f"{a}={len(a)}\n")
+        for example in single_str_generator(
+            1, max_train_len, n_train, lambda a: len(a)
+        ):
+            f.write(example)
 
     excluded = get_set_from_file(train_path)
 
@@ -102,35 +122,29 @@ def generate_experiment_17(out_dir: str | Path):
     test_path = out_dir / "test_strlen_in_dist_2000.txt"
     print(f"Generating {test_path}")
     with open(test_path, "w") as f:
-        i = 0
-        while i < n_test:
-            a = "".join(random.choices(CHARS, k=random.randint(1, max_train_len)))
-            example = f"{a}={len(a)}\n"
-            if example in excluded:
-                continue
+        for example in single_str_generator(
+            1, max_train_len, n_test, lambda a: len(a), exclude=excluded
+        ):
             f.write(example)
-            i += 1
 
     # 21-30 chars out of dist
     test_path = out_dir / "test_strlen_ood_21-30chars_2000.txt"
     print(f"Generating {test_path}")
     with open(test_path, "w") as f:
-        for _ in range(n_test):
-            a = "".join(random.choices(CHARS, k=random.randint(21, 30)))
-            f.write(f"{a}={len(a)}\n")
+        for example in single_str_generator(21, 30, n_test, lambda a: len(a)):
+            f.write(example)
 
     # 31-40 chars out of dist
     test_path = out_dir / "test_strlen_ood_31-40chars_2000.txt"
     print(f"Generating {test_path}")
     with open(test_path, "w") as f:
-        for _ in range(n_test):
-            a = "".join(random.choices(CHARS, k=random.randint(31, 40)))
-            f.write(f"{a}={len(a)}\n")
+        for example in single_str_generator(31, 40, n_test, lambda a: len(a)):
+            f.write(example)
 
 
 def main():
     # generate_experiment_16(DATA_DIR / "matching" / "exp_16")
-    generate_experiment_17(DATA_DIR / "strlen" / "exp_17")
+    generate_strlen_v1_1M(DATA_DIR / "strlen_v1_1M")
 
 
 if __name__ == "__main__":
