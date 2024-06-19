@@ -1,0 +1,16 @@
+# Char retrieval by index
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ops: false
+  reverse_ans: false
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: data/strindex_v1/2M/train_strindex_1-25chars_2M.txt
+test:
+  in_dist: data/strindex_v1/2M/test_strindex_in_dist_2000.txt
+  ood_25_30_chars: data/strindex_v1/2M/test_strindex_ood_25-30chars_2000.txt
+  ood_31_40_chars: data/strindex_v1/2M/test_strindex_ood_31-40chars_2000.txt
