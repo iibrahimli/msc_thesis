@@ -221,7 +221,7 @@ def generate_strindex_v1(out_dir: str | Path):
 
 def main():
     # generate_experiment_16(DATA_DIR / "matching" / "exp_16")
-    generate_strlen_v1_1M(DATA_DIR / "strlen_v1" / " 1M")
+    generate_strlen_v1_1M(DATA_DIR / "strlen_v1" / "1M")
     generate_strindex_v1(DATA_DIR / "strindex_v1" / "2M")
 
 
