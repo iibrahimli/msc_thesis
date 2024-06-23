@@ -20,11 +20,11 @@ pandas = "^2.2.2"
 scikit-learn = "^1.4.2"
 einops = "^0.8.0"
 
-
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.2"
 mypy = "^1.8.0"
 ruff = "^0.2.2"
+gradio = "^4.36.1"
 
 [build-system]
 requires = ["poetry-core"]
