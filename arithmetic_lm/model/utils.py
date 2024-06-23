@@ -3,7 +3,7 @@ from torch import nn
 
 
 def init_weights(module: nn.Module):
-    pass
+    # pass
 
     # from NanoGPT:
     # if isinstance(module, nn.Linear):
@@ -14,9 +14,9 @@ def init_weights(module: nn.Module):
     #     torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     # from torch Transformer:
-    # for p in module.parameters():
-    #     if p.dim() > 1:
-    #         nn.init.xavier_uniform_(p)
+    for p in module.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform_(p)
 
     # from lucidrains x-transformers:
     # for p in module.parameters():
