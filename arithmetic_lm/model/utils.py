@@ -16,8 +16,8 @@ def init_weights(module: nn.Module):
     # from torch Transformer:
     for p in module.parameters():
         if p.dim() > 1:
-            nn.init.xavier_uniform_(p)
-            # nn.init.kaiming_normal_(p)
+            # nn.init.xavier_uniform_(p)
+            nn.init.kaiming_normal_(p)
 
 
 def load_model(
