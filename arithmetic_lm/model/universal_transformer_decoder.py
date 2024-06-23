@@ -1,8 +1,12 @@
 import torch
 from torch import Tensor, nn
 
-from .pos_encoding import AbacusEncoding, CoordinateEncoding, RelativeMultiheadAttention
-from .utils import init_weights
+from arithmetic_lm.model.pos_encoding import (
+    AbacusEncoding,
+    CoordinateEncoding,
+    RelativeMultiheadAttention,
+)
+from arithmetic_lm.model.utils import init_weights
 
 
 class UniversalTransformerDecoder(nn.Module):

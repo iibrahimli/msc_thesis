@@ -6,9 +6,9 @@ import math
 import random
 from pathlib import Path
 
-from .. import formatting
-from ..constants import DATA_DIR
-from ..utils import set_seed
+from arithmetic_lm import formatting
+from arithmetic_lm.constants import DATA_DIR
+from arithmetic_lm.utils import set_seed
 
 FMT_STR = formatting.PLAIN_FORMAT_STR
 OPERATOR = "+"

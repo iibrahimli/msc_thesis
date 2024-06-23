@@ -4,8 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from ..tokenizer import Tokenizer
-from .hooks import generate_hooked, get_attention_map, set_attn_kwargs_prehook
+from arithmetic_lm.interp.hooks import (
+    generate_hooked,
+    get_attention_map,
+    set_attn_kwargs_prehook,
+)
+from arithmetic_lm.tokenizer import Tokenizer
 
 
 def plot_head(

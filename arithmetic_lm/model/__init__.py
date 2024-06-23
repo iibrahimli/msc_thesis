@@ -11,6 +11,7 @@ from .transformer import Transformer
 from .transformer_decoder import TransformerDecoder
 from .universal_transformer import UniversalTransformer
 from .universal_transformer_decoder import UniversalTransformerDecoder
+from .utils import load_model
 
 MODELS = {
     "TransformerDecoder": TransformerDecoder,

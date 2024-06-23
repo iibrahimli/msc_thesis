@@ -1,13 +1,13 @@
 from torch import Tensor, nn
 
-from .pos_encoding import (
+from arithmetic_lm.model.pos_encoding import (
     AbacusEncoding,
     AbsolutePositionalEncoding,
     LearnedPositionalEncoding,
     RelativeMultiheadAttention,
 )
-from .rotary_pos_encoding import RotaryMultiheadAttention
-from .utils import init_weights
+from arithmetic_lm.model.rotary_pos_encoding import RotaryMultiheadAttention
+from arithmetic_lm.model.utils import init_weights
 
 
 class TransformerDecoder(nn.Module):

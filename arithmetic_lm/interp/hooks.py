@@ -1,6 +1,6 @@
 import torch
 
-from ..model import generate
+from arithmetic_lm.model.generate import generate
 
 
 def get_attention_map(name: str, cache: dict):

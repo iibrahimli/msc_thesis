@@ -3,10 +3,9 @@ import torch
 from torch import Tensor, nn
 
 from arithmetic_lm.eval_utils import eval_on_batch, eval_sample_numeric
+from arithmetic_lm.model import generate
 from arithmetic_lm.tokenizer import Tokenizer
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
-
-from .generate import generate
 
 
 class LightningModel(L.LightningModule):

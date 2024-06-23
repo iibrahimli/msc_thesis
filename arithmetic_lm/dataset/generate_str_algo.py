@@ -6,7 +6,7 @@ import random
 import string
 from pathlib import Path
 
-from ..constants import DATA_DIR
+from arithmetic_lm.constants import DATA_DIR
 
 CHARS = list(string.ascii_lowercase + string.digits)
 

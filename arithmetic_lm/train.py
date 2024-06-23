@@ -13,6 +13,7 @@ import omegaconf
 import torch
 
 import wandb
+from arithmetic_lm.callbacks import LogAttnMapsCallback, SampleCallback
 from arithmetic_lm.constants import CHECKPOINTS_DIR, ROOT_DIR
 from arithmetic_lm.dataset import (
     DATASET_CLASSES,
@@ -24,7 +25,6 @@ from arithmetic_lm.eval_utils import EVAL_FUNCS
 from arithmetic_lm.model import MODELS
 from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import TOKENIZERS, Tokenizer
-from arithmetic_lm.train_utils import LogAttnMapsCallback, SampleCallback
 from arithmetic_lm.utils import set_seed
 
 
