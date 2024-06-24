@@ -156,7 +156,6 @@ def plot_attn_maps(
 
     if save:
         plt.savefig(savepath, dpi=90)
-    plt.show()
 
     return attn_maps
 
