@@ -3,6 +3,8 @@ from torch import nn
 
 
 def init_weights(module: nn.Module):
+    # default pytorch initialization
+    # for linear layers: uniform(-1/sqrt(in_features), 1/sqrt(in_features))
     pass
 
     # from NanoGPT:
