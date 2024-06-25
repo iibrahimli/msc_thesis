@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 from torch import nn
 
@@ -41,3 +43,11 @@ def load_model(
     model.load_state_dict({k[6:]: v for k, v in ckpt["state_dict"].items()})
     model.eval()
     return model, ckpt["hyper_parameters"]
+
+
+def find_latest_ckpt(dir_path: str | Path) -> str:
+    dir_path = Path(dir_path)
+    ckpts = list(dir_path.glob("**/*.ckpt"))
+    if not ckpts:
+        raise ValueError(f"No checkpoints found in {dir_path}")
+    return max(ckpts, key=lambda x: x.stat().st_mtime)
