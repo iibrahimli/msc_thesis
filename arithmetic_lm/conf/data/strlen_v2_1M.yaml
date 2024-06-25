@@ -12,5 +12,5 @@ format:
 train: data/strlen_v2/1M/train_strlen_1-10chars_1M.txt
 test:
   in_dist: data/strlen_v2/1M/test_strlen_in_dist_2000.txt
-  ood_21_30chars: data/strlen_v2/1M/test_strlen_ood_21-30chars_2000.txt
-  ood_31_40chars: data/strlen_v2/1M/test_strlen_ood_31-40chars_2000.txt
+  ood_21_30chars: data/strlen_v2/1M/test_strlen_ood_10-15chars_2000.txt
+  ood_31_40chars: data/strlen_v2/1M/test_strlen_ood_16-20chars_2000.txt
