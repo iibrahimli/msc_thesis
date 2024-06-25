@@ -160,7 +160,7 @@ def generate_strlen_v2_1M(out_dir: str | Path):
 
     # generate train dataset
     n_train = 1_000_000
-    max_train_len = 20
+    max_train_len = 10
     train_path = out_dir / "train_strlen_1-10chars_1M.txt"
     print(f"Generating {train_path}")
     with open(train_path, "w") as f:
