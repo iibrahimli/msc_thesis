@@ -80,6 +80,68 @@ def plot_module(
 def plot_attn_maps(
     model: torch.nn.Module,
     tokenizer: Tokenizer,
+    prompt_str: str,
+    module_names: list[str],
+    savepath: str,
+    true_ans: str = None,
+    save: bool = False,
+    fig_scale: float = 1,
+    figtitle_prefix: str = "",
+) -> dict[str, torch.Tensor]:
+    prompt = torch.tensor([tokenizer.encode(prompt_str)])
+    stop_token_id = tokenizer.encode("$")[0]
+
+    attn_maps = {}
+
+    # generate answer
+    pred_tensor = generate_hooked(
+        model,
+        prompt=prompt,
+        stop_token=stop_token_id,
+        hook_config={
+            mn: {
+                "hook": get_attention_map(mn, attn_maps),
+                "pre_hook": set_attn_kwargs_prehook,
+            }
+            for mn in module_names
+        },
+    )
+
+    pred_answer_str = tokenizer.decode(pred_tensor[0].tolist())
+    print("pred_answer:", pred_answer_str)
+
+    for mn, matts in attn_maps.items():
+        print(mn, matts.shape)
+
+    # tokens for easier visualization
+    ticks = list(prompt_str + pred_answer_str)
+
+    # for each module, in a subfigure plot heads as subplots
+    n_heads = attn_maps[module_names[0]].shape[1]
+    figsize = (n_heads * fig_scale, len(attn_maps) * fig_scale)
+    fig = plt.figure(layout="constrained", figsize=figsize)
+    fig.suptitle(
+        f"{figtitle_prefix} Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}"
+        f"\n predicted answer: {repr(pred_answer_str).replace('$', '\$')} ({'correct' if pred_answer_str == true_ans else 'incorrect, true: ' + true_ans})",
+    )
+
+    subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
+    if len(attn_maps) == 1:
+        subfigs = [subfigs]
+    for i, (module_name, attn_map) in enumerate(attn_maps.items()):
+        plot_module(subfigs[i], module_name, attn_map, ticks)
+
+    if save:
+        plt.savefig(savepath, dpi=90)
+
+    plt.show()
+
+    return attn_maps
+
+
+def plot_attn_maps_addition(
+    model: torch.nn.Module,
+    tokenizer: Tokenizer,
     a: int,
     b: int,
     module_names: list[str],
@@ -92,6 +154,9 @@ def plot_attn_maps(
     reverse_ans: bool = False,
     figtitle_prefix: str = "",
 ) -> dict[str, torch.Tensor]:
+    """
+    TODO refactor
+    """
     astr = str(a)
     bstr = str(b)
 
