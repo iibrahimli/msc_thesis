@@ -37,5 +37,5 @@ model:
     n_head: 2
 
 wandb:
-  project: "strindex_v1"
+  project: "strlen_v2"
   run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head
