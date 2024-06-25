@@ -105,7 +105,7 @@ def generate_strlen_v1_1M(out_dir: str | Path):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     print()
-    print(f" > Generating data for Experiment 17 to {out_dir}")
+    print(f" > Generating data for strlen_v1 to {out_dir}")
 
     # generate train dataset
     n_train = 1_000_000
@@ -146,6 +146,55 @@ def generate_strlen_v1_1M(out_dir: str | Path):
             f.write(example)
 
 
+def generate_strlen_v2_1M(out_dir: str | Path):
+    """
+    String length, train 1-10 symbols, test 1-10 in-dist, 10-15 and 16-20 out-of-dist
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for strlen_v2 to {out_dir}")
+
+    answer_func = lambda a: len(a) * "."
+
+    # generate train dataset
+    n_train = 1_000_000
+    max_train_len = 20
+    train_path = out_dir / "train_strlen_1-10chars_1M.txt"
+    print(f"Generating {train_path}")
+    with open(train_path, "w") as f:
+        for example in single_str_generator(1, max_train_len, n_train, answer_func):
+            f.write(example)
+
+    excluded = get_set_from_file(train_path)
+
+    # generate test datasets
+    n_test = 2000
+    # in dist
+    test_path = out_dir / "test_strlen_in_dist_2000.txt"
+    print(f"Generating {test_path}")
+    with open(test_path, "w") as f:
+        for example in single_str_generator(
+            1, max_train_len, n_test, answer_func, exclude=excluded
+        ):
+            f.write(example)
+
+    # 10-15 chars out of dist
+    test_path = out_dir / "test_strlen_ood_10-15chars_2000.txt"
+    print(f"Generating {test_path}")
+    with open(test_path, "w") as f:
+        for example in single_str_generator(10, 15, n_test, answer_func):
+            f.write(example)
+
+    # 16-20 chars out of dist
+    test_path = out_dir / "test_strlen_ood_16-20chars_2000.txt"
+    print(f"Generating {test_path}")
+    with open(test_path, "w") as f:
+        for example in single_str_generator(16, 20, n_test, answer_func):
+            f.write(example)
+
+
 def generate_strindex_v1(out_dir: str | Path):
     """
     String character retrieval by index. 2M training examples of 1-25 string length,
@@ -156,7 +205,7 @@ def generate_strindex_v1(out_dir: str | Path):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     print()
-    print(f" > Generating data for Experiment 18 to {out_dir}")
+    print(f" > Generating data for strindex_v1 to {out_dir}")
 
     def prompt_func(s: str) -> str:
         idx = random.randint(0, len(s) - 1)
@@ -222,6 +271,7 @@ def generate_strindex_v1(out_dir: str | Path):
 def main():
     # generate_experiment_16(DATA_DIR / "matching" / "exp_16")
     generate_strlen_v1_1M(DATA_DIR / "strlen_v1" / "1M")
+    generate_strlen_v2_1M(DATA_DIR / "strlen_v2" / "1M")
     generate_strindex_v1(DATA_DIR / "strindex_v1" / "2M")
 
 

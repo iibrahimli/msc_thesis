@@ -91,3 +91,8 @@ Step back to a simpler problem: string length in range 1-20 and test on in-distr
 ## [Experiment 18](../arithmetic_lm/conf/experiment/18)
 
 String character retrieval by index. 2M training examples of 1-25 string length, test on in-distribution 1-25 and OOD 25-30 and 31-40 and 31-40. e.g. prompt "$somestringhere[2]" to answer "m$". Dataset: [strindex_v1_2M.yaml](../arithmetic_lm/conf/data/strindex_v1_2M.yaml)
+
+
+## [Experiment 19](../arithmetic_lm/conf/experiment/19)
+
+Like string length, but more primitve. Instead of outputting a number, output the same number of dots as string length, e.g. prompt "$somestringhere=" to answer "..............$". Dataset: [strlen_v2_1M.yaml](../arithmetic_lm/conf/data/strlen_v2_1M.yaml). 1M training examples. Train on length 1-10, test on in-dist 1-10, and OOD 11-15 and 16-20.
