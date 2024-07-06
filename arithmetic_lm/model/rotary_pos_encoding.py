@@ -4,14 +4,14 @@ https://github.com/lucidrains/rotary-embedding-torch/blob/main/rotary_embedding_
 with minor modifications
 """
 
-from math import log, pi
+import math
 from typing import Literal
 
 import torch
 from einops import rearrange, repeat
 from torch import Tensor, broadcast_tensors, einsum, nn
 from torch.cuda.amp import autocast
-from torch.nn import Module
+from torch.nn import functional as F
 
 # helper functions
 
@@ -83,7 +83,7 @@ def apply_learned_rotations(rotations, t, start_index=0, freq_ranges=None):
 # classes
 
 
-class RotaryEmbedding(Module):
+class RotaryEmbedding(nn.Module):
     def __init__(
         self,
         dim,
@@ -116,7 +116,7 @@ class RotaryEmbedding(Module):
                 theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim)
             )
         elif freqs_for == "pixel":
-            freqs = torch.linspace(1.0, max_freq / 2, dim // 2) * pi
+            freqs = torch.linspace(1.0, max_freq / 2, dim // 2) * math.pi
         elif freqs_for == "constant":
             freqs = torch.ones(num_freqs).float()
 
@@ -314,6 +314,8 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
         query: Tensor,
         key: Tensor,
         value: Tensor,
+        need_weights: bool = True,
+        average_attn_weights: bool = True,
         **kwargs,
     ) -> tuple[Tensor, Tensor | None]:
         """
@@ -333,16 +335,62 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
             See "Attention Is All You Need" for more details.
         """
 
-        # reshape query and key into [batch, seq_len, n_heads, d_head]
-        query, key = [
-            rearrange(x, "b l (h d) -> b l h d", h=self.num_heads) for x in (query, key)
-        ]
+        # NOTE: only batch first supported
 
-        # apply rotary positional encoding to queries and keys
-        query = self.rotary_emb.rotate_queries_or_keys(query)
-        key = self.rotary_emb.rotate_queries_or_keys(key)
+        # Get batch size and sequence length
+        batch_size, seq_len, _ = query.size()
 
-        # reshape query and key back into [batch, seq_len, d_model]
-        query, key = [rearrange(x, "b l h d -> b l (h d)") for x in (query, key)]
+        # Perform input projection
+        if self._qkv_same_embed_dim:
+            q, k, v = F.linear(query, self.in_proj_weight, self.in_proj_bias).chunk(
+                3, dim=-1
+            )
+        else:
+            w_q, w_k, w_v = self.in_proj_weight.split(self.embed_dim)
+            b_q, b_k, b_v = (
+                self.in_proj_bias.split(self.embed_dim)
+                if self.in_proj_bias is not None
+                else (None, None, None)
+            )
+            q = F.linear(query, w_q, b_q)
+            k = F.linear(key, w_k, b_k)
+            v = F.linear(value, w_v, b_v)
 
-        return super().forward(query, key, value, **kwargs)
+        # Reshape for multi-head attention
+        q = q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = k.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        v = v.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+
+        # apply RoPE to queries and keys
+        q = self.rotary_emb.rotate_queries_or_keys(q)
+        k = self.rotary_emb.rotate_queries_or_keys(k)
+
+        # Compute attention scores
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
+
+        # Apply softmax to get attention weights
+        attn_weights = F.softmax(scores, dim=-1)
+
+        # Apply attention weights to values
+        attn_output = torch.matmul(attn_weights, v)
+
+        # Reshape and project the output
+        attn_output = (
+            attn_output.transpose(1, 2)
+            .contiguous()
+            .view(batch_size, seq_len, self.embed_dim)
+        )
+        output = self.out_proj(attn_output)
+
+        if need_weights:
+            if average_attn_weights:
+                # Average attention weights over heads
+                attn_weights = attn_weights.mean(dim=1)
+            else:
+                # Reshape attention weights to include head dimension
+                attn_weights = attn_weights.view(
+                    batch_size, self.num_heads, seq_len, seq_len
+                )
+            return output, attn_weights
+        else:
+            return output, None
