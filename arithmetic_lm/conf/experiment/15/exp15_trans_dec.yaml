@@ -21,7 +21,7 @@ data:
 training:
   batch_size: 256
   lr: 0.0001
-  max_iters: 200000
+  max_iters: 300000
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
   devices: [0]
@@ -31,7 +31,8 @@ model:
     n_layers: 6
     n_embd: 768
     n_head: 4
+    pos_enc: rotary
 
 wandb:
   project: "addition-generalize-to-longer"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_xavier_uniform
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_rotary
