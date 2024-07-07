@@ -34,4 +34,4 @@ model:
 
 wandb:
   project: "addition-generalize-to-longer"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${wandb.suffix}
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${.suffix}
