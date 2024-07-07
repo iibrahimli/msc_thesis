@@ -49,7 +49,7 @@ class TransformerDecoder(nn.Module):
         self.pos_enc = pos_enc
 
         # embedding
-        self.embedding = nn.Embedding(vocab_size, n_embd // 2)  # TODO: revert to n_embd
+        self.embedding = nn.Embedding(vocab_size, n_embd)
         if self.pos_enc == "abs":
             self.pos_encoder = AbsolutePositionalEncoding(
                 n_embd,
