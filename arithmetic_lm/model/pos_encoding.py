@@ -43,6 +43,8 @@ class AbsolutePositionalEncoding(nn.Module):
         )
         pes = self.pe[:, shift : x.size(1) + shift]
         if self.concat:
+            # repeat pes to batch size
+            pes = pes.repeat(x.size(0), 1, 1)
             x = torch.cat([x, pes], dim=-1)
         else:
             x = x + pes
