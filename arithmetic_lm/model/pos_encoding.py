@@ -9,10 +9,18 @@ from torch import Tensor, nn
 # from https://pytorch.org/tutorials/beginner/transformer_tutorial.html
 class AbsolutePositionalEncoding(nn.Module):
 
-    def __init__(self, d_model: int, max_len: int, dropout: float, max_shift: int = 0):
+    def __init__(
+        self,
+        d_model: int,
+        max_len: int,
+        dropout: float,
+        concat: bool = True,
+        max_shift: int = 0,
+    ):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
         self.max_shift = max_shift
+        self.concat = concat
 
         position = torch.arange(max_len).unsqueeze(1)
         div_term = torch.exp(
@@ -33,7 +41,11 @@ class AbsolutePositionalEncoding(nn.Module):
             if self.training
             else 0
         )
-        x = x + self.pe[:, shift : x.size(1) + shift]
+        pes = self.pe[:, shift : x.size(1) + shift]
+        if self.concat:
+            x = torch.cat([x, pes], dim=-1)
+        else:
+            x = x + pes
         return self.dropout(x)
 
 
