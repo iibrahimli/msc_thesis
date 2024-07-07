@@ -124,9 +124,11 @@ class TransformerDecoder(nn.Module):
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
         x = self.embedding(x)
+        print(x.shape)
         if self.pos_enc == "abs":
             x = self.pos_encoder(x)
 
+        print("before enc", x.shape)
         x = self.transformer_encoder(
             x,
             mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
