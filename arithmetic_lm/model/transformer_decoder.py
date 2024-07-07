@@ -1,3 +1,5 @@
+from typing import Literal
+
 from torch import Tensor, nn
 
 from arithmetic_lm.model.pos_encoding import (
@@ -7,7 +9,7 @@ from arithmetic_lm.model.pos_encoding import (
     RelativeMultiheadAttention,
 )
 from arithmetic_lm.model.rotary_pos_encoding import RotaryMultiheadAttention
-from arithmetic_lm.model.utils import init_weights
+from arithmetic_lm.model.utils import SinusoidalEmbedding, init_weights
 
 
 class TransformerDecoder(nn.Module):
@@ -22,8 +24,9 @@ class TransformerDecoder(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
-        pos_enc: str = "abs",
+        pos_enc: Literal["abs", "learned", "abacus", "nope", "rel", "rotary"] = "abs",
         pos_enc_max_shift: int = 0,
+        emb_type: Literal["learned", "sinusoidal"] = "learned",
     ):
         """
         Arguments:
@@ -49,7 +52,12 @@ class TransformerDecoder(nn.Module):
         self.pos_enc = pos_enc
 
         # embedding
-        self.embedding = nn.Embedding(vocab_size, n_embd)
+        if emb_type == "learned":
+            self.embedding = nn.Embedding(vocab_size, n_embd)
+        elif emb_type == "sinusoidal":
+            self.embedding = SinusoidalEmbedding(vocab_size, n_embd)
+
+        # positional encoding
         if self.pos_enc == "abs":
             self.pos_encoder = AbsolutePositionalEncoding(
                 n_embd,

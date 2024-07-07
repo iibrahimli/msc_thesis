@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 
 import torch
@@ -51,3 +52,23 @@ def find_latest_ckpt(dir_path: str | Path) -> str:
     if not ckpts:
         raise ValueError(f"No checkpoints found in {dir_path}")
     return max(ckpts, key=lambda x: x.stat().st_mtime)
+
+
+class SinusoidalEmbedding(nn.Embedding):
+    """Like regular emb, but use sinusoidal embeddings for tokens 0-9"""
+
+    def __init__(
+        self, num_embeddings: int, embedding_dim: int, padding_idx: int = None
+    ):
+        super().__init__(num_embeddings, embedding_dim, padding_idx=padding_idx)
+
+        # compute sinusoidal embeddings for tokens 0-9
+        n_digits = 10
+        position = torch.arange(n_digits).unsqueeze(1)
+        div_term = torch.exp(
+            torch.arange(0, embedding_dim, 2) * (-math.log(10.0) / embedding_dim)
+        )
+
+        with torch.no_grad():
+            self.weight[:n_digits, 0::2] = torch.sin(position * div_term)
+            self.weight[:n_digits, 1::2] = torch.cos(position * div_term)
