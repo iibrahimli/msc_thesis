@@ -46,7 +46,7 @@ class AbsolutePositionalEncoding(nn.Module):
             # repeat pes to batch size
             pes = pes.repeat(x.size(0), 1, 1)
             # take half, since we are using half the embedding dim
-            pes = pes[:, :, : x.size(-1) // 2]
+            pes = pes[:, :, : x.size(-1)]
             x = torch.cat([x, pes], dim=-1)
         else:
             x = x + pes
