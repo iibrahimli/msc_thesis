@@ -14,7 +14,7 @@ class AbsolutePositionalEncoding(nn.Module):
         d_model: int,
         max_len: int,
         dropout: float,
-        concat: bool = True,  # TODO: set to False
+        concat: bool = False,
         max_shift: int = 0,
     ):
         super().__init__()
