@@ -361,6 +361,8 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
         k = k.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
         v = v.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
 
+        # at this point, q and k have shape [B, n_heads, L, head_dim]
+
         # apply RoPE to queries and keys
         q = self.rotary_emb.rotate_queries_or_keys(q)
         k = self.rotary_emb.rotate_queries_or_keys(k)

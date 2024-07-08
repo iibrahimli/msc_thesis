@@ -3,6 +3,7 @@ import random
 from typing import Optional
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 
 
@@ -101,16 +102,6 @@ class CoordinateEncoding(nn.Module):
         return self.dropout(x)
 
 
-def rel_pos_indices(n: int, k: int) -> Tensor:
-    """
-    Returns a tensor of shape [n, n] where the value at position [i, j] is the
-    index of embedding for relative position of j to i (clipped to window size k).
-    """
-    return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k) + k
-
-
-# Since relative positional encoding implementation changes the multi-head attention layer,
-# we need to child class the original MHA and override the forward method to include it.
 class RelativeMultiheadAttention(nn.MultiheadAttention):
     """
     A multihead attention layer with relative positional encoding.
@@ -123,25 +114,28 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
 
         super().__init__(*args, **kwargs)
         self.rel_pos_k = rel_pos_k
-        self.rel_pos_embedding = nn.Embedding(2 * self.rel_pos_k + 1, self.embed_dim)
+        # shape [n_heads, 2 * rel_pos_k + 1, head_dim]
+        self.rel_pos_embedding = nn.Parameter(
+            torch.randn(self.num_heads, 2 * self.rel_pos_k + 1, self.head_dim)
+        )
+
+    def rel_pos_indices(self, n: int, k: int) -> Tensor:
+        """
+        Returns a tensor of shape [n, n] where the value at position [i, j] is the
+        index of embedding for relative position of j to i (clipped to window size k).
+        """
+        return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k) + k
 
     def forward(
         self,
         query: Tensor,
         key: Tensor,
         value: Tensor,
-        attn_mask: Optional[Tensor] = None,
+        need_weights: bool = True,
+        average_attn_weights: bool = True,
         **kwargs,
-    ) -> tuple[Tensor, Optional[Tensor]]:
+    ) -> tuple[Tensor, Tensor | None]:
         """
-        THIS IMPLEMENTATION SHARES REL EMBEDDING ACROSS HEADS
-        For rel pos enc, see Shaw et al. 2018: https://arxiv.org/abs/1803.02155
-        A modified version is implemented here, see Huang et al. 2018: https://arxiv.org/pdf/1809.04281.pdf
-        (no relative position for the value, only for the key)
-        This is an inefficient implementation, could be optimized for less memory usign skewing as shown in Huang et al. 2018.,
-        see: https://jaketae.github.io/study/relative-positional-encoding/
-        Another reference: https://ychai.uk/notes/2019/10/17/NN/Transformer-variants-a-peek/
-
         Args, from torch docs:
         query: Query embeddings of shape :math:`(L, E_q)` for unbatched input, :math:`(L, N, E_q)` when ``batch_first=False``
             or :math:`(N, L, E_q)` when ``batch_first=True``, where :math:`L` is the target sequence length,
@@ -158,34 +152,78 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
             See "Attention Is All You Need" for more details.
         """
 
-        # query: [B, L, D] (D is query embed_dim)
-        # R: [L, L, D] (relative positions embeddings)
-        # 1. reshape query to [L, B, D]
-        # 2. S_rel = Q_reshaped * R^T (batch matrix-matrix product)
-        # 3. add S_rel / sqrt(D) to attn_mask (since attn_mask is added to softmax input term QK^T)
-        # 4. call super().forward with the modified attn_mask
-        R = self.rel_pos_embedding(
-            rel_pos_indices(query.size(1), self.rel_pos_k).to(query.device)
-        )
-        S_rel = torch.einsum("bld,lkd->blk", query, R)
-        rel_pos_mask = S_rel / (self.embed_dim**0.5)
+        # NOTE: only batch first supported
 
-        # TODO: might be wrong, not sure if it's flattened batch first or heads first
-        # rel_pos_mask has shape [B, L, L], we need [B*n_heads, L, L]
-        rel_pos_mask = (
-            rel_pos_mask.unsqueeze(1)
-            .expand(-1, self.num_heads, -1, -1)
-            .reshape(-1, query.size(1), query.size(1))
-        )
+        # Get batch size and sequence length
+        batch_size, seq_len, _ = query.size()
 
-        if attn_mask is None:
-            attn_mask = rel_pos_mask
+        # Perform input projection
+        if self._qkv_same_embed_dim:
+            q, k, v = F.linear(query, self.in_proj_weight, self.in_proj_bias).chunk(
+                3, dim=-1
+            )
         else:
-            if attn_mask.ndim == 2:
-                attn_mask = attn_mask.unsqueeze(0)
-            attn_mask = attn_mask + rel_pos_mask
+            w_q, w_k, w_v = self.in_proj_weight.split(self.embed_dim)
+            b_q, b_k, b_v = (
+                self.in_proj_bias.split(self.embed_dim)
+                if self.in_proj_bias is not None
+                else (None, None, None)
+            )
+            q = F.linear(query, w_q, b_q)
+            k = F.linear(key, w_k, b_k)
+            v = F.linear(value, w_v, b_v)
 
-        return super().forward(query, key, value, attn_mask=attn_mask, **kwargs)
+        # Reshape for multi-head attention
+        q = q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = k.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        v = v.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+
+        # at this point, q and k have shape [B, n_heads, L, head_dim]
+
+        # compute S_rel
+        # For each head, Shaw et al. (2018) instantiate an intermediate tensor R of shape (L, L, Dh ),
+        # containing the embeddings that correspond to the relative distances between all keys and queries.
+        # Q is then reshaped to an (L, 1, Dh) tensor, and Srel = QR^T
+
+        # R shape [n_heads, L, L, head_dim]
+        R = self.rel_pos_embedding[
+            :, self.rel_pos_indices(query.size(-2), self.rel_pos_k), :
+        ]
+
+        # S_rel = QR^T
+        S_rel = torch.einsum("bhld,hsld->bhsl", q, R)
+
+        # Compute attention scores (adding S_rel)
+        scores = (torch.matmul(q, k.transpose(-2, -1)) + S_rel) / math.sqrt(
+            self.head_dim
+        )
+
+        # Apply softmax to get attention weights
+        attn_weights = F.softmax(scores, dim=-1)
+
+        # Apply attention weights to values
+        attn_output = torch.matmul(attn_weights, v)
+
+        # Reshape and project the output
+        attn_output = (
+            attn_output.transpose(1, 2)
+            .contiguous()
+            .view(batch_size, seq_len, self.embed_dim)
+        )
+        output = self.out_proj(attn_output)
+
+        if need_weights:
+            if average_attn_weights:
+                # Average attention weights over heads
+                attn_weights = attn_weights.mean(dim=1)
+            else:
+                # Reshape attention weights to include head dimension
+                attn_weights = attn_weights.view(
+                    batch_size, self.num_heads, seq_len, seq_len
+                )
+            return output, attn_weights
+        else:
+            return output, None
 
 
 class AbacusEncoding(nn.Module):
