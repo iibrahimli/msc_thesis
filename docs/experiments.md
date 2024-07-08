@@ -96,3 +96,8 @@ String character retrieval by index. 2M training examples of 1-25 string length,
 ## [Experiment 19](../arithmetic_lm/conf/experiment/19)
 
 Like string length, but more primitve. Instead of outputting a number, output the same number of dots as string length, e.g. prompt "$somestringhere=" to answer "..............$". Dataset: [strlen_v2_1M.yaml](../arithmetic_lm/conf/data/strlen_v2_1M.yaml). 1M training examples. Train on length 1-10, test on in-dist 1-10, and OOD 11-15 and 16-20.
+
+
+## [Experiment 20](../arithmetic_lm/conf/experiment/20)
+
+Like Experiment 16, but matching only digits instead of characters, and with abacus embeddings. Dataset: [matching_v2.yaml](../arithmetic_lm/conf/data/matching_digits.yaml)

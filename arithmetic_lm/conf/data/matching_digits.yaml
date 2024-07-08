@@ -1,0 +1,15 @@
+# Match digits
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ops: false
+  reverse_ans: false
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+train: data/matching_digits/5M/train_match_1-15digits_5M.txt
+test:
+  in_dist: data/matching_digits/5M/test_match_in_dist_2000.txt
+  13-17chars: data/matching_digits/5M/test_match_ood_13-17digits_2000.txt

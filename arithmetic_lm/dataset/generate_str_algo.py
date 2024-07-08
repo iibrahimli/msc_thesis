@@ -268,11 +268,72 @@ def generate_strindex_v1(out_dir: str | Path):
             f.write(example)
 
 
+def generate_matching_digits(out_dir: str | Path):
+    """
+    Generate 5M training samples of 1-15 digits, and testing samples of in-dist
+    and 16 digits, 2000 samples each
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for matching_digits to {out_dir}")
+
+    # generate train dataset
+    n_train = 5_000_000
+    max_train_len = 15
+    train_path = out_dir / "train_match_1-15digits_5M.txt"
+    print(f"Generating {train_path}")
+    with open(train_path, "w") as f:
+        for _ in range(n_train):
+            a = "".join(
+                random.choices(string.digits, k=random.randint(1, max_train_len))
+            )
+            b = "".join(
+                random.choices(string.digits, k=random.randint(1, max_train_len))
+            )
+            example = build_matching_example(a, b) + "\n"
+            f.write(example)
+
+    excluded = get_set_from_file(train_path)
+
+    # generate test datasets
+    n_test = 2000
+    # in dist
+    test_path = out_dir / "test_match_in_dist_2000.txt"
+    print(f"Generating {test_path}")
+    with open(test_path, "w") as f:
+        i = 0
+        while i < n_test:
+            a = "".join(
+                random.choices(string.digits, k=random.randint(1, max_train_len))
+            )
+            b = "".join(
+                random.choices(string.digits, k=random.randint(1, max_train_len))
+            )
+            example = build_matching_example(a, b) + "\n"
+            if example in excluded:
+                continue
+            f.write(example)
+            i += 1
+
+    # 13-17 digits
+    test_path = out_dir / "test_match_ood_13-17digits_2000.txt"
+    print(f"Generating {test_path}")
+    with open(test_path, "w") as f:
+        for _ in range(n_test):
+            a = "".join(random.choices(string.digits, k=random.randint(13, 17)))
+            b = "".join(random.choices(string.digits, k=random.randint(13, 17)))
+            example = build_matching_example(a, b) + "\n"
+            f.write(example)
+
+
 def main():
     # generate_experiment_16(DATA_DIR / "matching" / "exp_16")
     generate_strlen_v1_1M(DATA_DIR / "strlen_v1" / "1M")
     generate_strlen_v2_1M(DATA_DIR / "strlen_v2" / "1M")
     generate_strindex_v1(DATA_DIR / "strindex_v1" / "2M")
+    generate_matching_digits(DATA_DIR / "matching_digits" / "5M")
 
 
 if __name__ == "__main__":
