@@ -103,7 +103,7 @@ class TransformerDecoder(nn.Module):
                     dropout=dropout,
                     bias=True,  # is true by default
                     batch_first=True,
-                    rel_pos_k=16,
+                    rel_pos_k=64,
                 )
         elif self.pos_enc == "rotary":
             for layer in self.transformer_encoder.layers:
