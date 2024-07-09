@@ -249,6 +249,7 @@ class AbacusEncoding(nn.Module):
         max_k (int): maximum k value which we randomly shift by during training
         """
         super().__init__()
+        self.max_seq_length = max_seq_length
         self.embedding = torch.nn.Embedding(max_seq_length, embedding_dim)
 
         # TODO: hardcoded, CharTokenizer maps 0..9 -> 0..9
