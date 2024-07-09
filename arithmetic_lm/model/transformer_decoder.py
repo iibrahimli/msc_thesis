@@ -52,7 +52,7 @@ class TransformerDecoder(nn.Module):
         self.pos_enc = pos_enc
 
         # embedding
-        if emb_type == "learned":
+        if emb_type == "default":
             self.embedding = nn.Embedding(vocab_size, n_embd)
         elif emb_type == "sinusoidal":
             self.embedding = SinusoidalEmbedding(vocab_size, n_embd)
@@ -74,7 +74,9 @@ class TransformerDecoder(nn.Module):
             )
         elif self.pos_enc == "abacus":
             self.pos_encoder = AbacusEncoding(
-                embedding_dim=n_embd, max_seq_length=context_len
+                embedding_dim=n_embd,
+                max_seq_length=context_len,
+                max_k=30,
             )
         elif self.pos_enc == "nope":
             self.pos_encoder = nn.Identity()
@@ -131,9 +133,12 @@ class TransformerDecoder(nn.Module):
         Returns:
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
+        ids = x.detach().clone()
         x = self.embedding(x)
-        if self.pos_enc == "abs":
+        if self.pos_enc in ["abs", "learned"]:
             x = self.pos_encoder(x)
+        if self.pos_enc == "abacus":
+            x = self.pos_encoder(ids)
 
         x = self.transformer_encoder(
             x,

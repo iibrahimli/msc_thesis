@@ -304,5 +304,8 @@ class AbacusEncoding(nn.Module):
             k = random.randint(0, self.max_k)
             # as we already have ones in the tensor, the tensor values will be k+1
             output[output > 0] += k
+            output[output > 0] = torch.clamp(
+                output[output > 0], max=self.max_seq_length - 1
+            )
 
         return self.embedding(output)
