@@ -10,7 +10,7 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
     A multihead attention layer with relative positional encoding.
     """
 
-    def __init__(self, *args, rel_pos_k: int = 16, **kwargs):
+    def __init__(self, *args, rel_pos_k: int = 128, **kwargs):
         """
         rel_pos_k: the window size for relative positional encoding.
         """
