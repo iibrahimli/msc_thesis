@@ -2,7 +2,6 @@ import math
 
 import torch
 import torch.nn.functional as F
-from einops import rearrange
 from torch import Tensor, nn
 
 
@@ -30,30 +29,6 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         index of embedding for relative position of j to i (clipped to window size k).
         """
         return torch.clamp(torch.arange(n).unsqueeze(1) - torch.arange(n), -k, k) + k
-
-    # borrowed from lucidrains
-    # https://github.com/lucidrains/bottleneck-transformer-pytorch/blob/main/bottleneck_transformer_pytorch/bottleneck_transformer_pytorch.py#L21
-    def relative_to_absolute(self, q):
-        """
-        Converts the dimension that is specified from the axis
-        from relative distances (with length 2*tokens-1) to absolute distance (length tokens)
-        Input: [bs, heads, length, 2*length - 1]
-        Output: [bs, heads, length, length]
-        """
-        b, h, l, _, device, dtype = *q.shape, q.device, q.dtype
-        dd = {"device": device, "dtype": dtype}
-        col_pad = torch.zeros((b, h, l, 1), **dd)
-        x = torch.cat((q, col_pad), dim=3)  # zero pad 2l-1 to 2l
-        flat_x = rearrange(x, "b h l c -> b h (l c)")
-        flat_pad = torch.zeros((b, h, l - 1), **dd)
-        print("flat_x", flat_x.shape)
-        print("flat_pad", flat_pad.shape)
-        flat_x_padded = torch.cat((flat_x, flat_pad), dim=2)
-        print("flat_x_padded", flat_x_padded.shape)
-        final_x = flat_x_padded.reshape(b, h, l + 1, 2 * l - 1)
-        print("final_x", final_x.shape)
-        final_x = final_x[:, :, :l, (l - 1) :]
-        return final_x
 
     def forward(
         self,
