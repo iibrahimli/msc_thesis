@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from arithmetic_lm.model.pos_encoding import (
+from arithmetic_lm.model.pos_enc import (
     AbacusEncoding,
     CoordinateEncoding,
     RelativeMultiheadAttention,

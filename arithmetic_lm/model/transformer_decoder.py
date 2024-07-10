@@ -2,13 +2,13 @@ from typing import Literal
 
 from torch import Tensor, nn
 
-from arithmetic_lm.model.pos_encoding import (
+from arithmetic_lm.model.pos_enc import (
     AbacusEncoding,
     AbsolutePositionalEncoding,
     LearnedPositionalEncoding,
     RelativeMultiheadAttention,
 )
-from arithmetic_lm.model.rotary_pos_encoding import RotaryMultiheadAttention
+from arithmetic_lm.model.pos_enc.rotary_pos_encoding import RotaryMultiheadAttention
 from arithmetic_lm.model.utils import SinusoidalEmbedding, init_weights
 
 
