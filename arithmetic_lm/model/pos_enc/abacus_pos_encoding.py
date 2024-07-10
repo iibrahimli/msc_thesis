@@ -74,6 +74,8 @@ class AbacusEncoding(nn.Module):
     def forward(self, input_ids: Tensor):
         """
         input_ids (tensor): a batch of inputs, each row is a sample
+        NOTE: returns pos embeddings to be added to input embeddings,
+            does not add here unlike abs/learned pos encoding classes
         """
         mask = torch.isin(input_ids, self.digits)
         output = self.helper(mask, input_ids.device)
