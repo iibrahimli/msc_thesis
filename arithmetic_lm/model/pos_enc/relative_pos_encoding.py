@@ -1,4 +1,5 @@
 import math
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -37,6 +38,7 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         value: Tensor,
         need_weights: bool = True,
         average_attn_weights: bool = True,
+        attn_mask: Optional[Tensor] = None,
         **kwargs,
     ) -> tuple[Tensor, Tensor | None]:
         """
@@ -54,6 +56,13 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
             ``batch_first=False`` or :math:`(N, S, E_v)` when ``batch_first=True``, where :math:`S` is the source
             sequence length, :math:`N` is the batch size, and :math:`E_v` is the value embedding dimension ``vdim``.
             See "Attention Is All You Need" for more details.
+        attn_mask: If specified, a 2D or 3D mask preventing attention to certain positions. Must be of shape
+            :math:`(L, S)` or :math:`(N\cdot\text{num\_heads}, L, S)`, where :math:`N` is the batch size,
+            :math:`L` is the target sequence length, and :math:`S` is the source sequence length. A 2D mask will be
+            broadcasted across the batch while a 3D mask allows for a different mask for each entry in the batch.
+            Binary and float masks are supported. For a binary mask, a ``True`` value indicates that the
+            corresponding position is not allowed to attend. For a float mask, the mask values will be added to
+            the attention weight.
         """
 
         # NOTE: only batch first supported
@@ -93,6 +102,12 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         scores = (torch.matmul(q, k.transpose(-2, -1)) + S_rel) / math.sqrt(
             self.head_dim
         )
+
+        # Apply attention mask if provided
+        if attn_mask is not None:
+            if attn_mask.dim() == 2:
+                attn_mask = attn_mask.unsqueeze(0)
+            scores = scores + attn_mask
 
         # Apply softmax to get attention weights
         attn_weights = F.softmax(scores, dim=-1)
