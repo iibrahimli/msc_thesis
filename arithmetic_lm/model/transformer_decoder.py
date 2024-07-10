@@ -138,7 +138,7 @@ class TransformerDecoder(nn.Module):
         if self.pos_enc in ["abs", "learned"]:
             x = self.pos_encoder(x)
         if self.pos_enc == "abacus":
-            x = self.pos_encoder(ids)
+            x += self.pos_encoder(ids)
 
         x = self.transformer_encoder(
             x,
