@@ -305,9 +305,9 @@ class RotaryMultiheadAttention(nn.MultiheadAttention):
     A multihead attention layer with rotary positional encoding.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, rotary_emb: nn.Module = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rotary_emb = RotaryEmbedding(dim=self.head_dim)
+        self.rotary_emb = rotary_emb
 
     def forward(
         self,

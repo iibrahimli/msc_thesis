@@ -7,8 +7,9 @@ from arithmetic_lm.model.pos_enc import (
     AbsolutePositionalEncoding,
     LearnedPositionalEncoding,
     RelativeMultiheadAttention,
+    RotaryEmbedding,
+    RotaryMultiheadAttention,
 )
-from arithmetic_lm.model.pos_enc.rotary_pos_encoding import RotaryMultiheadAttention
 from arithmetic_lm.model.utils import SinusoidalEmbedding, init_weights
 
 
@@ -108,6 +109,7 @@ class TransformerDecoder(nn.Module):
                     rel_pos_k=128,
                 )
         elif self.pos_enc == "rotary":
+            self.rotary_emb = RotaryEmbedding(dim=self.n_embd / self.n_head)
             for layer in self.transformer_encoder.layers:
                 layer.self_attn = RotaryMultiheadAttention(
                     n_embd,
@@ -115,6 +117,7 @@ class TransformerDecoder(nn.Module):
                     dropout=dropout,
                     bias=True,  # is true by default
                     batch_first=True,
+                    rotary_emb=self.rotary_emb,
                 )
 
         # output to vocab dim
