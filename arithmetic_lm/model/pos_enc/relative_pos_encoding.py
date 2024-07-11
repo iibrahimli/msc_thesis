@@ -112,6 +112,9 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         # Apply softmax to get attention weights
         attn_weights = F.softmax(scores, dim=-1)
 
+        # Apply dropout
+        attn_weights = F.dropout(attn_weights, p=self.dropout, training=self.training)
+
         # Apply attention weights to values
         attn_output = torch.matmul(attn_weights, v)
 
