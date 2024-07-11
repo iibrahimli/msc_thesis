@@ -95,10 +95,10 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
 
         # R shape [n_heads, L, L, head_dim]
         R = self.rel_pos_emb[:, self.rel_pos_indices(query.size(-2), self.rel_pos_k), :]
-        # S_rel = torch.matmul(q.permute(1, 2, 0, 3), R.transpose(-1, -2)).permute(
-        #     2, 0, 1, 3
-        # )
-        S_rel = torch.einsum("bhld,hsld->bhsl", q, R)
+        S_rel = torch.matmul(q.permute(1, 2, 0, 3), R.transpose(-1, -2)).permute(
+            2, 0, 1, 3
+        )
+        # S_rel = torch.einsum("bhld,hsld->bhsl", q, R)
 
         # Compute attention scores (adding S_rel)
         scores = (torch.matmul(q, k.transpose(-2, -1)) + S_rel) / math.sqrt(
