@@ -32,11 +32,17 @@ class CharTokenizer(Tokenizer):
     def encode(self, text: str) -> list[int]:
         return [self.stoi[char] for char in text]
 
-    def decode(self, tokens: int | list[int] | Tensor) -> str:
+    def decode(self, tokens: int | list[int] | list[list[int]] | Tensor) -> str:
         if isinstance(tokens, int):
             tokens = [tokens]
         if isinstance(tokens, Tensor):
             tokens = tokens.tolist()
+        if (
+            isinstance(tokens, list)
+            and isinstance(tokens[0], list)
+            and len(tokens) == 1
+        ):
+            tokens = tokens[0]
         return "".join([self.itos[token] for token in tokens])
 
 
