@@ -100,6 +100,7 @@ def evaluate(
     plt.gca().invert_yaxis()
 
     # draw a red rect around training area (lengths 1-17 and 19)
+    # TODO: this is specific to addition-generalize-to-longer
     plt.gca().add_patch(
         plt.Rectangle((-0.5, -0.5), 17, 17, fill=False, edgecolor="red")
     )
