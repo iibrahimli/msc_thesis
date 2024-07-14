@@ -113,8 +113,8 @@ def evaluate(
     plt.gca().add_patch(
         plt.Rectangle((-0.5, -0.5), 17, 17, fill=False, edgecolor="red")
     )
-    plt.gca().add_patch(plt.Rectangle((18.5, -0.5), 1, 17, fill=False, edgecolor="red"))
-    plt.gca().add_patch(plt.Rectangle((-0.5, 18.5), 17, 1, fill=False, edgecolor="red"))
+    plt.gca().add_patch(plt.Rectangle((17.5, -0.5), 1, 19, fill=False, edgecolor="red"))
+    plt.gca().add_patch(plt.Rectangle((-0.5, 17.5), 19, 1, fill=False, edgecolor="red"))
     plt.legend(["Training lengths"])
 
     plt.title(f"Accuracy of {model_name}")
