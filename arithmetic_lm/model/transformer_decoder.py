@@ -54,7 +54,8 @@ class TransformerDecoder(nn.Module):
 
         # embedding
         self.embedding = None
-        if emb_type == "learned":
+        # default is legacy name
+        if emb_type == "learned" or emb_type == "default":
             self.embedding = nn.Embedding(vocab_size, n_embd)
         elif emb_type == "sinusoidal":
             self.embedding = SinusoidalEmbedding(vocab_size, n_embd)
