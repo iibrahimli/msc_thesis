@@ -24,6 +24,7 @@ from arithmetic_lm.tokenizer import CharTokenizer, Tokenizer
 
 
 def evaluate(
+    exp_name: str,
     model_name: str,
     model: torch.nn.Module,
     tokenizer: Tokenizer,
@@ -38,7 +39,7 @@ def evaluate(
     Evaluate on long addition examples
     """
 
-    plot_dir = PLOTS_DIR / model_name
+    plot_dir = PLOTS_DIR / exp_name / model_name
     plot_dir.mkdir(exist_ok=True, parents=True)
 
     reverse_ans = data_format["reverse_ans"]
@@ -117,7 +118,7 @@ def evaluate(
     plt.gca().add_patch(plt.Rectangle((-0.5, 17.5), 19, 1, fill=False, edgecolor="red"))
     plt.legend(["Training lengths"])
 
-    plt.title(f"Accuracy of {model_name}")
+    plt.title(f"Accuracy of {model_name} ({exp_name})")
     plt.xlabel("Number of digits in first operand")
     plt.ylabel("Number of digits in second operand")
     plt.xticks(range(max_digits - min_digits + 1), range(min_digits, max_digits + 1))
@@ -171,7 +172,9 @@ def main():
 
     # extract model name, directory that contains the .ckpt file
     model_name = Path(args.ckpt).parent.name
+    exp_name = Path(args.ckpt).parent.parent.name
     print(f"Model name: {model_name}")
+    print(f"Experiment name: {exp_name}")
 
     # load model
     model, hparams = load_model(args.ckpt, map_location=device)
@@ -192,6 +195,7 @@ def main():
     pprint(data_format_params)
 
     evaluate(
+        exp_name,
         model_name,
         model,
         tokenizer,
