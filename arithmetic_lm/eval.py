@@ -161,7 +161,7 @@ def main():
     print(f"Model name: {model_name}")
 
     # load model
-    model, hparams = load_model(args.ckpt)
+    model, hparams = load_model(args.ckpt, map_location=device)
     model.to(device)
     model.eval()
     print(f"Loaded model from {args.ckpt}")

@@ -30,12 +30,12 @@ def init_weights(module: nn.Module):
 
 
 def load_model(
-    ckpt_path: str, model_class: str = "TransformerDecoder"
+    ckpt_path: str, model_class: str = "TransformerDecoder", map_location: str = "mps"
 ) -> tuple[torch.nn.Module, dict]:
     from arithmetic_lm.model import MODELS
 
     # load model
-    ckpt = torch.load(ckpt_path, map_location="mps")
+    ckpt = torch.load(ckpt_path, map_location=map_location)
     model = MODELS[model_class](
         **ckpt["hyper_parameters"]["model_hparams"],
         # vocab_size=tokenizer.vocab_size,
