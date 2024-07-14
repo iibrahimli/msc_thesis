@@ -53,7 +53,6 @@ class TransformerDecoder(nn.Module):
         self.pos_enc = pos_enc
 
         # embedding
-        self.embedding = None
         # default is legacy name
         if emb_type == "learned" or emb_type == "default":
             self.embedding = nn.Embedding(vocab_size, n_embd)
