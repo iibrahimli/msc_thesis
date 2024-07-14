@@ -30,6 +30,7 @@ def evaluate(
     tokenizer: Tokenizer,
     data_format: dict,
     samples_per_case: int = 10,
+    samples_per_case_off_diag: int = None,
     min_digits: int = 1,
     max_digits: int = 100,
     device: torch.device = torch.device("cpu"),
@@ -38,6 +39,9 @@ def evaluate(
     """
     Evaluate on long addition examples
     """
+
+    if samples_per_case_off_diag is None:
+        samples_per_case_off_diag = samples_per_case
 
     plot_dir = PLOTS_DIR / exp_name / model_name
     plot_dir.mkdir(exist_ok=True, parents=True)
@@ -58,7 +62,8 @@ def evaluate(
         for j in tqdm(
             range(min_digits, max_digits + 1), desc="j", position=1, leave=False
         ):
-            for _ in range(samples_per_case):
+            n_samples = samples_per_case if i == j else samples_per_case_off_diag
+            for _ in range(n_samples):
                 # generate
                 a = random.randint(10 ** (i - 1), 10**i - 1)
                 b = random.randint(10 ** (j - 1), 10**j - 1)
@@ -138,6 +143,12 @@ def main():
         "--n", type=int, default=100, help="number of samples to generate per case"
     )
     parser.add_argument(
+        "--n_off_diag",
+        type=int,
+        default=None,
+        help="number of samples to generate per off-diagonal case (len(a) != len(b))",
+    )
+    parser.add_argument(
         "--seed", type=int, default=42, help="random seed for reproducibility"
     )
     parser.add_argument(
@@ -194,6 +205,7 @@ def main():
         max_digits=args.max_digits,
         data_format=data_format_params,
         samples_per_case=args.n,
+        samples_per_case_off_diag=args.n_off_diag
         device=device,
         verbose=args.verbose,
     )
