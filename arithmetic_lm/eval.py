@@ -31,6 +31,7 @@ def evaluate(
     samples_per_case: int = 10,
     min_digits: int = 1,
     max_digits: int = 100,
+    device: torch.device = torch.device("cpu"),
 ) -> None:
     """
     Evaluate on long addition examples
@@ -66,7 +67,7 @@ def evaluate(
                 prompt = prompt[: prompt.index("=") + 1]
 
                 # tokenize
-                tokens = torch.tensor(tokenizer.encode(prompt))
+                tokens = torch.tensor(tokenizer.encode(prompt)).to(device)
 
                 # generate
                 stop_token = tokenizer.encode("$")[0]
@@ -78,7 +79,7 @@ def evaluate(
                 )
 
                 # decode
-                pred_ans = tokenizer.decode(generated).strip()
+                pred_ans = tokenizer.decode(generated.cpu().detach()).strip()
 
                 print(f"Prompt: {prompt}, Generated: {pred_ans}, Real: {real_ans}")
 
@@ -139,11 +140,21 @@ def main():
     parser.add_argument(
         "--seed", type=int, default=42, help="random seed for reproducibility"
     )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cuda",
+        help="device to use (cpu or cuda), default is CPU",
+    )
 
     args = parser.parse_args()
 
     # set random seed
     random.seed(args.seed)
+
+    # set device
+    device = torch.device(args.device)
+    print(f"Device: {device}")
 
     # extract model name, directory that contains the .ckpt file
     model_name = Path(args.ckpt).parent.name
@@ -151,6 +162,7 @@ def main():
 
     # load model
     model, hparams = load_model(args.ckpt)
+    model.to(device)
     model.eval()
     print(f"Loaded model from {args.ckpt}")
     print("\nModel hyperparameters:")
