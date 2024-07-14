@@ -117,7 +117,7 @@ def evaluate(
     plt.gca().add_patch(plt.Rectangle((-0.5, 18.5), 17, 1, fill=False, edgecolor="red"))
     plt.legend(["Training lengths"])
 
-    plt.title("Accuracy")
+    plt.title(f"Accuracy of {model_name}")
     plt.xlabel("Number of digits in first operand")
     plt.ylabel("Number of digits in second operand")
     plt.xticks(range(max_digits - min_digits + 1), range(min_digits, max_digits + 1))
