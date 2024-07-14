@@ -3,16 +3,20 @@ Evaluate a model checkpoint on generated arithmetic expressions.
 """
 
 import argparse
+import os
 import random
 from pathlib import Path
 from pprint import pprint
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from tqdm import tqdm
 
-from arithmetic_lm.constants import CHECKPOINTS_DIR, PLOTS_DIR
+from arithmetic_lm.constants import PLOTS_DIR
 from arithmetic_lm.eval_utils import eval_sample_numeric
 from arithmetic_lm.formatting import format_line
 from arithmetic_lm.model import generate, load_model
@@ -96,12 +100,12 @@ def evaluate(
     plt.gca().invert_yaxis()
 
     # draw a red rect around training area (lengths 1-17 and 19)
-    # plt.gca().add_patch(
-    #     plt.Rectangle((-0.5, -0.5), 17, 17, fill=False, edgecolor="red")
-    # )
-    # plt.gca().add_patch(plt.Rectangle((18.5, -0.5), 1, 17, fill=False, edgecolor="red"))
-    # plt.gca().add_patch(plt.Rectangle((-0.5, 18.5), 17, 1, fill=False, edgecolor="red"))
-    # plt.legend(["Training lengths"])
+    plt.gca().add_patch(
+        plt.Rectangle((-0.5, -0.5), 17, 17, fill=False, edgecolor="red")
+    )
+    plt.gca().add_patch(plt.Rectangle((18.5, -0.5), 1, 17, fill=False, edgecolor="red"))
+    plt.gca().add_patch(plt.Rectangle((-0.5, 18.5), 17, 1, fill=False, edgecolor="red"))
+    plt.legend(["Training lengths"])
 
     plt.title("Accuracy")
     plt.xlabel("Number of digits in first operand")
