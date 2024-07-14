@@ -7,4 +7,4 @@ args:
   dropout: 0.1
   pos_enc: "abs"
   pos_enc_max_shift: 0
-  emb_type: "default"
+  emb_type: "learned"

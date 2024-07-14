@@ -53,7 +53,8 @@ class TransformerDecoder(nn.Module):
         self.pos_enc = pos_enc
 
         # embedding
-        if emb_type == "default":
+        self.embedding = None
+        if emb_type == "learned":
             self.embedding = nn.Embedding(vocab_size, n_embd)
         elif emb_type == "sinusoidal":
             self.embedding = SinusoidalEmbedding(vocab_size, n_embd)
@@ -124,7 +125,8 @@ class TransformerDecoder(nn.Module):
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
 
         # weight tying
-        self.lm_head.weight = self.embedding.weight
+        if self.embedding is not None:
+            self.lm_head.weight = self.embedding.weight
 
         self.apply(init_weights)
 
