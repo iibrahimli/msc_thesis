@@ -41,6 +41,8 @@ def evaluate(
     plot_dir = PLOTS_DIR / model_name
     plot_dir.mkdir(exist_ok=True, parents=True)
 
+    reverse_ans = data_format["reverse_ans"]
+
     print(
         f"\nStarting evaluation, {samples_per_case} samples per case, "
         f"min_digits={min_digits}, max_digits={max_digits}"
@@ -81,6 +83,10 @@ def evaluate(
 
                 # decode
                 pred_ans = tokenizer.decode(generated.cpu().detach()).strip()
+
+                # reverse ans if needed
+                if reverse_ans:
+                    real_ans = real_ans[::-1]
 
                 if verbose:
                     print(f"{prompt} -> {pred_ans} ({real_ans})")
