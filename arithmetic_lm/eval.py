@@ -109,15 +109,6 @@ def evaluate(
     # flip y axis
     plt.gca().invert_yaxis()
 
-    # draw a red rect around training area (lengths 1-17 and 19)
-    # TODO: this is specific to addition-generalize-to-longer
-    plt.gca().add_patch(
-        plt.Rectangle((-0.5, -0.5), 17, 17, fill=False, edgecolor="red")
-    )
-    plt.gca().add_patch(plt.Rectangle((17.5, -0.5), 1, 19, fill=False, edgecolor="red"))
-    plt.gca().add_patch(plt.Rectangle((-0.5, 17.5), 19, 1, fill=False, edgecolor="red"))
-    plt.legend(["Training lengths"])
-
     plt.title(f"Accuracy of {model_name} ({exp_name})")
     plt.xlabel("Number of digits in first operand")
     plt.ylabel("Number of digits in second operand")
