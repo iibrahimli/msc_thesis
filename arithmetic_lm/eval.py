@@ -32,6 +32,7 @@ def evaluate(
     min_digits: int = 1,
     max_digits: int = 100,
     device: torch.device = torch.device("cpu"),
+    verbose: bool = False,
 ) -> None:
     """
     Evaluate on long addition examples
@@ -80,6 +81,9 @@ def evaluate(
 
                 # decode
                 pred_ans = tokenizer.decode(generated.cpu().detach()).strip()
+
+                if verbose:
+                    print(f"{prompt} -> {pred_ans} ({real_ans})")
 
                 # check answer
                 acc[i - min_digits, j - min_digits] += int(
@@ -144,6 +148,11 @@ def main():
         default="cuda",
         help="device to use (cpu or cuda), default is CPU",
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="print more information during evaluation",
+    )
 
     args = parser.parse_args()
 
@@ -185,6 +194,7 @@ def main():
         data_format=data_format_params,
         samples_per_case=args.n,
         device=device,
+        verbose=args.verbose,
     )
 
 
