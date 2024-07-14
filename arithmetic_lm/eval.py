@@ -81,8 +81,6 @@ def evaluate(
                 # decode
                 pred_ans = tokenizer.decode(generated.cpu().detach()).strip()
 
-                print(f"Prompt: {prompt}, Generated: {pred_ans}, Real: {real_ans}")
-
                 # check answer
                 acc[i - min_digits, j - min_digits] += int(
                     eval_sample_numeric(pred_ans, real_ans)
