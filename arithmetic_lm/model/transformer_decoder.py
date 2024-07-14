@@ -139,7 +139,6 @@ class TransformerDecoder(nn.Module):
             logits: Tensor, shape ``[batch_size, seq_len, vocab_size]``
         """
         ids = x.detach().clone()
-        print(x.device, ids.device, self.embedding.weight.device)
         x = self.embedding(x)
         if self.pos_enc in ["abs", "learned"]:
             x = self.pos_encoder(x)

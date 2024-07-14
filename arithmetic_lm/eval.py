@@ -186,6 +186,7 @@ def main():
         max_digits=args.max_digits,
         data_format=data_format_params,
         samples_per_case=args.n,
+        device=device,
     )
 
 
