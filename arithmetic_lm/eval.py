@@ -205,7 +205,7 @@ def main():
         max_digits=args.max_digits,
         data_format=data_format_params,
         samples_per_case=args.n,
-        samples_per_case_off_diag=args.n_off_diag
+        samples_per_case_off_diag=args.n_off_diag,
         device=device,
         verbose=args.verbose,
     )
