@@ -106,6 +106,11 @@ def evaluate(
 
     print(f"Mean accuracy: {acc.mean()}")
 
+    # save acc array
+    acc_path = plot_dir / f"accuracy_{min_digits}-{max_digits}digits.npy"
+    np.save(acc_path, acc)
+    print(f"Saved accuracy array to {acc_path}")
+
     # plot
     plt.figure(figsize=(12, 8))
     plt.imshow(acc, cmap="viridis", interpolation="none")
@@ -117,8 +122,7 @@ def evaluate(
     plt.title(f"Accuracy of {model_name} ({exp_name})")
     plt.xlabel("Number of digits in first operand")
     plt.ylabel("Number of digits in second operand")
-    plt.xticks(range(max_digits - min_digits + 1), range(min_digits, max_digits + 1))
-    plt.yticks(range(max_digits - min_digits + 1), range(min_digits, max_digits + 1))
+
     # rotate labels
     plt.xticks(rotation=90)
     plot_path = plot_dir / f"accuracy_{min_digits}-{max_digits}digits.png"
