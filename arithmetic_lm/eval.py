@@ -113,7 +113,8 @@ def evaluate(
                     )
                     wrong_example_saved = True
 
-    acc[i - min_digits, j - min_digits] /= samples_per_case
+            # average accuracy
+            acc[i - min_digits, j - min_digits] /= n_samples
 
     print(f"Mean accuracy: {acc.mean()}")
 
