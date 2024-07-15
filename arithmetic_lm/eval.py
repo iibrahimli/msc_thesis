@@ -12,11 +12,12 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import torch
 from tqdm import tqdm
 
-from arithmetic_lm.constants import PLOTS_DIR
+from arithmetic_lm.constants import EVAL_DIR
 from arithmetic_lm.eval_utils import eval_sample_numeric
 from arithmetic_lm.formatting import format_line
 from arithmetic_lm.model import generate, load_model
@@ -40,11 +41,13 @@ def evaluate(
     Evaluate on long addition examples
     """
 
+    wrong_examples = []
+
     if samples_per_case_off_diag is None:
         samples_per_case_off_diag = samples_per_case
 
-    plot_dir = PLOTS_DIR / exp_name / model_name
-    plot_dir.mkdir(exist_ok=True, parents=True)
+    eval_dir = EVAL_DIR / exp_name / model_name
+    eval_dir.mkdir(exist_ok=True, parents=True)
 
     reverse_ans = data_format["reverse_ans"]
 
@@ -62,6 +65,7 @@ def evaluate(
         for j in tqdm(
             range(min_digits, max_digits + 1), desc="j", position=1, leave=False
         ):
+            wrong_example_saved = False
             n_samples = samples_per_case if i == j else samples_per_case_off_diag
             for _ in range(n_samples):
                 # generate
@@ -98,18 +102,29 @@ def evaluate(
                     print(f"{prompt} -> {pred_ans} ({real_ans})")
 
                 # check answer
-                acc[i - min_digits, j - min_digits] += int(
-                    eval_sample_numeric(pred_ans, real_ans)
-                )
+                correct = eval_sample_numeric(pred_ans, real_ans)
+                acc[i - min_digits, j - min_digits] += int(correct)
+
+                # save incorrect samples (max of 1 per case)
+                if not correct and not wrong_example_saved:
+                    wrong_examples.append(
+                        f"[{i}, {j}] {prompt} -> {pred_ans} ({real_ans})"
+                    )
+                    wrong_example_saved = True
 
     acc[i - min_digits, j - min_digits] /= samples_per_case
 
     print(f"Mean accuracy: {acc.mean()}")
 
     # save acc array
-    acc_path = plot_dir / f"accuracy_{min_digits}-{max_digits}digits.npy"
+    acc_path = eval_dir / f"accuracy_{min_digits}-{max_digits}digits.npy"
     np.save(acc_path, acc)
     print(f"Saved accuracy array to {acc_path}")
+
+    # save wrong examples
+    wrong_examples_path = (
+        eval_dir / f"wrong_examples_{min_digits}-{max_digits}digits.txt"
+    )
 
     # plot
     plt.figure(figsize=(12, 8))
@@ -123,9 +138,21 @@ def evaluate(
     plt.xlabel("Number of digits in first operand")
     plt.ylabel("Number of digits in second operand")
 
+    # set ticks
+    plt.xticks(
+        np.arange(max_digits - min_digits + 1), np.arange(min_digits, max_digits + 1)
+    )
+    plt.yticks(
+        np.arange(max_digits - min_digits + 1), np.arange(min_digits, max_digits + 1)
+    )
+
+    # use max n locator
+    plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(nbins=10, integer=True))
+    plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(nbins=10, integer=True))
+
     # rotate labels
     plt.xticks(rotation=90)
-    plot_path = plot_dir / f"accuracy_{min_digits}-{max_digits}digits.png"
+    plot_path = eval_dir / f"accuracy_{min_digits}-{max_digits}digits.png"
     plt.savefig(plot_path)
     print(f"Saved plot to {plot_path}")
     # plt.show()
