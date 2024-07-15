@@ -105,4 +105,4 @@ Like Experiment 16, but matching only digits instead of characters, and with aba
 
 ## [Experiment 21](../arithmetic_lm/conf/experiment/21)
 
-Like Experiment 13 (addition-generalize-to-longer) but with balanced answer digit distribution (i.e. no carry overflow with a 1 added as MSD), to see if the models still learn most significant digit first. Dataset: [add_generalize_to_longer_20_nocarry.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20_nocarry.yaml)
+Like Experiment 13 (addition-generalize-to-longer) but with no carries in training set. Dataset: [add_generalize_to_longer_20_nocarry.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20_nocarry.yaml)

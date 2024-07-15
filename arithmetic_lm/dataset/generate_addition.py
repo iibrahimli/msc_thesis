@@ -45,7 +45,7 @@ def generate_balanced(
     num_examples: dict[int, int],  # digit -> num_examples
     exclude: set[str] = None,
     balance_carries: bool = True,
-    no_added_one: bool = False,
+    no_carry: bool = False,
     seed: int = 42,
 ) -> None:
     """Generate addition problems with balanced number of carries"""
@@ -62,6 +62,8 @@ def generate_balanced(
             assert n <= n_possible_examples(
                 i
             ), f"Can't generate more than {n_possible_examples(i)} examples for {i} digit (requested {n})"
+
+    max_digits = max(num_examples.keys())
 
     # for each digit, we target each number of carries (0...N) to have the same number of examples
     num_carries = {i: [0] * (i + 1) for i in num_examples}
@@ -100,12 +102,12 @@ def generate_balanced(
                 b = random.randint(10 ** (num_digit - 1), 10**num_digit - 1)
                 ans = str(a + b)
 
-                if no_added_one:
-                    if len(ans) > max(len(str(a)), len(str(b))):
-                        continue
-
                 # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
+
+                if no_carry and num_carry > 2:
+                    # limit to 2 carries since 0 is very slow due to random sampling
+                    continue
 
                 if balance_carries:
                     # check if we have enough examples for this carry
@@ -123,6 +125,7 @@ def generate_balanced(
 
                 if example_str in generated_examples:
                     continue
+
                 generated_examples.add(example_str)
 
                 # write the example to file
@@ -619,7 +622,7 @@ def generate_experiment_14(out_dir: str | Path):
 def generate_generalize_to_longer_20_nocarry(out_dir: str | Path):
     """
     Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for
-    in-between OOD, 20 longer OOD generalization). No carry-over that adds 1 as MSD
+    in-between OOD, 20 longer OOD generalization). No carries.
     """
 
     out_dir = Path(out_dir)
@@ -642,7 +645,7 @@ def generate_generalize_to_longer_20_nocarry(out_dir: str | Path):
         filepath=train_path,
         num_examples=train_num_examples,
         balance_carries=False,  # too slow for large digit numbers, TODO: optimize
-        no_added_one=True,  # no carry over 1 in MSD
+        no_carry=True,
     )
 
     # train examples excluded from test
