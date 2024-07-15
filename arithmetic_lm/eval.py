@@ -53,7 +53,8 @@ def evaluate(
 
     print(
         f"\nStarting evaluation, {samples_per_case} samples per case, "
-        f"min_digits={min_digits}, max_digits={max_digits}"
+        f"min_digits={min_digits}, max_digits={max_digits}, "
+        f"samples_per_case={samples_per_case} (off-diag={samples_per_case_off_diag})"
     )
 
     acc = np.zeros(
