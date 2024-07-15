@@ -126,6 +126,8 @@ def evaluate(
     wrong_examples_path = (
         eval_dir / f"wrong_examples_{min_digits}-{max_digits}digits.txt"
     )
+    with open(wrong_examples_path, "w") as f:
+        f.write("\n".join(wrong_examples))
 
     # plot
     plt.figure(figsize=(12, 8))
