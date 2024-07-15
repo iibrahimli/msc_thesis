@@ -101,3 +101,8 @@ Like string length, but more primitve. Instead of outputting a number, output th
 ## [Experiment 20](../arithmetic_lm/conf/experiment/20)
 
 Like Experiment 16, but matching only digits instead of characters, and with abacus embeddings. Dataset: [matching_v2.yaml](../arithmetic_lm/conf/data/matching_digits.yaml)
+
+
+## [Experiment 21](../arithmetic_lm/conf/experiment/21)
+
+Like Experiment 13 (addition-generalize-to-longer) but with balanced answer digit distribution (i.e. no carry overflow with a 1 added as MSD), to see if the models still learn most significant digit first. Dataset: [add_generalize_to_longer_20_nocarry.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20_nocarry.yaml)

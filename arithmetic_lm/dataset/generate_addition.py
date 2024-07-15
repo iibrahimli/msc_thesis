@@ -45,6 +45,7 @@ def generate_balanced(
     num_examples: dict[int, int],  # digit -> num_examples
     exclude: set[str] = None,
     balance_carries: bool = True,
+    no_added_one: bool = False,
     seed: int = 42,
 ) -> None:
     """Generate addition problems with balanced number of carries"""
@@ -98,6 +99,10 @@ def generate_balanced(
                 a = random.randint(10 ** (num_digit - 1), 10**num_digit - 1)
                 b = random.randint(10 ** (num_digit - 1), 10**num_digit - 1)
                 ans = str(a + b)
+
+                if no_added_one:
+                    if len(ans) > max(len(str(a)), len(str(b))):
+                        continue
 
                 # count number of carries in ans
                 num_carry = num_carry_ops(a, b)
@@ -611,17 +616,77 @@ def generate_experiment_14(out_dir: str | Path):
         )
 
 
+def generate_generalize_to_longer_20_nocarry(out_dir: str | Path):
+    """
+    Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for
+    in-between OOD, 20 longer OOD generalization). No carry-over that adds 1 as MSD
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for generalize-to-longer-20-nocarry to {out_dir}")
+
+    # out of distribution
+    out_dist = {18, 20}
+    in_dist = set(range(1, 20)) - out_dist
+    train_num_examples = {i: 999_000 // len(in_dist) for i in in_dist} | {
+        1: 100,
+        2: 9901,
+    }
+
+    # generate train dataset
+    train_path = out_dir / "train_add_1-19_except18_1M.txt"
+    print(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples=train_num_examples,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+        no_added_one=True,  # no carry over 1 in MSD
+    )
+
+    # train examples excluded from test
+    excluded = get_set_from_file(train_path)
+
+    # generate test dataset with trained digit lengths (in distribution)
+    in_distribution_test_path = out_dir / "test_add_in_distribution_2000.txt"
+    print(f"Generating {in_distribution_test_path}")
+    generate_balanced(
+        filepath=in_distribution_test_path,
+        num_examples={
+            i: 2000 / len(in_dist) for i in in_dist if i not in (1, 2)
+        },  # exclude 1 and 2 since they're fully covered in training dataset
+        exclude=excluded,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+
+    # generate test dataset with out of distribution digit lengths
+    for i in out_dist:
+        out_dist_test_path = out_dir / f"test_add_ood_{i}digit_100.txt"
+        print(f"Generating {out_dist_test_path}")
+        generate_only_digit(
+            out_dist_test_path,
+            num_digits=i,
+            num_examples=100,
+            exclude=excluded,
+            seed=i,
+        )
+
+
 def main():
-    generate_experiment_1(DATA_DIR / "addition")
-    generate_experiment_2(DATA_DIR / "addition")
-    generate_experiment_3(DATA_DIR / "addition")
-    generate_experiment_4(DATA_DIR / "addition")
-    generate_experiment_8(DATA_DIR / "addition" / "exp_8")
-    generate_experiment_10(DATA_DIR / "addition" / "exp_10")
-    generate_experiment_11(DATA_DIR / "addition" / "exp_11")
-    generate_experiment_12(DATA_DIR / "addition" / "exp_12")
-    generate_experiment_13(DATA_DIR / "addition" / "exp_13")
-    generate_experiment_14(DATA_DIR / "addition" / "exp_14")
+    # generate_experiment_1(DATA_DIR / "addition")
+    # generate_experiment_2(DATA_DIR / "addition")
+    # generate_experiment_3(DATA_DIR / "addition")
+    # generate_experiment_4(DATA_DIR / "addition")
+    # generate_experiment_8(DATA_DIR / "addition" / "exp_8")
+    # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
+    # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
+    # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
+    # generate_experiment_13(DATA_DIR / "addition" / "exp_13")
+    # generate_experiment_14(DATA_DIR / "addition" / "exp_14")
+    generate_generalize_to_longer_20_nocarry(
+        DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
+    )
 
 
 if __name__ == "__main__":
