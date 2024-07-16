@@ -42,7 +42,6 @@ class LightningModel(L.LightningModule):
         self.n_pause_tokens = n_pause_tokens
         self.pause_token_id: int = self.tokenizer.encode(pause_token)[0]
         self.pause_type = pause_type
-        self.class_weights = None
         if self.n_pause_tokens > 0:
             # compute class weights to ignore pause token in loss
             class_weights = torch.ones(self.tokenizer.vocab_size, device=self.device)
@@ -110,7 +109,7 @@ class LightningModel(L.LightningModule):
             logits.view(-1, logits.size(-1)),
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
-            weight=self.class_weights,
+            weight=self.class_weights if self.n_pause_tokens > 0 else None,
         )
         self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         return loss
@@ -137,7 +136,7 @@ class LightningModel(L.LightningModule):
                 logits.view(-1, logits.size(-1)),
                 tgt.reshape(-1),
                 ignore_index=self.tokenizer.pad_token_id,
-                weight=self.class_weights,
+                weight=self.class_weights if self.n_pause_tokens > 0 else None,
             )
             self.log(
                 "val_loss",
