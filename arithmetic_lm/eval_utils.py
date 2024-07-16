@@ -36,7 +36,7 @@ def eval_sample_string_match(
 
 
 def eval_on_batch(
-    model,
+    model: torch.nn.Module,
     tokenizer: Tokenizer,
     batch: tuple[torch.Tensor, torch.Tensor],
     eval_func: callable = eval_sample_numeric,

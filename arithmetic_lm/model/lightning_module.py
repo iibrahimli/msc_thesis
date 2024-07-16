@@ -5,7 +5,10 @@ from torch import Tensor, nn
 from arithmetic_lm.eval_utils import eval_on_batch, eval_sample_numeric
 from arithmetic_lm.model import generate
 from arithmetic_lm.tokenizer import Tokenizer
-from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
+from arithmetic_lm.train_utils import (
+    insert_pause_tokens,
+    lr_cosine_annealing_with_warmup,
+)
 
 
 class LightningModel(L.LightningModule):
@@ -21,6 +24,9 @@ class LightningModel(L.LightningModule):
         model_hparams: dict = None,
         extra_hparams: dict = None,
         eval_func: callable = eval_sample_numeric,
+        n_pause_tokens: int = 0,
+        pause_token: str = "p",
+        pause_type: str = "pretrain",
     ):
         super().__init__()
         self.model = model
@@ -32,6 +38,17 @@ class LightningModel(L.LightningModule):
         self.test_dataloader_names = test_dataloader_names
         self.eval_func = eval_func
 
+        # pause stuff
+        self.n_pause_tokens = n_pause_tokens
+        self.pause_token_id: int = self.tokenizer.encode(pause_token)[0]
+        self.pause_type = pause_type
+        self.class_weights = None
+        if self.n_pause_tokens > 0:
+            # compute class weights to ignore pause token in loss
+            class_weights = torch.ones(self.tokenizer.vocab_size)
+            class_weights[self.pause_token_id] = 0
+            self.class_weights = class_weights
+
         # whether is encoder-decoder model
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
 
@@ -39,6 +56,9 @@ class LightningModel(L.LightningModule):
         self.model_class = model.__class__.__name__
         self.model_hparams = model_hparams
         self.model_hparams["vocab_size"] = tokenizer.vocab_size
+        self.model_hparams["n_pause_tokens"] = n_pause_tokens
+        self.model_hparams["pause_token"] = pause_token  # original str, not id
+        self.model_hparams["pause_type"] = pause_type
 
         # save extra hparams
         self.extra_hparams = extra_hparams
@@ -57,10 +77,18 @@ class LightningModel(L.LightningModule):
         )
 
     def forward(self, x: Tensor | tuple[Tensor, Tensor]) -> Tensor:
+        """also inserts pause tokens if in training"""
         if isinstance(x, Tensor):
             src = x
         else:
             src, tgt = x
+        if self.training and self.n_pause_tokens > 0:
+            src = insert_pause_tokens(
+                src,
+                pause_token_id=self.pause_token_id,
+                n_pause_tokens=self.n_pause_tokens,
+                pause_type=self.pause_type,
+            )
         return self.model(src, tgt) if self.enc_dec else self.model(src)
 
     def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
@@ -82,6 +110,7 @@ class LightningModel(L.LightningModule):
             logits.view(-1, logits.size(-1)),
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
+            weight=self.class_weights,
         )
         self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         return loss
@@ -108,6 +137,7 @@ class LightningModel(L.LightningModule):
                 logits.view(-1, logits.size(-1)),
                 tgt.reshape(-1),
                 ignore_index=self.tokenizer.pad_token_id,
+                weight=self.class_weights,
             )
             self.log(
                 "val_loss",
@@ -198,5 +228,7 @@ class LightningModel(L.LightningModule):
             temperature=temperature,
             top_k=top_k,
             stop_token=stop_token,
+            n_pause_tokens=self.n_pause_tokens,
+            pause_token_id=self.pause_token_id,
             seed=seed,
         )

@@ -7,10 +7,12 @@ def generate(
     model: nn.Module,
     idx: Tensor,
     max_new_tokens: int,
-    encoder_source: Tensor = None,
+    encoder_source: Tensor | None = None,
     temperature: float = 1.0,
     top_k: int = 1,
     stop_token: int = None,
+    n_pause_tokens: int = 0,
+    pause_token_id: int = -1,
     seed: int = 42,
 ) -> Tensor:
     """
@@ -21,6 +23,8 @@ def generate(
 
     encoder_source hints that the model is an encoder-decoder model and the
     encoder_source will be encoded and used as memory for the decoder.
+
+    n_pause_tokens > 0 appends pause tokens to prompt
     """
 
     # TODO implement seed w/ device support
@@ -28,6 +32,20 @@ def generate(
     # unsqueeze
     if idx.ndim == 1:
         idx = idx.unsqueeze(0)
+
+    # add pause tokens (TODO update for batching support)
+    if n_pause_tokens > 0:
+        idx = torch.cat(
+            (
+                idx,
+                torch.tensor(
+                    [pause_token_id] * n_pause_tokens,
+                    dtype=int,
+                    device=idx.device,
+                ).unsqueeze(0),
+            ),
+            dim=1,
+        )
 
     if isinstance(stop_token, list) and len(stop_token) == 1:
         stop_token = stop_token[0]

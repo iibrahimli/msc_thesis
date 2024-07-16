@@ -12,11 +12,14 @@ devices: null
 
 # ckpt to resume training run
 resume_ckpt_path: null
-
 # only load weights from ckpt, not training state (step, optim, etc.)
 ckpt_weights_only: false
 
 eval_func: "numeric"
 
-# inject pause tokens like Goyal 2024
-pause_inject: false 
+# inject pause tokens (per original sequence length) like Goyal 2024 (0 to disable)
+n_pause_tokens: 0
+# suitable for char tokenizer (TODO: change if different tokenizer)
+pause_token: p
+# randomly insert ("pretrain"), otherwise only append pause tokens to the prefix ("finetune")
+pause_type: pretrain

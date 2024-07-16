@@ -2,6 +2,9 @@
 
 import math
 
+import numpy as np
+import torch
+
 
 def lr_cosine_annealing_with_warmup(
     it: int,
@@ -27,3 +30,49 @@ def lr_cosine_annealing_with_warmup(
     coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio))  # coeff ranges 0..1
 
     return min_lr + coeff * (learning_rate - min_lr)
+
+
+@torch.no_grad
+def insert_pause_tokens(
+    x: torch.Tensor,
+    pause_token_id: int,
+    n_pause_tokens: int,
+    pause_type: str = "pretrain",
+) -> torch.Tensor:
+    """
+    Insert pause tokens, slow stupid implementation, NOTE: also inserts
+    pause tokens in padded regions
+
+    Args:
+        x: input tensor of shape [B, L]
+        n_pause_tokens: number of pause tokens per sequence
+        pause_type: "pretrain" or "finetune"
+
+    Returns:
+        Tensor of shape [B, L + n_pause_tokens]
+    """
+
+    if n_pause_tokens == 0:
+        return x
+
+    if pause_type != "pretrain":
+        raise NotImplementedError(f"pause-finetuning not supported yet")
+
+    l = x.size(1)
+
+    # select random positions from range [0, L]
+    pos = set(np.random.choice(l, n_pause_tokens, replace=False))
+
+    # indices
+    idx = []
+    for i in range(l):
+        if i in pos:
+            # insert dummy known value
+            idx.append(-1)
+        idx.append(i)
+    idx = torch.tensor(idx, dtype=int)
+
+    res = x[:, idx]
+    res[:, idx == -1] = pause_token_id
+
+    return res
