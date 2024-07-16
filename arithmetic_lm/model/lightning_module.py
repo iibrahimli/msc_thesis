@@ -45,9 +45,9 @@ class LightningModel(L.LightningModule):
         self.class_weights = None
         if self.n_pause_tokens > 0:
             # compute class weights to ignore pause token in loss
-            class_weights = torch.ones(self.tokenizer.vocab_size)
+            class_weights = torch.ones(self.tokenizer.vocab_size, device=self.device)
             class_weights[self.pause_token_id] = 0
-            self.class_weights = class_weights
+            self.register_buffer("class_weights", class_weights)
 
         # whether is encoder-decoder model
         self.enc_dec = model.enc_dec if hasattr(model, "enc_dec") else False
