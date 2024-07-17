@@ -50,7 +50,6 @@ class LightningModel(L.LightningModule):
         self.model_class = model.__class__.__name__
         self.model_hparams = model_hparams
         self.model_hparams["vocab_size"] = tokenizer.vocab_size
-        self.model_hparams["pause_token"] = pause_token  # original str, not id
 
         # save extra hparams
         self.extra_hparams = extra_hparams
