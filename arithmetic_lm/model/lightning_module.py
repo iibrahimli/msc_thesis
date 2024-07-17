@@ -21,7 +21,6 @@ class LightningModel(L.LightningModule):
         model_hparams: dict = None,
         extra_hparams: dict = None,
         eval_func: callable = eval_sample_numeric,
-        n_pause_tokens: int = 0,
         pause_token: str | None = None,
     ):
         super().__init__()
@@ -35,13 +34,10 @@ class LightningModel(L.LightningModule):
         self.eval_func = eval_func
 
         # pause token to be ignored
-        self.n_pause_tokens = n_pause_tokens
         self.pause_token_id: int | None = (
-            self.tokenizer.encode(pause_token)[0]
-            if pause_token and n_pause_tokens > 0
-            else None
+            self.tokenizer.encode(pause_token)[0] if pause_token else None
         )
-        if n_pause_tokens > 0:
+        if pause_token:
             # compute class weights to ignore pause token in loss
             class_weights = torch.ones(self.tokenizer.vocab_size, device=self.device)
             class_weights[self.pause_token_id] = 0
@@ -55,7 +51,6 @@ class LightningModel(L.LightningModule):
         self.model_hparams = model_hparams
         self.model_hparams["vocab_size"] = tokenizer.vocab_size
         self.model_hparams["pause_token"] = pause_token  # original str, not id
-        self.model_hparams["n_pause_tokens"] = n_pause_tokens
 
         # save extra hparams
         self.extra_hparams = extra_hparams
@@ -217,7 +212,5 @@ class LightningModel(L.LightningModule):
             temperature=temperature,
             top_k=top_k,
             stop_token=stop_token,
-            n_pause_tokens=self.n_pause_tokens,
-            pause_token_id=self.pause_token_id,
             seed=seed,
         )

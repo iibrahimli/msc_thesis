@@ -84,7 +84,10 @@ class DatasetBase(Dataset):
 
 
 class ArithmeticLMDataset(DatasetBase):
-    """Concatenate lines in file and split into sequences of length seq_len"""
+    """
+    NOT USED ANYMORE
+    Concatenate lines in file and split into sequences of length seq_len
+    """
 
     def __init__(
         self,

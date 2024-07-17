@@ -33,8 +33,7 @@ def format_line(
     generic: bool = False,
 ) -> str:
     """
-    Format line based on args, assumes line has ends with \n,
-    returned line ends with \n as well. pad_ans_zero is the number of digits
+    Format line based on args, assumes line ends with \n. pad_ans_zero is the number of digits
     to pad with zeros to, e.g. 43 -> 043 if pad_ans_zero=3. pad_ops_zero is
     the number of digits to pad the operands with zeros to, e.g. 43+3 -> 043+003
     if pad_ops_zero=3. If random_zero_padding is True, pad operands and answers

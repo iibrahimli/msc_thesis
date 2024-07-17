@@ -17,9 +17,6 @@ ckpt_weights_only: false
 
 eval_func: "numeric"
 
-# inject pause tokens (per original sequence length) like Goyal 2024 (0 to disable)
-n_pause_tokens: 0
+# added by datasets (search for 'filler')
 # suitable for char tokenizer (TODO: change if different tokenizer)
-pause_token: p
-# randomly insert ("pretrain"), otherwise only append pause tokens to the prefix ("finetune")
-pause_type: pretrain
+pause_token: "."

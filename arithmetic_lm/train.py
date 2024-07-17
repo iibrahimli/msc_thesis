@@ -54,9 +54,7 @@ def train(
     resume_ckpt_path: str | None = None,
     ckpt_weights_only: bool = False,
     eval_func: str = "numeric",
-    n_pause_tokens: int = 0,
     pause_token: str = "p",
-    pause_type: str = "pretrain",
 ):
     """test_data_dict contains {'name': dataset}"""
     set_seed(42)
@@ -112,7 +110,6 @@ def train(
             "wandb_run_id": wandb_run_id,
         },
         eval_func=EVAL_FUNCS[eval_func],
-        n_pause_tokens=n_pause_tokens,
         pause_token=pause_token,
     )
 
@@ -277,9 +274,7 @@ def main(cfg: omegaconf.DictConfig):
         resume_ckpt_path=cfg.training.resume_ckpt_path,
         ckpt_weights_only=cfg.training.ckpt_weights_only,
         eval_func=cfg.training.eval_func,
-        n_pause_tokens=cfg.training.n_pause_tokens,
         pause_token=cfg.training.pause_token,
-        pause_type=cfg.training.pause_type,
     )
 
 
