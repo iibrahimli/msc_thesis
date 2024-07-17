@@ -33,20 +33,6 @@ def generate(
     if idx.ndim == 1:
         idx = idx.unsqueeze(0)
 
-    # add pause tokens (TODO update for batching support)
-    if n_pause_tokens > 0:
-        idx = torch.cat(
-            (
-                idx,
-                torch.tensor(
-                    [pause_token_id] * n_pause_tokens,
-                    dtype=int,
-                    device=idx.device,
-                ).unsqueeze(0),
-            ),
-            dim=1,
-        )
-
     if isinstance(stop_token, list) and len(stop_token) == 1:
         stop_token = stop_token[0]
 
@@ -66,6 +52,20 @@ def generate(
         memory = model.encode(encoder_source)
 
     for i in range(max_new_tokens):
+        # add pause tokens (TODO update for batching support)
+        if n_pause_tokens > 0 and i == 0:
+            idx = torch.cat(
+                (
+                    idx,
+                    torch.tensor(
+                        [pause_token_id] * n_pause_tokens,
+                        dtype=int,
+                        device=idx.device,
+                    ).unsqueeze(0),
+                ),
+                dim=1,
+            )
+
         # crop to context_len if necessary
         if idx.size(1) > model.context_len:
             idx_cond = idx[:, -model.context_len :]
@@ -94,6 +94,10 @@ def generate(
 
         # sample from the distribution, next_tokens [B, 1]
         next_tokens = torch.multinomial(probs, num_samples=1)
+
+        # remove pause tokens (if added)
+        if n_pause_tokens > 0 and i == 0:
+            idx = idx[:, :-n_pause_tokens]
 
         # append to the sequence
         idx = torch.cat([idx, next_tokens], dim=1)
