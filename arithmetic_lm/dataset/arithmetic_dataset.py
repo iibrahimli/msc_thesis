@@ -248,19 +248,15 @@ class ArithmeticExampleDataset(DatasetBase):
         self.prompts = []
         self.answers = []
         for line in lines:
-
-            # HACK if filler tokens in ans, keep them in prompt
-            if filler_tokens_ans:
-                prompt, ans = line.split("=", 1)
-                ans = ans.replace(".", "")
-                prompt += filler_tokens_ans * "."
-            else:
-                prompt, ans = line.split("=", 1)
-
+            prompt, ans = line.split("=", 1)
             if equal_in_prompt:
                 prompt += "="
             else:
                 ans = "=" + ans
+            # HACK move filler tokens to prompt from ans (assume .)
+            if filler_tokens_prompt:
+                ans = ans.replace(".", "")
+                prompt += "." * filler_tokens_prompt
             self.prompts.append(torch.tensor(self.tokenizer.encode(prompt)))
             self.answers.append(torch.tensor(self.tokenizer.encode(ans)))
         self.n_tokens = sum(len(p) + len(a) for p, a in zip(self.prompts, self.answers))
