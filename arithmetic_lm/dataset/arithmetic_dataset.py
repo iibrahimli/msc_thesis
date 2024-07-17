@@ -252,7 +252,7 @@ class ArithmeticExampleDataset(DatasetBase):
             # HACK if filler tokens in ans, keep them in prompt
             if filler_tokens_ans:
                 prompt, ans = line.split("=", 1)
-                ans = ans.replace(filler_tokens_ans, "")
+                ans = ans.replace(".", "")
                 prompt += filler_tokens_ans * "."
             else:
                 prompt, ans = line.split("=", 1)
