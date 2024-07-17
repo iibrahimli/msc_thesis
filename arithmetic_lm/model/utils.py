@@ -41,7 +41,9 @@ def load_model(
         # vocab_size=tokenizer.vocab_size,
     )
     # state dict has a prefix "model." in the key names
-    model.load_state_dict({k[6:]: v for k, v in ckpt["state_dict"].items()})
+    model.load_state_dict(
+        {k[6:]: v for k, v in ckpt["state_dict"].items() if k.startswith("model.")}
+    )
     model.eval()
     return model, ckpt["hyper_parameters"]
 
