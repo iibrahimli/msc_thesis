@@ -254,9 +254,9 @@ class ArithmeticExampleDataset(DatasetBase):
             else:
                 ans = "=" + ans
             # HACK move filler tokens to prompt from ans (assume .)
-            if filler_tokens_prompt:
+            if filler_tokens_ans:
                 ans = ans.replace(".", "")
-                prompt += "." * filler_tokens_prompt
+                prompt += "." * filler_tokens_ans
             self.prompts.append(torch.tensor(self.tokenizer.encode(prompt)))
             self.answers.append(torch.tensor(self.tokenizer.encode(ans)))
         self.n_tokens = sum(len(p) + len(a) for p, a in zip(self.prompts, self.answers))
