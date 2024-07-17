@@ -248,7 +248,15 @@ class ArithmeticExampleDataset(DatasetBase):
         self.prompts = []
         self.answers = []
         for line in lines:
-            prompt, ans = line.split("=", 1)
+
+            # HACK if filler tokens in ans, keep them in prompt
+            if filler_tokens_ans:
+                prompt, ans = line.split("=", 1)
+                ans = ans.replace(filler_tokens_ans, "")
+                prompt += filler_tokens_ans * "."
+            else:
+                prompt, ans = line.split("=", 1)
+
             if equal_in_prompt:
                 prompt += "="
             else:
