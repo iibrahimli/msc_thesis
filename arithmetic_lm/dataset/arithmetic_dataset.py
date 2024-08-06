@@ -43,6 +43,7 @@ class DatasetBase(Dataset):
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,
         chain_of_thought: bool = False,
+        operand_random_spaces_amount: int | float = 0,
     ):
         self.txtfile = txtfile
         self.tokenizer = tokenizer
@@ -56,6 +57,7 @@ class DatasetBase(Dataset):
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
             chain_of_thought=chain_of_thought,
+            operand_random_spaces_amount=operand_random_spaces_amount,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt
@@ -104,6 +106,7 @@ class ArithmeticLMDataset(DatasetBase):
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
         chain_of_thought: bool = False,
+        operand_random_spaces_amount: int | float = 0,
     ):
         super().__init__(
             txtfile=txtfile,
@@ -119,6 +122,7 @@ class ArithmeticLMDataset(DatasetBase):
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
             chain_of_thought=chain_of_thought,
+            operand_random_spaces_amount=operand_random_spaces_amount,
         )
 
         lines = self._get_lines()
@@ -158,6 +162,7 @@ class ArithmeticLMSequenceDataset(DatasetBase):
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
         chain_of_thought: bool = False,
+        operand_random_spaces_amount: int | float = 0,
     ):
         super().__init__(
             txtfile=txtfile,
@@ -173,6 +178,7 @@ class ArithmeticLMSequenceDataset(DatasetBase):
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
             chain_of_thought=chain_of_thought,
+            operand_random_spaces_amount=operand_random_spaces_amount,
         )
 
         lines = self._get_lines()
@@ -215,6 +221,7 @@ class ArithmeticExampleDataset(DatasetBase):
         limit_examples: int | None = None,
         equal_in_prompt: bool = True,
         chain_of_thought: bool = False,
+        operand_random_spaces_amount: int | float = 0,
     ):
         """
         Args:
@@ -241,6 +248,7 @@ class ArithmeticExampleDataset(DatasetBase):
             limit_examples=limit_examples,
             equal_in_prompt=equal_in_prompt,
             chain_of_thought=chain_of_thought,
+            operand_random_spaces_amount=operand_random_spaces_amount,
         )
 
         lines = self._get_lines()

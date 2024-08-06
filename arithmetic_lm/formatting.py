@@ -8,6 +8,26 @@ import re
 PLAIN_FORMAT_STR = "{a}{op}{b}={ans}\n"
 
 
+def add_random_spaces(text: str, amount: int | float = 0.1) -> str:
+    """
+    Add random spaces to a text in random positions.
+
+    Args:
+        text (str): The text to add spaces to.
+        amount (int | float): The amount of spaces to add. If int, it will add
+        that number of spaces. If float, it will add that ratio of spaces wrt
+        text length.
+    """
+
+    n_spaces = amount if isinstance(amount, int) else int(len(text) * amount)
+
+    for _ in range(n_spaces):
+        pos = random.randint(0, len(text))
+        text = text[:pos] + " " + text[pos:]
+
+    return text
+
+
 def split_operands_and_op(prompt: str) -> tuple[str, str, str]:
     if "=" in prompt:
         prompt = prompt[: prompt.index("=")]
@@ -30,6 +50,7 @@ def format_line(
     append_newline: bool = False,
     random_zero_padding: bool = False,
     chain_of_thought: bool = False,
+    operand_random_spaces_amount: int | float = 0,
     generic: bool = False,
 ) -> str:
     """
@@ -69,6 +90,9 @@ def format_line(
     ab = f"{a}{op}{b}"
     ab = ab.lstrip()
     ans = ans.rstrip()
+
+    # add random spaces to operands
+    ab = add_random_spaces(ab, operand_random_spaces_amount)
 
     if reverse_ans:
         ans = ans[::-1]
