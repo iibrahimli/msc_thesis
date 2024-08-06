@@ -219,7 +219,17 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self.tokenizer = tokenizer
         self.num_workers = num_workers
 
+    # HACK won't work if dataset does not have .reset() method
+    # need a better solution for randomized processing steps
+    def reset_datasets(self):
+        for ds in [self.train_ds, self.val_ds] + self.test_ds_list:
+            if hasattr(ds, "reset"):
+                ds.reset()
+
     def train_dataloader(self):
+        # reset datasets in dataloader methods, and pass
+        # reload_dataloaders_every_n_epochs to the trainer in train.py
+        self.reset_datasets()
         return torch.utils.data.DataLoader(
             self.train_ds,
             batch_size=self.batch_size,
@@ -231,6 +241,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
 
     def val_dataloader(self):
+        self.reset_datasets()
         dls = [
             torch.utils.data.DataLoader(
                 self.val_ds,
