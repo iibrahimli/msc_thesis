@@ -19,7 +19,8 @@ def add_random_spaces(text: str, amount: int | float = 0.1) -> str:
         text length.
     """
 
-    n_spaces = amount if isinstance(amount, int) else int(len(text) * amount)
+    max_n_spaces = amount if isinstance(amount, int) else int(len(text) * amount)
+    n_spaces = random.randint(0, max_n_spaces)
 
     for _ in range(n_spaces):
         pos = random.randint(0, len(text))
