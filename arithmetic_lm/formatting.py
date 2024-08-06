@@ -30,6 +30,7 @@ def add_random_spaces(text: str, amount: int | float = 0.1) -> str:
 
 
 def split_operands_and_op(prompt: str) -> tuple[str, str, str]:
+    prompt = prompt.replace(" ", "")
     if "=" in prompt:
         prompt = prompt[: prompt.index("=")]
     a, b = re.findall(r"\d+", prompt)
