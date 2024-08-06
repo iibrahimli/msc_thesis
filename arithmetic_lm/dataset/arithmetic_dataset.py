@@ -28,6 +28,8 @@ from arithmetic_lm.tokenizer import Tokenizer
 
 
 class DatasetBase(Dataset):
+    """Child classes need to define _process_lines method"""
+
     def __init__(
         self,
         txtfile: str | Path,
@@ -43,6 +45,7 @@ class DatasetBase(Dataset):
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,
         chain_of_thought: bool = False,
+        operand_random_spaces_amount: int | float = 0,
     ):
         self.txtfile = txtfile
         self.tokenizer = tokenizer
@@ -56,9 +59,14 @@ class DatasetBase(Dataset):
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
             chain_of_thought=chain_of_thought,
+            operand_random_spaces_amount=operand_random_spaces_amount,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt
+
+        # load lines and process
+        lines = self._get_lines()
+        self._process_lines(lines)
 
     def _get_lines(self) -> list[str]:
         # read lines
@@ -71,6 +79,10 @@ class DatasetBase(Dataset):
         self.n_examples = len(lines)
         return lines
 
+    def _process_lines(self, lines: list[str]):
+        "Do whatever with lines, assign fields etc."
+        pass
+
     def _format_lines(self, format_func: callable, lines: list[str]) -> list[str]:
         # HACK decide if non-numeric task
         generic = False
@@ -82,6 +94,11 @@ class DatasetBase(Dataset):
             map(partial(format_func, generic=generic, **self.fmt_kwargs), lines)
         )
 
+    def reset(self):
+        # NOTE Don't reset seed, this is actually for randomizing e.g. random spaces
+        lines = self._get_lines()
+        self._process_lines(lines)
+
 
 class ArithmeticLMDataset(DatasetBase):
     """
@@ -89,46 +106,15 @@ class ArithmeticLMDataset(DatasetBase):
     Concatenate lines in file and split into sequences of length seq_len
     """
 
-    def __init__(
-        self,
-        txtfile: str | Path,
-        tokenizer: Tokenizer,
-        seq_len: int,
-        pad: str,
-        reverse_ops: bool,
-        reverse_ans: bool,
-        pad_ops_zero: int | None = None,
-        pad_ans_zero: int | None = None,
-        filler_tokens_prompt: int | None = None,
-        filler_tokens_ans: int | None = None,
-        limit_examples: int | None = None,
-        equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
-        chain_of_thought: bool = False,
-    ):
-        super().__init__(
-            txtfile=txtfile,
-            tokenizer=tokenizer,
-            seq_len=seq_len,
-            pad=pad,
-            reverse_ops=reverse_ops,
-            reverse_ans=reverse_ans,
-            pad_ops_zero=pad_ops_zero,
-            pad_ans_zero=pad_ans_zero,
-            filler_tokens_prompt=filler_tokens_prompt,
-            filler_tokens_ans=filler_tokens_ans,
-            limit_examples=limit_examples,
-            equal_in_prompt=equal_in_prompt,
-            chain_of_thought=chain_of_thought,
-        )
-
-        lines = self._get_lines()
-
+    def _process_lines(self, lines: list[str]):
         # merge lines into one string
         text = "".join(lines)
         # keep seq_len * n_seq + 1 tokens (+1 to make target)
         tokens = self.tokenizer.encode(text)
-        self.n_seq = (len(tokens) - 1) // seq_len
-        self.tokens = torch.tensor(tokens[: self.n_seq * seq_len + 1], dtype=torch.long)
+        self.n_seq = (len(tokens) - 1) // self.seq_len
+        self.tokens = torch.tensor(
+            tokens[: self.n_seq * self.seq_len + 1], dtype=torch.long
+        )
         self.n_tokens = len(self.tokens)
 
     def __len__(self) -> int:
@@ -143,40 +129,7 @@ class ArithmeticLMDataset(DatasetBase):
 class ArithmeticLMSequenceDataset(DatasetBase):
     """LM dataset but with one example (prompt and answer together) per sequence"""
 
-    def __init__(
-        self,
-        txtfile: str | Path,
-        tokenizer: Tokenizer,
-        seq_len: int,  # unused here
-        pad: str,
-        reverse_ops: bool,
-        reverse_ans: bool,
-        pad_ops_zero: int | None = None,
-        pad_ans_zero: int | None = None,
-        filler_tokens_prompt: int | None = None,
-        filler_tokens_ans: int | None = None,
-        limit_examples: int | None = None,
-        equal_in_prompt: bool = False,  # unused here, kept for uniform API with ArithmeticExampleDataset
-        chain_of_thought: bool = False,
-    ):
-        super().__init__(
-            txtfile=txtfile,
-            tokenizer=tokenizer,
-            seq_len=seq_len,
-            pad=pad,
-            reverse_ops=reverse_ops,
-            reverse_ans=reverse_ans,
-            pad_ops_zero=pad_ops_zero,
-            pad_ans_zero=pad_ans_zero,
-            filler_tokens_prompt=filler_tokens_prompt,
-            filler_tokens_ans=filler_tokens_ans,
-            limit_examples=limit_examples,
-            equal_in_prompt=equal_in_prompt,
-            chain_of_thought=chain_of_thought,
-        )
-
-        lines = self._get_lines()
-
+    def _process_lines(self, lines: list[str]):
         self.examples = [torch.tensor(self.tokenizer.encode(e)) for e in lines]
         self.n_tokens = sum(len(e) for e in self.examples)
 
@@ -200,60 +153,17 @@ class ArithmeticLMSequenceDataset(DatasetBase):
 class ArithmeticExampleDataset(DatasetBase):
     """Dataset but instead of pure language modeling, we want keep prompts and answers separate"""
 
-    def __init__(
-        self,
-        txtfile: str | Path,
-        tokenizer: Tokenizer,
-        seq_len: int,
-        pad: str,
-        reverse_ops: bool,
-        reverse_ans: bool,
-        pad_ops_zero: int | None = None,
-        pad_ans_zero: int | None = None,
-        filler_tokens_prompt: int | None = None,
-        filler_tokens_ans: int | None = None,
-        limit_examples: int | None = None,
-        equal_in_prompt: bool = True,
-        chain_of_thought: bool = False,
-    ):
-        """
-        Args:
-            txtfile: path to txt file
-            tokenizer: tokenizer
-            seq_len: sequence length
-            pad: padding token
-            reverse_ans: whether to reverse the answer
-            equal_in_prompt: whether to include the `=` in the prompt or answer
-            limit_examples: limit the number of examples (lines) to load
-        """
-
-        super().__init__(
-            txtfile=txtfile,
-            tokenizer=tokenizer,
-            seq_len=seq_len,
-            pad=pad,
-            reverse_ops=reverse_ops,
-            reverse_ans=reverse_ans,
-            pad_ops_zero=pad_ops_zero,
-            pad_ans_zero=pad_ans_zero,
-            filler_tokens_prompt=filler_tokens_prompt,
-            filler_tokens_ans=filler_tokens_ans,
-            limit_examples=limit_examples,
-            equal_in_prompt=equal_in_prompt,
-            chain_of_thought=chain_of_thought,
-        )
-
-        lines = self._get_lines()
-
+    def _process_lines(self, lines: list[str]):
         self.prompts = []
         self.answers = []
         for line in lines:
             prompt, ans = line.split("=", 1)
-            if equal_in_prompt:
+            if self.equal_in_prompt:
                 prompt += "="
             else:
                 ans = "=" + ans
             # HACK move filler tokens to prompt from ans (assume .)
+            filler_tokens_ans = self.fmt_kwargs.get("filler_tokens_ans", 0)
             if filler_tokens_ans:
                 ans = ans.replace(".", "")
                 prompt += "." * filler_tokens_ans
@@ -310,7 +220,17 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         self.tokenizer = tokenizer
         self.num_workers = num_workers
 
+    # HACK won't work if dataset does not have .reset() method
+    # need a better solution for randomized processing steps
+    def reset_datasets(self):
+        for ds in [self.train_ds, self.val_ds] + self.test_ds_list:
+            if hasattr(ds, "reset"):
+                ds.reset()
+
     def train_dataloader(self):
+        # reset datasets in dataloader methods, and pass
+        # reload_dataloaders_every_n_epochs to the trainer in train.py
+        self.reset_datasets()
         return torch.utils.data.DataLoader(
             self.train_ds,
             batch_size=self.batch_size,
@@ -322,6 +242,7 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
 
     def val_dataloader(self):
+        self.reset_datasets()
         dls = [
             torch.utils.data.DataLoader(
                 self.val_ds,

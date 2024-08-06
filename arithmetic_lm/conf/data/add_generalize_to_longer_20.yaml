@@ -9,6 +9,7 @@ format:
   encdec: false
   filler_tokens_prompt: null
   filler_tokens_ans: null
+  operand_random_spaces_amount: 0
 train: data/addition/exp_13/train_add_1-19_except18_1M.txt
 test:
   in_dist: data/addition/exp_13/test_add_in_distribution_2000.txt

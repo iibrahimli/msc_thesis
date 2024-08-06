@@ -44,6 +44,7 @@ def train(
     val_ratio: float,
     val_interval: int,
     limit_val_batches: float | int,
+    reload_dataloaders_every_n_epochs: int,
     devices: list[int],
     wandb_enabled: bool,
     wandb_project: str,
@@ -226,6 +227,9 @@ def main(cfg: omegaconf.DictConfig):
         "filler_tokens_ans": cfg.data.format.filler_tokens_ans,
         "equal_in_prompt": not cfg.data.format.encdec,
         "chain_of_thought": cfg.data.format.get("chain_of_thought", False),
+        "operand_random_spaces_amount": cfg.data.format.get(
+            "operand_random_spaces_amount", 0
+        ),
     }
     # TODO: add support for multiple train files
     train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_args)
@@ -264,6 +268,7 @@ def main(cfg: omegaconf.DictConfig):
         val_ratio=cfg.training.val_ratio,
         val_interval=cfg.training.val_interval,
         limit_val_batches=cfg.training.limit_val_batches,
+        reload_dataloaders_every_n_epochs=cfg.training.reload_dataloaders_every_n_epochs,
         devices=cfg.training.devices,
         wandb_enabled=cfg.wandb.enabled,
         wandb_project=cfg.wandb.project,
