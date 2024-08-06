@@ -685,7 +685,7 @@ def main():
     # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
     # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
     # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
-    # generate_experiment_13(DATA_DIR / "addition" / "exp_13")
+    generate_experiment_13(DATA_DIR / "addition" / "exp_13")
     # generate_experiment_14(DATA_DIR / "addition" / "exp_14")
     generate_generalize_to_longer_20_nocarry(
         DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
