@@ -179,7 +179,7 @@ def train(
         limit_val_batches=limit_val_batches,
         # limit_test_batches=N_TEST_BATCHES,
         reload_dataloaders_every_n_epochs=reload_dataloaders_every_n_epochs,
-        log_every_n_steps=10,
+        log_every_n_steps=20,
         gradient_clip_val=1.0,
         devices=devices,
         # fast_dev_run=True,
