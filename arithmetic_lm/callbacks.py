@@ -46,10 +46,6 @@ class SampleCallback(L.Callback):
             pred_ans_str = repr(pl_module.tokenizer.decode(pred_ans.squeeze().tolist()))
             ans_str = repr(pl_module.tokenizer.decode(ans.squeeze().tolist()))
 
-            # HACK remove random spaces from prompt if not train subset dataset
-            if "train_subset" not in dset:
-                prompt_str = prompt_str.replace(" ", "")
-
             # HACK if non-numeric addition
             if not self.is_numeric:
                 num_carries = None
