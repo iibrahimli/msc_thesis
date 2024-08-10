@@ -74,3 +74,26 @@ class SinusoidalEmbedding(nn.Embedding):
         with torch.no_grad():
             self.weight[:n_digits, 0::2] = torch.sin(position * div_term)
             self.weight[:n_digits, 1::2] = torch.cos(position * div_term)
+
+
+def answer_mask(
+    target: torch.Tensor, pad_token_id: int, equal_token_id: int
+) -> torch.Tensor:
+    """
+    Mask out all tokens except answer tokens, i.e. set everything before the
+    equal sign token to pad_token_id since pad token is ignored in loss.
+
+    Args:
+        target: target tensor of shape (batch_size, seq_len)
+        pad_token_id: padding token id
+        equal_token_id: equal sign token id, after which the answer starts
+    """
+
+    # find the first equal sign token
+    equal_mask = target == equal_token_id
+    before_equal_mask = equal_mask.cumsum(dim=1) == 0
+
+    # mask out everything before the equal sign token
+    target[before_equal_mask] = pad_token_id
+
+    return target

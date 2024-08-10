@@ -9,6 +9,7 @@ val_interval: 500
 limit_val_batches: null
 limit_test_examples: null
 reload_dataloaders_every_n_epochs: 0
+only_answer_loss: false
 devices: null
 
 # ckpt to resume training run

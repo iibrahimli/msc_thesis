@@ -45,6 +45,7 @@ def train(
     val_interval: int,
     limit_val_batches: float | int,
     reload_dataloaders_every_n_epochs: int,
+    only_answer_loss: bool,
     devices: list[int],
     wandb_enabled: bool,
     wandb_project: str,
@@ -112,6 +113,7 @@ def train(
         },
         eval_func=EVAL_FUNCS[eval_func],
         pause_token=pause_token,
+        only_answer_loss=only_answer_loss,
     )
 
     # run dir wandb_project / run_name or just run_name if no project
@@ -270,6 +272,7 @@ def main(cfg: omegaconf.DictConfig):
         val_interval=cfg.training.val_interval,
         limit_val_batches=cfg.training.limit_val_batches,
         reload_dataloaders_every_n_epochs=cfg.training.reload_dataloaders_every_n_epochs,
+        only_answer_loss=cfg.training.only_answer_loss,
         devices=cfg.training.devices,
         wandb_enabled=cfg.wandb.enabled,
         wandb_project=cfg.wandb.project,

@@ -4,6 +4,7 @@ from torch import Tensor, nn
 
 from arithmetic_lm.eval_utils import eval_on_batch, eval_sample_numeric
 from arithmetic_lm.model import generate
+from arithmetic_lm.model.utils import answer_mask
 from arithmetic_lm.tokenizer import Tokenizer
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
@@ -22,6 +23,7 @@ class LightningModel(L.LightningModule):
         extra_hparams: dict = None,
         eval_func: callable = eval_sample_numeric,
         pause_token: str | None = None,
+        only_answer_loss: bool = False,
     ):
         super().__init__()
         self.model = model
@@ -32,6 +34,8 @@ class LightningModel(L.LightningModule):
         self.tokenizer = tokenizer
         self.test_dataloader_names = test_dataloader_names
         self.eval_func = eval_func
+        self.only_answer_loss = only_answer_loss
+        self.equal_token_id = self.tokenizer.encode("=")[0]
 
         # pause token to be ignored
         self.pause_token_id: int | None = (
@@ -64,6 +68,8 @@ class LightningModel(L.LightningModule):
                 "weight_decay",
                 "warmup_iters",
                 "enc_dec",
+                "only_answer_loss",
+                "equal_token_id",
             ]
         )
 
@@ -87,6 +93,14 @@ class LightningModel(L.LightningModule):
             tgt[:, -1] = self.tokenizer.pad_token_id
         else:
             tgt = y
+
+        if self.only_answer_loss:
+            # mask out all tokens except answer tokens
+            tgt = answer_mask(
+                tgt,
+                pad_token_id=self.tokenizer.pad_token_id,
+                equal_token_id=self.equal_token_id,
+            )
 
         # calculate loss
         loss = nn.functional.cross_entropy(
@@ -115,6 +129,14 @@ class LightningModel(L.LightningModule):
                 tgt[:, -1] = self.tokenizer.pad_token_id
             else:
                 tgt = y
+
+            if self.only_answer_loss:
+                # mask out all tokens except answer tokens
+                tgt = answer_mask(
+                    tgt,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    equal_token_id=self.equal_token_id,
+                )
 
             loss = nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)),
