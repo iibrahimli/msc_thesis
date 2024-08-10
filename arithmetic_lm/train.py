@@ -243,7 +243,7 @@ def main(cfg: omegaconf.DictConfig):
     test_ds_kwargs["operand_random_spaces_amount"] = 0
     test_data_dict = {
         n: ArithmeticExampleDataset(
-            txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_kwargs
+            txtfile=f, limit_examples=cfg.training.limit_test_examples, **test_ds_kwargs
         )
         for n, f in cfg.data.test.items()
     }
