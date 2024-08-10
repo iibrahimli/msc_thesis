@@ -1,6 +1,7 @@
 """Main training script"""
 
 import os
+from copy import deepcopy
 
 import wandb.util
 
@@ -218,7 +219,7 @@ def main(cfg: omegaconf.DictConfig):
         train_ds_class = (
             ArithmeticExampleDataset if cfg.data.format.encdec else ArithmeticLMDataset
         )
-    ds_args = {
+    ds_kwargs = {
         "tokenizer": tokenizer,
         "seq_len": cfg.model.args.context_len,
         "pad": cfg.data.format.pad,
@@ -235,16 +236,21 @@ def main(cfg: omegaconf.DictConfig):
         ),
     }
     # TODO: add support for multiple train files
-    train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_args)
+    train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_kwargs)
+
+    test_ds_kwargs = deepcopy(ds_kwargs)
+    # never add random spaces to test datasets
+    test_ds_kwargs["operand_random_spaces_amount"] = 0
     test_data_dict = {
         n: ArithmeticExampleDataset(
-            txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_args
+            txtfile=f, limit_examples=cfg.training.limit_test_examples, **ds_kwargs
         )
         for n, f in cfg.data.test.items()
     }
+
     # add a random subset of train dataset as test dataset to eval on it as well
     train_subset_ds = torch.utils.data.Subset(
-        ArithmeticExampleDataset(txtfile=cfg.data.train, **ds_args),
+        ArithmeticExampleDataset(txtfile=cfg.data.train, **ds_kwargs),
         torch.randperm(len(train_dataset))[:100],
     )
     test_data_dict["train_subset"] = train_subset_ds
