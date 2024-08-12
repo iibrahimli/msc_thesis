@@ -196,7 +196,7 @@ class LightningModel(L.LightningModule):
         extra_args = dict(fused=True) if use_fused else dict()
         optimizer = torch.optim.AdamW(
             optim_groups,
-            lr=1 if use_scheduler else self.lr,
+            lr=1,
             betas=self.betas,
             **extra_args,
         )
@@ -210,13 +210,17 @@ class LightningModel(L.LightningModule):
             ),
         )
 
-        res = {
+        return {
             "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": (
+                    lr_scheduler
+                    if use_scheduler
+                    else torch.optim.lr_scheduler.LambdaLR(optimizer, lambda i: self.lr)
+                ),
+                "interval": "step",
+            },
         }
-        if use_scheduler:
-            res["lr_scheduler"] = {"scheduler": lr_scheduler, "interval": "step"}
-
-        return res
 
     def param_count(self) -> int:
         return self.model.param_count()
