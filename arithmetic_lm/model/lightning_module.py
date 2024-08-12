@@ -205,7 +205,7 @@ class LightningModel(L.LightningModule):
         )
         return {
             "optimizer": optimizer,
-            "lr_scheduler": {"scheduler": lr_scheduler, "interval": "step"},
+            # "lr_scheduler": {"scheduler": lr_scheduler, "interval": "step"},
         }
 
     def param_count(self) -> int:
