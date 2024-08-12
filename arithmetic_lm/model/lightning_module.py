@@ -189,10 +189,16 @@ class LightningModel(L.LightningModule):
             {"params": nodecay_params, "weight_decay": 0.0},
         ]
 
+        # TODO: set to True
+        use_scheduler = False
+
         use_fused = torch.cuda.is_available()
         extra_args = dict(fused=True) if use_fused else dict()
         optimizer = torch.optim.AdamW(
-            optim_groups, lr=1, betas=self.betas, **extra_args
+            optim_groups,
+            lr=1 if use_scheduler else self.lr,
+            betas=self.betas,
+            **extra_args,
         )
         lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer,
@@ -203,10 +209,14 @@ class LightningModel(L.LightningModule):
                 lr_decay_iters=self.trainer.max_steps,
             ),
         )
-        return {
+
+        res = {
             "optimizer": optimizer,
-            # "lr_scheduler": {"scheduler": lr_scheduler, "interval": "step"},
         }
+        if use_scheduler:
+            res["lr_scheduler"] = {"scheduler": lr_scheduler, "interval": "step"}
+
+        return res
 
     def param_count(self) -> int:
         return self.model.param_count()
