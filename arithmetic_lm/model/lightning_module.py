@@ -189,8 +189,7 @@ class LightningModel(L.LightningModule):
             {"params": nodecay_params, "weight_decay": 0.0},
         ]
 
-        # TODO: set to True
-        use_scheduler = False
+        use_scheduler = True
 
         use_fused = torch.cuda.is_available()
         extra_args = dict(fused=True) if use_fused else dict()
