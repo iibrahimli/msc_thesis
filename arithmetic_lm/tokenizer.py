@@ -1,6 +1,7 @@
 import string
 from abc import ABC, abstractmethod
 
+import torch
 from torch import Tensor
 
 
@@ -29,8 +30,9 @@ class CharTokenizer(Tokenizer):
         self.itos = {i: char for i, char in enumerate(self.vocab)}
         self.pad_token_id = 99
 
-    def encode(self, text: str) -> list[int]:
-        return [self.stoi[char] for char in text]
+    def encode(self, text: str, return_tensors: bool = False) -> list[int] | Tensor:
+        tokens = [self.stoi[char] for char in text]
+        return tokens if not return_tensors else torch.tensor(tokens).int()
 
     def decode(self, tokens: int | list[int] | list[list[int]] | Tensor) -> str:
         if isinstance(tokens, int):
