@@ -59,3 +59,23 @@ python -m arithmetic_lm.train -m +experiment=6/exp6_ut,6/exp6_transformer model.
 will launch 6 experiments (serially by default) with all combinations.
 
 For experiment descriptions, see the [experiments doc](docs/experiments.md).
+
+## Downloading models
+
+### From Weights & Biases
+
+Use the `scripts/download_model.py` script.
+
+### From servers
+
+```bash
+rsync -av --progress --stats --include '*_suffix' --include '*.ckpt' --exclude 'last*.ckpt' --exclude '*' 1ibrahim@wtmgws11.informatik.uni-hamburg.de:/data/1ibrahim/msc_thesis_data/checkpoints/addition-generalize-to-longer/ ./checkpoints/addition-generalize-to-longer/
+```
+
+In the command:
+- `1ibrahim` is your username
+- `wtmgws11.informatik.uni-hamburg.de` is the server address
+- `/data/1ibrahim/msc_thesis_data/checkpoints/addition-generalize-to-longer/` is the path to the directory containing the model files on the server
+- `./checkpoints/addition-generalize-to-longer/` is the local directory where the files should be copied to
+- `--include '*_suffix'` replace suffix with whatever run name wildcard you want to include, or remove the option to download all files
+- `--exclude 'last*.ckpt'` is used to exclude the last checkpoint file
