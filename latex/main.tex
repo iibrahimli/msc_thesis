@@ -1,0 +1,134 @@
+\documentclass{layout/thesis}
+
+
+%% for equations a  nice parameter description
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+  {\end{tabular}\par\vspace{\belowdisplayskip}}
+
+
+%%  spacing before and after equations to the text
+\setlength{\abovedisplayskip}{8pt}
+\setlength{\belowdisplayskip}{8pt}
+
+%% top margin headheght
+\setlength{\headheight}{13.59999pt}
+
+
+%% Set up the bibliography
+% styles   https://de.overleaf.com/learn/latex/Biblatex_citation_styles
+% here is the used bibliography package
+\usepackage[style=authoryear,sorting=nyt,maxcitenames=3,backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+% for spacing between references in the bibliography
+\setlength\bibitemsep{1.5\itemsep}
+
+% for the commas between author and year
+\DeclareDelimFormat{nameyeardelim}{\addcomma\space}
+
+%% Additional packages and commands
+
+%settings for the SI units
+\sisetup{locale = DE,
+output-decimal-marker={.}, % because  in german is switched to {,}
+separate-uncertainty=true,  
+multi-part-units=single,
+range-units = single ,  
+list-units = single,  
+per-mode=reciprocal,
+group-minimum-digits = 4,
+number-unit-product = \hspace{0.16667em plus 0.08334em}}
+
+
+%% here individual units are defined 
+\DeclareSIUnit\equivalents{eq}
+\DeclareSIUnit\water{kgw}
+\DeclareSIUnit\year{yr}
+\DeclareSIUnit\dollar{\$}
+
+\setlist{itemsep=-2pt} % Reducing white space in lists slightly
+\renewcommand{\deg}{\si{\degree}\xspace} % Use \deg easily, everywhere
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Begin of document %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%% Roman page numbering
+\frontmatter
+
+%% Defining the main parameters
+\title{TITLE TODO}
+\subtitle{Master Thesis}
+\author{Imran Ibrahimli}
+%\subject{AB1234: Optional Course Name}
+\affiliation{University of Hamburg}
+
+
+\definecolor{title}{HTML}{4884d6} % Color for title
+
+
+% title page
+\include{frontmatter/_titlepage}
+
+% abstract
+\input{frontmatter/summary}
+
+
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+\input{frontmatter/nomenclature}
+
+%% Arabic page numbering
+\mainmatter
+
+\input{content/introduction}
+
+\input{content/theory}
+
+%\input{content/chapter-2}
+%\input{content/chapter-3}
+
+\input{content/methods}
+%\input{mainmatter/chapter-4} % Create file to add
+
+\input{content/results}
+
+\input{content/discussion}
+\input{content/conclusion}
+
+\newpage
+\setcounter{secnumdepth}{-1}
+\input{content/acknowledgement}
+
+%% Prevent urls running into margins in bibliography
+\setcounter{biburlnumpenalty}{7000}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{7000}
+
+
+
+%%  Add the bibliography
+\printbibliography[heading=bibintoc,title=References]
+
+
+
+% Letters for chapters
+\appendix
+
+\newpage
+\setcounter{secnumdepth}{-1}
+
+\input{appendix/versicherung.tex}
+%\input{appendix/appendix-a}
+
+
+
+
+
+\end{document}

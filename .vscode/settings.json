@@ -1,4 +1,5 @@
 {
+    "latex-workshop.intellisense.citation.backend": "biblatex",
     "latex-workshop.latex.tools": [
         {
             "name": "latexmk",
@@ -42,6 +43,14 @@
                 "%DOCFILE%"
             ],
             "env": {}
+        },
+        {
+            "name": "biber",
+            "command": "biber",
+            "args": [
+                "%DOCFILE%"
+            ],
+            "env": {}
         }
     ],
     "latex-workshop.latex.recipes": [
@@ -64,19 +73,19 @@
             ]
         },
         {
-            "name": "pdflatex ➞ bibtex ➞ pdflatex`×2",
+            "name": "pdflatex ➞ biber ➞ pdflatex`×2",
             "tools": [
                 "pdflatex",
-                "bibtex",
+                "biber",
                 "pdflatex",
                 "pdflatex"
             ]
         },
         {
-            "name": "xelatex ➞ bibtex ➞ xelatex`×2",
+            "name": "xelatex ➞ biber ➞ xelatex`×2",
             "tools": [
                 "xelatex",
-                "bibtex",
+                "biber",
                 "xelatex",
                 "xelatex"
             ]

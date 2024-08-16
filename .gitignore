@@ -30,6 +30,18 @@ multirun/
 # wandb artifacts
 artifacts/
 
+# latex intermediate files
+latex/**/*.aux
+latex/**/*.xml
+latex/**/*.bcf
+latex/**/*.log
+latex/**/*.out
+latex/**/*.synctex.gz
+latex/**/*.toc
+latex/**/*.bbl
+latex/**/*-blx.bib
+
+
 # ======================
 
 # Byte-compiled / optimized / DLL files
