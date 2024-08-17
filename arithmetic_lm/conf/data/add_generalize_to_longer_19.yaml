@@ -15,3 +15,6 @@ test:
   in_dist: data/addition/generalize_to_longer_19/test_add_in_distribution_2000.txt
   ood_18digit: data/addition/generalize_to_longer_19/test_add_ood_18digit_100.txt
   ood_20digit: data/addition/generalize_to_longer_19/test_add_ood_20digit_100.txt
+  ood_21digit: data/addition/generalize_to_longer_19/test_add_ood_21digit_100.txt
+  ood_22digit: data/addition/generalize_to_longer_19/test_add_ood_22digit_100.txt
+  ood_23digit: data/addition/generalize_to_longer_19/test_add_ood_23digit_100.txt
