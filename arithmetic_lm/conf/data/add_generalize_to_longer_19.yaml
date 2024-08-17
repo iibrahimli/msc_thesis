@@ -1,0 +1,17 @@
+# Training on 1-19 digits excluding 18, test on 1-20
+train_ds_class: ArithmeticLMSequenceDataset
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ops: false
+  reverse_ans: ???
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+  operand_random_spaces_amount: 0
+train: data/addition/generalize_to_longer_19/train_add_1-19_except18_1M.txt
+test:
+  in_dist: data/addition/generalize_to_longer_19/test_add_in_distribution_2000.txt
+  ood_18digit: data/addition/generalize_to_longer_19/test_add_ood_18digit_100.txt
+  ood_20digit: data/addition/generalize_to_longer_19/test_add_ood_20digit_100.txt

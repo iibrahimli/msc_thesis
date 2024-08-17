@@ -65,7 +65,7 @@ Train on 1M 1x1-50x50 digit addition examples except 1x1-5x5, 20x20, and 45x45. 
 
 ## [Experiment 13](../arithmetic_lm/conf/experiment/13)
 
-Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for in-between OOD, 20 longer OOD generalization). Dataset: [add_generalize_to_longer_20.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20.yaml)
+Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for in-between OOD, 20 longer OOD generalization). Dataset: [add_generalize_to_longer_19.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_19.yaml)
 
 
 ## [Experiment 14](../arithmetic_lm/conf/experiment/14)

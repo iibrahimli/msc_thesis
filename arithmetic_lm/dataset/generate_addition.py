@@ -520,19 +520,19 @@ def generate_experiment_12(out_dir: str | Path):
         )
 
 
-def generate_experiment_13(out_dir: str | Path):
+def generate_generalize_to_longer_19(out_dir: str | Path):
     """
     Train on 1M 1x1-19x19 excluding 18x18, test on 1x1-20x20 (18 digits are for
-    in-between OOD, 20 longer OOD generalization).
+    in-between OOD, 20-23 longer OOD generalization).
     """
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     print()
-    print(f" > Generating data for Experiment 13 to {out_dir}")
+    print(f" > Generating data for generalize-to-longer to {out_dir}")
 
     # out of distribution
-    out_dist = {18, 20}
+    out_dist = {18, 20, 21, 22, 23}
     in_dist = set(range(1, 20)) - out_dist
     train_num_examples = {i: 999_000 // len(in_dist) for i in in_dist} | {
         1: 100,
@@ -685,7 +685,7 @@ def main():
     # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
     # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
     # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
-    generate_experiment_13(DATA_DIR / "addition" / "exp_13")
+    generate_generalize_to_longer_19(DATA_DIR / "addition" / "generalize_to_longer_19")
     # generate_experiment_14(DATA_DIR / "addition" / "exp_14")
     generate_generalize_to_longer_20_nocarry(
         DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"

@@ -3,7 +3,7 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_generalize_to_longer_20
+  - override /data: add_generalize_to_longer_19
   - override /training: default
   - override /wandb: default
   - override /model: transformer_dec
