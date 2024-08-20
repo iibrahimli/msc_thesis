@@ -46,6 +46,7 @@ class DatasetBase(Dataset):
         equal_in_prompt: bool = False,
         chain_of_thought: bool = False,
         operand_random_spaces_amount: int | float = 0,
+        answer_random_spaces_amount: int | float = 0,
     ):
         self.txtfile = txtfile
         self.tokenizer = tokenizer
@@ -60,6 +61,7 @@ class DatasetBase(Dataset):
             filler_tokens_ans=filler_tokens_ans,
             chain_of_thought=chain_of_thought,
             operand_random_spaces_amount=operand_random_spaces_amount,
+            answer_random_spaces_amount=answer_random_spaces_amount,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt

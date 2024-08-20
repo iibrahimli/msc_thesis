@@ -234,6 +234,9 @@ def main(cfg: omegaconf.DictConfig):
         "operand_random_spaces_amount": cfg.data.format.get(
             "operand_random_spaces_amount", 0
         ),
+        "answer_random_spaces_amount": cfg.data.format.get(
+            "answer_random_spaces_amount", 0
+        ),
     }
     # TODO: add support for multiple train files
     train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_kwargs)
@@ -241,6 +244,7 @@ def main(cfg: omegaconf.DictConfig):
     test_ds_kwargs = deepcopy(ds_kwargs)
     # never add random spaces to test datasets
     test_ds_kwargs["operand_random_spaces_amount"] = 0
+    test_ds_kwargs["answer_random_spaces_amount"] = 0
     test_data_dict = {
         n: ArithmeticExampleDataset(
             txtfile=f, limit_examples=cfg.training.limit_test_examples, **test_ds_kwargs

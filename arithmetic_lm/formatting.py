@@ -53,6 +53,7 @@ def format_line(
     random_zero_padding: bool = False,
     chain_of_thought: bool = False,
     operand_random_spaces_amount: int | float = 0,
+    answer_random_spaces_amount: int | float = 0,
     generic: bool = False,
 ) -> str:
     """
@@ -95,6 +96,9 @@ def format_line(
 
     # add random spaces to operands
     ab = add_random_spaces(ab, operand_random_spaces_amount)
+
+    # add random spaces to answer
+    ans = add_random_spaces(ans, answer_random_spaces_amount)
 
     if reverse_ans:
         ans = ans[::-1]
