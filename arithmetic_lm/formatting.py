@@ -135,7 +135,8 @@ def format_line(
 def chain_of_thought_addition(a: str, b: str) -> str:
     """
     Input: 567+7890
-    CoT: 7+0=7c0,6+9=5c1,5+8=3c1,0+7=8c0|8457
+    TODO
+    CoT: 7+0+0=7c0,6+9+0=5c1,5+8+1=3c1,0+7+1=8c0|8457
     """
     res = ""
 
