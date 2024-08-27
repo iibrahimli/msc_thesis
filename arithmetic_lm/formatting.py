@@ -135,7 +135,7 @@ def format_line(
 def chain_of_thought_addition(a: str, b: str) -> str:
     """
     Input: 567+7890
-    CoT: 7+0=7c0,6+9=5c1,5+8=3c1,0+7=8c0|567+7890=8457
+    CoT: 7+0=7c0,6+9=5c1,5+8=3c1,0+7=8c0|8457
     """
     res = ""
 
@@ -151,5 +151,5 @@ def chain_of_thought_addition(a: str, b: str) -> str:
         carry = (da + db) // 10
         res += f"{da}+{db}={msum}c{carry},"
     res = res[:-1]  # remove last comma
-    res += f"|{a}+{b}={int(a)+int(b)}"
+    res += f"|{int(a)+int(b)}"
     return res
