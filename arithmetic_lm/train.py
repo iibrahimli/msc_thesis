@@ -48,6 +48,7 @@ def train(
     reload_dataloaders_every_n_epochs: int,
     only_answer_loss: bool,
     devices: list[int],
+    accumulate_grad_batches: int,
     wandb_enabled: bool,
     wandb_project: str,
     wandb_entity: str,
@@ -183,6 +184,7 @@ def train(
         log_every_n_steps=20,
         gradient_clip_val=1.0,
         devices=devices,
+        accumulate_grad_batches=accumulate_grad_batches,
         # fast_dev_run=True,
     )
 
@@ -284,6 +286,7 @@ def main(cfg: omegaconf.DictConfig):
         reload_dataloaders_every_n_epochs=cfg.training.reload_dataloaders_every_n_epochs,
         only_answer_loss=cfg.training.only_answer_loss,
         devices=cfg.training.devices,
+        accumulate_grad_batches=cfg.training.accumulate_grad_batches,
         wandb_enabled=cfg.wandb.enabled,
         wandb_project=cfg.wandb.project,
         wandb_entity=cfg.wandb.entity,

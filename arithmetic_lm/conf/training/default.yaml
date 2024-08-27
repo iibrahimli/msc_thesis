@@ -11,6 +11,7 @@ limit_test_examples: null
 reload_dataloaders_every_n_epochs: 0
 only_answer_loss: false
 devices: null
+accumulate_grad_batches: 1
 
 # ckpt to resume training run
 resume_ckpt_path: null
