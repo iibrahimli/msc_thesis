@@ -2,6 +2,89 @@ import torch
 from torch import Tensor, nn
 
 
+def beam_search_generate(
+    model: nn.Module,
+    idx: Tensor,
+    max_new_tokens: int,
+    encoder_source: Tensor | None,
+    temperature: float,
+    top_k: int,
+    stop_token: int,
+    n_beams: int,
+) -> Tensor:
+    gen_start_idx = idx.size(-1)
+
+    if encoder_source is not None:
+        if encoder_source.ndim == 1:
+            encoder_source = encoder_source.unsqueeze(0)
+        memory = model.encode(encoder_source)
+        memory = memory.repeat(n_beams, 1, 1)
+
+    # Initialize beam
+    beams = [idx.clone() for _ in range(n_beams)]
+    beam_scores = torch.zeros(n_beams, device=idx.device)
+    finished_beams = []
+    finished_scores = []
+
+    for _ in range(max_new_tokens):
+        all_candidates = []
+        all_scores = []
+
+        for beam_idx, beam in enumerate(beams):
+            if beam.size(1) > model.context_len:
+                beam_cond = beam[:, -model.context_len :]
+            else:
+                beam_cond = beam
+
+            if encoder_source is not None:
+                logits = model.decode(beam_cond, memory[beam_idx : beam_idx + 1])
+            else:
+                logits = model(beam_cond)
+
+            logits = logits[:, -1, :] / temperature
+
+            if top_k is not None:
+                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                logits[logits < v[:, [-1]]] = -float("inf")
+
+            probs = nn.functional.log_softmax(logits, dim=-1)
+            top_probs, top_indices = probs.topk(n_beams)
+
+            for prob, token in zip(top_probs[0], top_indices[0]):
+                candidate = torch.cat([beam, token.unsqueeze(0).unsqueeze(0)], dim=1)
+                score = beam_scores[beam_idx] + prob.item()
+                all_candidates.append(candidate)
+                all_scores.append(score)
+
+        ordered = sorted(zip(all_scores, all_candidates), key=lambda x: -x[0])
+        beams = []
+        beam_scores = torch.zeros(n_beams, device=idx.device)
+
+        for i, (score, candidate) in enumerate(ordered):
+            if i >= n_beams:
+                break
+            if stop_token is not None and candidate[0, -1].item() == stop_token:
+                finished_beams.append(candidate)
+                finished_scores.append(score)
+            else:
+                beams.append(candidate)
+                beam_scores[len(beams) - 1] = score
+
+        if len(beams) == 0:
+            break
+
+        # Check for repetition in last 20 tokens
+        if all(torch.all(beam[:, -20:] == beam[:, -1]) for beam in beams):
+            break
+
+    if finished_beams:
+        best_beam = max(zip(finished_scores, finished_beams), key=lambda x: x[0])[1]
+    else:
+        best_beam = max(zip(beam_scores, beams), key=lambda x: x[0])[1]
+
+    return best_beam[:, gen_start_idx:]
+
+
 @torch.inference_mode()
 def generate(
     model: nn.Module,
@@ -11,6 +94,7 @@ def generate(
     temperature: float = 1.0,
     top_k: int = 1,
     stop_token: int = None,
+    n_beams: int = 0,
     seed: int = 42,
 ) -> Tensor:
     """
@@ -23,8 +107,6 @@ def generate(
     encoder_source will be encoded and used as memory for the decoder.
     """
 
-    # TODO implement seed w/ device support
-
     # unsqueeze
     if idx.ndim == 1:
         idx = idx.unsqueeze(0)
@@ -36,6 +118,21 @@ def generate(
     assert idx.dim() == 2, "idx must be a 2D tensor of shape [batch, seq_len]"
     assert idx.size(1) <= model.context_len, "sequence length must be <= context_len"
     assert idx.size(0) == 1, "only batch size = 1 supported"
+
+    if n_beams > 0:
+        return beam_search_generate(
+            model,
+            idx,
+            max_new_tokens,
+            encoder_source,
+            temperature,
+            top_k,
+            stop_token,
+            n_beams,
+        )
+    # else, do top-k sampling
+
+    # TODO implement seed w/ device support
 
     # keep track of where generated part starts to only return it
     gen_start_idx = idx.size(-1)
