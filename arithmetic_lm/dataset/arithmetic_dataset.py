@@ -44,7 +44,7 @@ class DatasetBase(Dataset):
         filler_tokens_ans: int | None = None,
         limit_examples: int | None = None,
         equal_in_prompt: bool = False,
-        chain_of_thought: bool = False,
+        scratchpad: bool = False,
         operand_random_spaces_amount: int | float = 0,
         answer_random_spaces_amount: int | float = 0,
     ):
@@ -59,7 +59,7 @@ class DatasetBase(Dataset):
             pad_ans_zero=pad_ans_zero,
             filler_tokens_prompt=filler_tokens_prompt,
             filler_tokens_ans=filler_tokens_ans,
-            chain_of_thought=chain_of_thought,
+            scratchpad=scratchpad,
             operand_random_spaces_amount=operand_random_spaces_amount,
             answer_random_spaces_amount=answer_random_spaces_amount,
         )

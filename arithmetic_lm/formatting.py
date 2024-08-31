@@ -51,7 +51,7 @@ def format_line(
     prepend_newline: bool = False,
     append_newline: bool = False,
     random_zero_padding: bool = False,
-    chain_of_thought: bool = False,
+    scratchpad: bool = False,
     operand_random_spaces_amount: int | float = 0,
     answer_random_spaces_amount: int | float = 0,
     generic: bool = False,
@@ -118,9 +118,9 @@ def format_line(
 
     pad = pad if pad else ""
 
-    if chain_of_thought:
-        cot = chain_of_thought_addition(a, b)
-        res = f"{pad}{ab}={cot}{pad}"
+    if scratchpad:
+        scratchpad = scratchpad_addition(a, b)
+        res = f"{pad}{ab}={scratchpad}{pad}"
     else:
         res = f"{pad}{ab}={ans}{pad}"
 
@@ -132,25 +132,32 @@ def format_line(
     return res
 
 
-def chain_of_thought_addition(a: str, b: str) -> str:
+def scratchpad_addition(a: str, b: str) -> str:
     """
+    Generate scratchpad of digit-wise addition and keeping track of carries
     Input: 567+7890
-    TODO
-    CoT: 7+0+0=7c0,6+9+0=5c1,5+8+1=3c1,0+7+1=8c0|8457
+    scratchpad: 7 6 5 0 + 0 9 8 7;c=0,7+0+0=7,c=0;6+9+0=5,c=1;5+8+1=4,c=1;0+7+1=8,c=0|8457
     """
+
     res = ""
 
     length = max(len(a), len(b))
     a = a.zfill(length)
     b = b.zfill(length)
 
+    # add reversed numbers
+    res += " ".join(a[::-1]) + " + " + " ".join(b[::-1]) + ";c=0,"
+
+    carry = 0
+
     # start from last digit
     for da, db in zip(reversed(a), reversed(b)):
         da = int(da)
         db = int(db)
-        msum = (da + db) % 10
-        carry = (da + db) // 10
-        res += f"{da}+{db}={msum}c{carry},"
+        msum = (da + db + carry) % 10
+        res += f"{da}+{db}+{carry}={msum},"
+        carry = (da + db + carry) // 10
+        res += f"c={carry};"
     res = res[:-1]  # remove last comma
     res += f"|{int(a)+int(b)}"
     return res

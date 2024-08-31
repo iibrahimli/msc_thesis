@@ -232,7 +232,7 @@ def main(cfg: omegaconf.DictConfig):
         "filler_tokens_prompt": cfg.data.format.filler_tokens_prompt,
         "filler_tokens_ans": cfg.data.format.filler_tokens_ans,
         "equal_in_prompt": not cfg.data.format.encdec,
-        "chain_of_thought": cfg.data.format.get("chain_of_thought", False),
+        "scratchpad": cfg.data.format.get("scratchpad", False),
         "operand_random_spaces_amount": cfg.data.format.get(
             "operand_random_spaces_amount", 0
         ),

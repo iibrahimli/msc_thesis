@@ -16,7 +16,7 @@ data:
     reverse_ans: false
     filler_tokens_prompt: 0
     filler_tokens_ans: 0
-    chain_of_thought: false
+    scratchpad: false
 
 training:
   batch_size: 256
