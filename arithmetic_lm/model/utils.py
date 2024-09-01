@@ -106,7 +106,7 @@ def get_linear_lsd_weight(coeff: float, tgt: torch.Tensor, pad_token_id: int):
     Make sure weights are non-negative and sum to 1.
     """
     # Initialize weights tensor with the same shape as tgt
-    weights = torch.zeros_like(tgt, dtype=torch.float, device=tgt.device)
+    weights = torch.zeros_like(tgt, dtype=torch.float, device="cpu")
 
     # Iterate over each sequence in the batch
     for i in range(tgt.size(0)):
@@ -123,4 +123,4 @@ def get_linear_lsd_weight(coeff: float, tgt: torch.Tensor, pad_token_id: int):
             # Normalize the weights to sum to 1
             weights[i] /= weights[i].sum()
 
-    return weights
+    return weights.to(tgt.device)
