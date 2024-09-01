@@ -4,7 +4,7 @@ from torch import Tensor, nn
 
 from arithmetic_lm.eval_utils import eval_on_batch, eval_sample_numeric
 from arithmetic_lm.model import generate
-from arithmetic_lm.model.utils import answer_mask
+from arithmetic_lm.model.utils import answer_mask, get_linear_lsd_weight
 from arithmetic_lm.tokenizer import Tokenizer
 from arithmetic_lm.train_utils import lr_cosine_annealing_with_warmup
 
@@ -108,7 +108,15 @@ class LightningModel(L.LightningModule):
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
             weight=self.class_weights if self.pause_token_id else None,
+            reduce="none",
         )
+
+        # apply length weight
+        loss = loss * get_linear_lsd_weight(
+            0.5, tgt, pad_token_id=self.tokenizer.pad_token_id
+        )
+        loss = loss.mean()
+
         self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         return loss
 

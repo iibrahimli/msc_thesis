@@ -97,3 +97,22 @@ def answer_mask(
     target[before_equal_mask] = pad_token_id
 
     return target
+
+
+def get_linear_lsd_weight(coeff: float, tgt: torch.Tensor, pad_token_id: int):
+    """
+    Get a linear weight to the sequence positions in the loss tensor to
+    encourage predicting first digits first. Ignore padding tokens.
+    """
+
+    # get mask for non-padding tokens
+    mask = tgt != pad_token_id
+
+    # weight = 1 + coeff * (1 - position / max_position)
+    # position = 0 for first token
+    # position = max_position for last token
+    max_position = mask.sum(1, keepdim=True)
+    position = torch.arange(tgt.size(1), device=tgt.device).unsqueeze(0)
+    weight = 1 + coeff * (1 - position.float() / max_position.float())
+
+    return weight
