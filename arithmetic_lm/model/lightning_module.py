@@ -112,6 +112,7 @@ class LightningModel(L.LightningModule):
         )
 
         # apply length weight
+        # TODO: remove
         loss = loss * get_linear_lsd_weight(
             0.5, tgt, pad_token_id=self.tokenizer.pad_token_id
         )
