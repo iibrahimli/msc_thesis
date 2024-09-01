@@ -103,16 +103,24 @@ def get_linear_lsd_weight(coeff: float, tgt: torch.Tensor, pad_token_id: int):
     """
     Get a linear weight to the sequence positions in the loss tensor to
     encourage predicting first digits first. Ignore padding tokens.
+    Make sure weights are non-negative and sum to 1.
     """
+    # Initialize weights tensor with the same shape as tgt
+    weights = torch.zeros_like(tgt, dtype=torch.float)
 
-    # get mask for non-padding tokens
-    mask = tgt != pad_token_id
+    # Iterate over each sequence in the batch
+    for i in range(tgt.size(0)):
+        # Get the positions of non-padding tokens
+        non_pad_positions = (tgt[i] != pad_token_id).nonzero(as_tuple=True)[0]
 
-    # weight = 1 + coeff * (1 - position / max_position)
-    # position = 0 for first token
-    # position = max_position for last token
-    max_position = mask.sum(1, keepdim=True)
-    position = torch.arange(tgt.size(1), device=tgt.device).unsqueeze(0)
-    weight = 1 + coeff * (1 - position.float() / max_position.float())
+        if len(non_pad_positions) > 0:
+            # Create a linear decay weight for non-padding tokens
+            linear_weights = torch.linspace(1.0, coeff, steps=len(non_pad_positions))
 
-    return weight
+            # Assign the weights to the corresponding positions
+            weights[i, non_pad_positions] = linear_weights
+
+            # Normalize the weights to sum to 1
+            weights[i] /= weights[i].sum()
+
+    return weights

@@ -108,7 +108,7 @@ class LightningModel(L.LightningModule):
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
             weight=self.class_weights if self.pause_token_id else None,
-            reduce="none",
+            reduction="none",
         )
 
         # apply length weight
