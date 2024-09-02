@@ -170,9 +170,10 @@ def eval_scratchpad_example(true: str, pred: str) -> dict:
 
 # %%
 scratchpad_eval_res = [
-    {"n_digits": 18, "n_samples": 10},
-    {"n_digits": 20, "n_samples": 10},
-    {"n_digits": 21, "n_samples": 10},
+    {"n_digits": 18, "n_samples": 1000},
+    {"n_digits": 19, "n_samples": 1000},
+    {"n_digits": 20, "n_samples": 1000},
+    {"n_digits": 21, "n_samples": 1000},
 ]
 
 
