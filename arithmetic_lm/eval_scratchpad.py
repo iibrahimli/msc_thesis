@@ -152,7 +152,6 @@ def eval_scratchpad_example(true: str, pred: str) -> dict:
         answer_accuracy = 1 if true_ans == pred_ans else 0
         answer_edit_dist = distance(true_ans, pred_ans)
     except Exception as e:
-        print(e)
         # format error, return -1 for distance
         rev_edit_dist = -1
         partials_edit_dist = -1
@@ -227,8 +226,6 @@ for config in scratchpad_eval_res:
         pred_ans = tokenizer.decode(pred_tensor[0])
 
         result = eval_scratchpad_example(true_ans, pred_ans)
-
-        print(true_ans, pred_ans, result)
 
         if result["answer_edit_dist"] == -1:
             continue
