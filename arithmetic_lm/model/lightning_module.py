@@ -108,17 +108,8 @@ class LightningModel(L.LightningModule):
             tgt.reshape(-1),
             ignore_index=self.tokenizer.pad_token_id,
             weight=self.class_weights if self.pause_token_id else None,
-            reduction="none",
+            reduction="mean",
         )
-
-        # apply length weight
-        # TODO: remove
-        loss = loss.view(tgt.size())
-        loss = loss * get_linear_lsd_weight(
-            0.5, tgt, pad_token_id=self.tokenizer.pad_token_id
-        )
-        loss = loss.mean()
-
         self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         return loss
 
