@@ -221,7 +221,7 @@ for config in scratchpad_eval_res:
         pred_tensor = generate(
             model,
             idx=prompt_idx,
-            max_new_tokens=256,
+            max_new_tokens=512,
             stop_token=stop_token,
         )
         pred_ans = tokenizer.decode(pred_tensor[0])
