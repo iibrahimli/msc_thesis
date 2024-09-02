@@ -227,7 +227,7 @@ for config in scratchpad_eval_res:
 
         result = eval_scratchpad_example(true_ans, pred_ans)
 
-        print(result)
+        print(true_ans, pred_ans, result)
 
         if result["answer_edit_dist"] == -1:
             continue
