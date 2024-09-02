@@ -19,6 +19,7 @@ questionary = "^2.0.1"
 pandas = "^2.2.2"
 scikit-learn = "^1.4.2"
 einops = "^0.8.0"
+levenshtein = "^0.25.1"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.2"
