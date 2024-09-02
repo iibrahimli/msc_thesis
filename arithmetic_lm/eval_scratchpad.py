@@ -151,7 +151,8 @@ def eval_scratchpad_example(true: str, pred: str) -> dict:
         pred_ans = pred.split("|")[1]
         answer_accuracy = 1 if true_ans == pred_ans else 0
         answer_edit_dist = distance(true_ans, pred_ans)
-    except:
+    except Exception as e:
+        print(e)
         # format error, return -1 for distance
         rev_edit_dist = -1
         partials_edit_dist = -1
