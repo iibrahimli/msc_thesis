@@ -3,12 +3,16 @@
 #
 # Force models to output past end-of-sequence token (`$`) be modyfing its logit directly, or by shifting the positional encoding indices of the answer generated so far to force. Aim is to see if they can correctly predict the answer digits in OOD positions. If yes, then it could be that the position-dependent circuit decides to stop the generation by outputting the EOS token and not the addition circuit itself failing.
 
+import os
 import random
 
 # %%
 import re
 import warnings
+from copy import deepcopy
 from pathlib import Path
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +30,7 @@ from arithmetic_lm.model import (
 )
 from arithmetic_lm.tokenizer import CharTokenizer
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
 
 warnings.filterwarnings("ignore")
 
