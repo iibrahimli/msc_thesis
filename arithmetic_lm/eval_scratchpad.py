@@ -226,6 +226,11 @@ for config in scratchpad_eval_res:
         pred_ans = tokenizer.decode(pred_tensor[0])
 
         result = eval_scratchpad_example(true_ans, pred_ans)
+
+        print(result)
+
+        if result["answer_edit_dist"] == -1:
+            continue
         for metric in results[n_digits]:
             results[n_digits][metric].append(result[metric])
 
