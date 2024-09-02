@@ -39,8 +39,8 @@ stop_token = tokenizer.encode("$")[0]
 
 # %%
 # load model
-model_name = "trans_dec_6layers_768embd_4head_randsp0.5_rev_ansloss"
-ckpt_path = "../checkpoints/addition-generalize-to-longer/trans_dec_6layers_768embd_4head_randsp0.5_rev_ansloss/step1000000-train_loss0.0002-val_loss0.0000.ckpt"
+model_name = "trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss"
+ckpt_path = "checkpoints//addition-generalize-to-longer/trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss/step20501-train_loss0.0056-val_loss0.0002.ckpt"
 model, hparams = load_model(ckpt_path, map_location=DEVICE)
 model.to(DEVICE)
 model.eval()
