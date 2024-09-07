@@ -135,7 +135,7 @@ class ContextualMultiheadAttention(nn.MultiheadAttention):
         # for i in range(self.num_heads):
         #     scores[:, i] += self.cope(q[:, i], scores[:, i])
         # but optimized version using vmap
-        scores += torch.vmap(self.cope, in_dims=(1, 1))(q, scores)
+        scores += torch.vmap(self.cope, in_dims=(1, 1), out_dims=1)(q, scores)
 
         # Apply softmax to get attention weights
         attn_weights = F.softmax(scores, dim=-1)
