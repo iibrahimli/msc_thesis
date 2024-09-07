@@ -106,3 +106,8 @@ Like Experiment 16, but matching only digits instead of characters, and with aba
 ## [Experiment 21](../arithmetic_lm/conf/experiment/21)
 
 Like Experiment 13 (addition-generalize-to-longer) but with no carries in training set. Dataset: [add_generalize_to_longer_20_nocarry.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_20_nocarry.yaml)
+
+
+## [Experiment 22](../arithmetic_lm/conf/experiment/22)
+
+Same as generalize_to_longer_19, but using a 2M samples in train dataset instead of 1M. Dataset: [add_generalize_to_longer_19_2M.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_19_2M.yaml)

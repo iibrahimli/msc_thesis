@@ -534,17 +534,29 @@ def generate_generalize_to_longer_19(out_dir: str | Path):
     # out of distribution
     out_dist = {18, 20, 21, 22, 23}
     in_dist = set(range(1, 20)) - out_dist
-    train_num_examples = {i: 999_000 // len(in_dist) for i in in_dist} | {
-        1: 100,
-        2: 9901,
-    }
 
-    # generate train dataset
+    # generate train dataset - 1M
     train_path = out_dir / "train_add_1-19_except18_1M.txt"
     print(f"Generating {train_path}")
     generate_balanced(
         filepath=train_path,
-        num_examples=train_num_examples,
+        num_examples={i: 990_000 // len(in_dist) for i in in_dist}
+        | {
+            1: 100,
+            2: 9901,
+        },
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+    # train dataset - 2M
+    train_path = out_dir / "train_add_1-19_except18_2M.txt"
+    print(f"Generating {train_path}")
+    generate_balanced(
+        filepath=train_path,
+        num_examples={i: 1_990_000 // len(in_dist) for i in in_dist}
+        | {
+            1: 100,
+            2: 9901,
+        },
         balance_carries=False,  # too slow for large digit numbers, TODO: optimize
     )
 
