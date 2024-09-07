@@ -85,7 +85,7 @@ class ContextualMultiheadAttention(nn.MultiheadAttention):
             sequence length, :math:`N` is the batch size, and :math:`E_v` is the value embedding dimension ``vdim``.
             See "Attention Is All You Need" for more details.
         attn_mask: If specified, a 2D or 3D mask preventing attention to certain positions. Must be of shape
-            :math:`(L, S)` or :math:`(N . \text{num\_heads}, L, S)`, where :math:`N` is the batch size,
+            :math:`(L, S)` or :math:`(N . \text{num_heads}, L, S)`, where :math:`N` is the batch size,
             :math:`L` is the target sequence length, and :math:`S` is the source sequence length. A 2D mask will be
             broadcasted across the batch while a 3D mask allows for a different mask for each entry in the batch.
             Binary and float masks are supported. For a binary mask, a ``True`` value indicates that the
