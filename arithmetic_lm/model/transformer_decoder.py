@@ -5,6 +5,7 @@ from torch import Tensor, nn
 from arithmetic_lm.model.pos_enc import (
     AbacusEncoding,
     AbsolutePositionalEncoding,
+    ContextualMultiheadAttention,
     LearnedPositionalEncoding,
     RelativeMultiheadAttention,
     RotaryEmbedding,
@@ -25,7 +26,9 @@ class TransformerDecoder(nn.Module):
         vocab_size: int,
         ff_factor: int = 4,
         dropout: float = 0.1,
-        pos_enc: Literal["abs", "learned", "abacus", "nope", "rel", "rotary"] = "abs",
+        pos_enc: Literal[
+            "abs", "learned", "abacus", "nope", "rel", "rotary", "cope"
+        ] = "abs",
         pos_enc_max_shift: int = 0,
         emb_type: Literal["learned", "sinusoidal"] = "learned",
     ):
@@ -119,6 +122,16 @@ class TransformerDecoder(nn.Module):
                     bias=True,  # is true by default
                     batch_first=True,
                     rotary_emb=self.rotary_emb,
+                )
+        elif self.pos_enc == "cope":
+            for layer in self.transformer_encoder.layers:
+                layer.self_attn = ContextualMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                    npos_max=128,
                 )
 
         # output to vocab dim
