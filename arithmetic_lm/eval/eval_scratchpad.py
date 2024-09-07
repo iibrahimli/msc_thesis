@@ -1,7 +1,6 @@
-# %% [markdown]
 # # Mistake analysis
 
-# %%
+
 import os
 import random
 import re
@@ -33,11 +32,10 @@ warnings.filterwarnings("ignore")
 
 DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
 
-# %%
 tokenizer = CharTokenizer()
 stop_token = tokenizer.encode("$")[0]
 
-# %%
+
 # load model
 model_name = "trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss"
 ckpt_path = "checkpoints//addition-generalize-to-longer/trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss/step20501-train_loss0.0056-val_loss0.0002.ckpt"
@@ -45,13 +43,12 @@ model, hparams = load_model(ckpt_path, map_location=DEVICE)
 model.to(DEVICE)
 model.eval()
 
-# %%
+
 print(hparams["extra_hparams"]["data_format"])
 reverse_ops = hparams["extra_hparams"]["data_format"]["reverse_ops"]
 reverse_ans = hparams["extra_hparams"]["data_format"]["reverse_ans"]
 
 
-# %%
 def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
     """
     given a and b (non-reversed), return the carry string
@@ -97,23 +94,6 @@ def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
     return res
 
 
-# %%
-def generate_with_shifted_pe(model, shift=-1, **generate_kwargs):
-    """
-    generate with shifted positional encoding
-    """
-
-    from copy import deepcopy
-
-    model_copy = deepcopy(model)
-
-    # shift positional encoding
-    model_copy.pos_encoder.pe = model.pos_encoder.pe.roll(shift, 1)
-
-    return generate(model_copy, **generate_kwargs)
-
-
-# %%
 def eval_scratchpad_example(true: str, pred: str) -> dict:
     """
     Evaluate a single scratchpad example, return dict with keys:
@@ -168,7 +148,6 @@ def eval_scratchpad_example(true: str, pred: str) -> dict:
     }
 
 
-# %%
 scratchpad_eval_res = [
     {"n_digits": 18, "n_samples": 1000},
     {"n_digits": 19, "n_samples": 1000},
@@ -250,7 +229,7 @@ for n_digits, metrics in results.items():
         aggregated_results[metric]["mean"].append(np.mean(values))
         aggregated_results[metric]["std"].append(np.std(values))
 
-# %%
+
 # Plot results
 x = np.arange(len(scratchpad_eval_res))  # the label locations
 width = 0.4  # the width of the bars
