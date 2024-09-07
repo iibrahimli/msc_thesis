@@ -36,5 +36,5 @@ model:
     context_len: 512
 
 wandb:
-  project: "addition-generalize-to-longer-2M"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head${.suffix}
+  project: "addition-generalize-to-longer"
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head${.suffix}_2M
