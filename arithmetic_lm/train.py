@@ -103,7 +103,7 @@ def train(
         model=model,
         tokenizer=tokenizer,
         test_dataloader_names=test_ds_names,
-        lr=lr,
+        lr=lr / accumulate_grad_batches,
         weight_decay=weight_decay,
         warmup_iters=warmup_iters,
         model_hparams=omegaconf.OmegaConf.to_container(cfg.model.args, resolve=True),
