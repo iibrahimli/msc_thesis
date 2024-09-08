@@ -16,7 +16,7 @@ class LightningModel(L.LightningModule):
         tokenizer: Tokenizer,
         test_dataloader_names: list,
         lr: float = 3e-4,
-        betas: tuple[float, float] = (0.9, 0.99),
+        betas: tuple[float, float] = (0.9, 0.999),
         weight_decay: float = 0.1,
         warmup_iters: int = 100,
         model_hparams: dict = None,
