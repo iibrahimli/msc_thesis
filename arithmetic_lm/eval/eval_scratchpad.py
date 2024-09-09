@@ -90,6 +90,12 @@ def main():
         default=None,
         help="Path to the model checkpoint",
     )
+    ap.add_argument(
+        "--n_samples",
+        type=int,
+        default=1000,
+        help="Number of samples (per digit) to evaluate",
+    )
     args = ap.parse_args()
 
     DEVICE = args.device
@@ -117,11 +123,11 @@ def main():
 
     # Define the evaluation configurations
     eval_configs = [
-        {"n_digits": 17, "n_samples": 1000},
-        {"n_digits": 18, "n_samples": 1000},
-        {"n_digits": 19, "n_samples": 1000},
-        {"n_digits": 20, "n_samples": 1000},
-        {"n_digits": 21, "n_samples": 1000},
+        {"n_digits": 17, "n_samples": args.n_samples},
+        {"n_digits": 18, "n_samples": args.n_samples},
+        {"n_digits": 19, "n_samples": args.n_samples},
+        {"n_digits": 20, "n_samples": args.n_samples},
+        {"n_digits": 21, "n_samples": args.n_samples},
     ]
 
     # Initialize results DataFrame
