@@ -171,7 +171,9 @@ def main():
 
             result = eval_scratchpad_example(true_ans, pred_ans)
             result["n_digits"] = n_digits
-            result["n_carry"] = carry_str.count("c") + carry_str.count("C")
+            result["carry_ratio"] = (carry_str.count("c") + carry_str.count("C")) / len(
+                carry_str
+            )
             results = pd.concat([results, pd.DataFrame([result])], ignore_index=True)
 
     print(results.head())
@@ -205,39 +207,38 @@ def main():
 
     # plot metrics
     for i, metric in enumerate(metrics):
-        data = aggregated_results[metric]
-        x = range(len(data))
+        data = results.groupby("n_digits")[metric]
 
-        axs[i].bar(
-            x,
-            data["mean"],
-            width=0.4,
-            yerr=[data["mean"] - data["min"], data["max"] - data["mean"]],
-            capsize=5,
+        parts = axs[i].violinplot(
+            data, showmeans=True, showextrema=True, showmedians=True
         )
+
+        # Customize the violin plot
+        for pc in parts["bodies"]:
+            pc.set_facecolor("lightblue")
+            pc.set_edgecolor("black")
+            pc.set_alpha(0.7)
+
+        parts["cmeans"].set_color("red")
+        parts["cmedians"].set_color("blue")
+
         axs[i].set_xlabel("Number of Digits")
         axs[i].set_ylabel(names[metric])
         axs[i].set_title(names[metric])
-        axs[i].set_xticks(x)
-        axs[i].set_xticklabels(data.index)
+        axs[i].set_xticks(range(1, len(data) + 1))
+        axs[i].set_xticklabels(data.groups.keys())
 
         if "accuracy" in metric:
             axs[i].set_ylim(0, 1)
         else:
             axs[i].set_ylim(0, None)
 
-    # plot accuracy vs carry
-    data = results.groupby("n_carry")["accuracy"].mean()
-    mins = results.groupby("n_carry")["accuracy"].min()
-    maxs = results.groupby("n_carry")["accuracy"].max()
-    x = range(len(data))
-    axs[-1].bar(x, data, width=0.4, yerr=[data - mins, maxs - data], capsize=5)
-    axs[-1].set_xlabel("Number of Carry Operations")
-    axs[-1].set_ylabel("Total accuracy\n(scratchpad and answer)")
-    axs[-1].set_title("Total accuracy vs.\nnumber of carries")
-    axs[-1].set_xticks(x)
-    axs[-1].set_xticklabels(data.index)
-    axs[-1].set_ylim(0, 1)
+    # plot accuracy vs carry ratio as scatter plot
+    data = results[results["answer_accuracy"] != -1]
+    axs[-1].scatter(data["carry_ratio"], data["answer_accuracy"], alpha=0.5)
+    axs[-1].set_xlabel("Carry Ratio")
+    axs[-1].set_ylabel("Answer Accuracy")
+    axs[-1].set_title("Answer Accuracy vs Carry Ratio")
 
     fig.suptitle(
         f"Scratchpad Evaluation on model {model_name} (n_samples={args.n_samples})"
@@ -247,7 +248,9 @@ def main():
 
     fig.tight_layout()
     plt.savefig(
-        PLOTS_DIR / "gen_to_longer_rand_spaces" / f"{model_name}_scratchpad_eval.png",
+        PLOTS_DIR
+        / "gen_to_longer_rand_spaces"
+        / f"{model_name}_scratchpad_eval_violin.png",
         dpi=300,
         bbox_inches="tight",
     )
