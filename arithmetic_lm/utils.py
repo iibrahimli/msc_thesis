@@ -36,3 +36,47 @@ def set_seed(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+def transformer_decoder_param_count(
+    context_len: int,
+    vocab_size: int,
+    hidden_dim: int,
+    n_layers: int,
+    mlp_mult: int = 4,
+):
+
+    n_params = 0
+
+    # embedding
+    n_params += vocab_size * hidden_dim
+
+    # assuming abs pos embeddings
+    n_params += context_len * hidden_dim
+
+    #### decoder layer
+    n_params_layer = 0
+
+    # attention q, k, v + bias
+    n_params_layer += 3 * hidden_dim * hidden_dim + 3 * hidden_dim
+
+    # attention out + bias
+    n_params_layer += hidden_dim * hidden_dim + hidden_dim
+
+    # mlp: hidden -> (hidden * mlp_mult) and back + biases
+    n_params_layer += hidden_dim * hidden_dim * mlp_mult * 2 + hidden_dim * (
+        1 + mlp_mult
+    )
+
+    # layer norm (x2, each has 2 * hidden_dim params)
+    n_params_layer += 2 * hidden_dim * 2
+
+    n_params += n_layers * n_params_layer
+
+    # final layer norm
+    n_params += 2 * hidden_dim
+
+    # logit layer + bias
+    n_params += hidden_dim * vocab_size + vocab_size
+
+    return n_params
