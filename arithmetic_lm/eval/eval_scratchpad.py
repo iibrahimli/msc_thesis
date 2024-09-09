@@ -117,11 +117,11 @@ def main():
 
     # Define the evaluation configurations
     eval_configs = [
-        {"n_digits": 17, "n_samples": 2},
-        {"n_digits": 18, "n_samples": 2},
-        # {"n_digits": 19, "n_samples": 2},
-        # {"n_digits": 20, "n_samples": 2},
-        # {"n_digits": 21, "n_samples": 2},
+        {"n_digits": 17, "n_samples": 1000},
+        {"n_digits": 18, "n_samples": 1000},
+        {"n_digits": 19, "n_samples": 1000},
+        {"n_digits": 20, "n_samples": 1000},
+        {"n_digits": 21, "n_samples": 1000},
     ]
 
     # Initialize results DataFrame
