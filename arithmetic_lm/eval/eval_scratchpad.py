@@ -239,7 +239,9 @@ def main():
     axs[-1].set_xticklabels(data.index)
     axs[-1].set_ylim(0, 1)
 
-    fig.suptitle(f"Scratchpad Evaluation on model {model_name}")
+    fig.suptitle(
+        f"Scratchpad Evaluation on model {model_name} (n_samples={args.n_samples})"
+    )
 
     plt.subplots_adjust(wspace=0.5)
 
