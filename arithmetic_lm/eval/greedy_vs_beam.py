@@ -29,6 +29,7 @@ from arithmetic_lm.model import (
     load_model,
 )
 from arithmetic_lm.tokenizer import CharTokenizer
+from arithmetic_lm.utils import get_carry_str
 
 DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
 
@@ -50,52 +51,6 @@ model.eval()
 print(hparams["extra_hparams"]["data_format"])
 reverse_ops = hparams["extra_hparams"]["data_format"]["reverse_ops"]
 reverse_ans = hparams["extra_hparams"]["data_format"]["reverse_ans"]
-
-
-# %%
-def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
-    """
-    given a and b (non-reversed), return the carry string
-    which contains:
-        '.' if there is no carry at that position,
-        'c' if there is current generated carry, but no carry from previous position
-        'p' if there is carry from previous position, but no current generated carry
-        'C' if there is both current generated carry and carry from previous position
-    """
-
-    carries = []
-    carry = 0
-
-    if reverse:
-        a = a[::-1]
-        b = b[::-1]
-
-    for aa, bb in zip(a, b):
-        aa = int(aa)
-        bb = int(bb)
-        s = aa + bb + carry
-        if s >= 10:
-            if carry == 1:
-                carries.append("C")
-            else:
-                carries.append("c")
-            carry = 1
-        else:
-            if carry == 1:
-                carries.append("p")
-            else:
-                carries.append(".")
-            carry = 0
-
-    if carry == 1:
-        carries.append("p")
-
-    res = "".join(carries)
-
-    if reverse:
-        res = res[::-1]
-
-    return res
 
 
 # %% [markdown]
