@@ -207,10 +207,17 @@ def main():
 
     # plot metrics
     for i, metric in enumerate(metrics):
-        data = results.groupby("n_digits")[metric]
+        # Ensure that the groups are sorted by 'n_digits'
+        sorted_n_digits = sorted(results["n_digits"].unique())
+
+        # Group data and ensure it's sorted by 'n_digits'
+        grouped_data = [
+            results[results["n_digits"] == n_digits][metric].values
+            for n_digits in sorted_n_digits
+        ]
 
         parts = axs[i].violinplot(
-            data, showmeans=True, showextrema=True, showmedians=True
+            grouped_data, showmeans=True, showextrema=True, showmedians=True
         )
 
         # Customize the violin plot
@@ -225,8 +232,8 @@ def main():
         axs[i].set_xlabel("Number of Digits")
         axs[i].set_ylabel(names[metric])
         axs[i].set_title(names[metric])
-        axs[i].set_xticks(range(1, len(data) + 1))
-        axs[i].set_xticklabels(data.groups.keys())
+        axs[i].set_xticks(range(1, len(grouped_data) + 1))
+        axs[i].set_xticklabels(sorted_n_digits)  # Use sorted_n_digits for labels
 
         if "accuracy" in metric:
             axs[i].set_ylim(0, 1)
