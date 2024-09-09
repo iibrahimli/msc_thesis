@@ -254,13 +254,17 @@ def main():
     plt.subplots_adjust(wspace=0.5)
 
     fig.tight_layout()
-    plt.savefig(
+    fig_path = (
         PLOTS_DIR
         / "gen_to_longer_rand_spaces"
         / f"{model_name}_scratchpad_eval_violin.png",
+    )
+    plt.savefig(
+        fig_path,
         dpi=300,
         bbox_inches="tight",
     )
+    print(f"Saved plot to {fig_path}")
     # plt.show()
 
 
