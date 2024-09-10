@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing as mp
 import os
 import random
 import warnings
@@ -76,19 +77,77 @@ def eval_scratchpad_example(true: str, pred: str) -> dict:
     }
 
 
+def evaluate_config(config, model, tokenizer, device, reverse_ops, reverse_ans):
+    n_digits = config["n_digits"]
+    n_samples = config["n_samples"]
+
+    results = []
+    stop_token = tokenizer.encode("$")[0]
+
+    for _ in tqdm(range(n_samples), desc=f"Evaluating {n_digits} digits"):
+        a = random.randint(10 ** (n_digits - 1), 10**n_digits - 1)
+        b = random.randint(10 ** (n_digits - 1), 10**n_digits - 1)
+
+        a = str(a)
+        b = str(b)
+        if reverse_ops:
+            a = a[::-1]
+            b = b[::-1]
+
+        true_ans = scratchpad_addition(a, b)
+
+        prompt = f"${a}+{b}="
+        prompt_idx = torch.tensor(tokenizer.encode(prompt, return_tensors=True)).to(
+            device
+        )
+
+        carry_str = get_carry_str(a, b, reverse=not reverse_ops)
+
+        pred_tensor = generate(
+            model,
+            idx=prompt_idx,
+            max_new_tokens=512,
+            stop_token=stop_token,
+        )
+        pred_ans = tokenizer.decode(pred_tensor[0])
+
+        result = eval_scratchpad_example(true_ans, pred_ans)
+        result["n_digits"] = n_digits
+        result["carry_ratio"] = (carry_str.count("c") + carry_str.count("C")) / len(
+            carry_str
+        )
+        results.append(result)
+
+    return pd.DataFrame(results)
+
+
+def worker_init(ckpt_path, device):
+    global model, tokenizer, hparams
+    model, hparams = load_model(ckpt_path, map_location=device)
+    model.to(device)
+    model.eval()
+    tokenizer = CharTokenizer()
+
+
+def worker(config):
+    return evaluate_config(
+        config,
+        model,
+        tokenizer,
+        args.device,
+        hparams["extra_hparams"]["data_format"]["reverse_ops"],
+        hparams["extra_hparams"]["data_format"]["reverse_ans"],
+    )
+
+
 def main():
+    global args
     ap = argparse.ArgumentParser()
     ap.add_argument(
-        "--device",
-        type=str,
-        default="cuda:0",
-        help="Device to use (default: cuda:0)",
+        "--device", type=str, default="cuda:0", help="Device to use (default: cuda:0)"
     )
     ap.add_argument(
-        "--ckpt_path",
-        type=str,
-        default=None,
-        help="Path to the model checkpoint",
+        "--ckpt_path", type=str, default=None, help="Path to the model checkpoint"
     )
     ap.add_argument(
         "--n_samples",
@@ -98,30 +157,14 @@ def main():
     )
     args = ap.parse_args()
 
-    DEVICE = args.device
-    if "cuda" in DEVICE.lower() and not torch.cuda.is_available():
-        DEVICE = "cpu"
+    if "cuda" in args.device.lower() and not torch.cuda.is_available():
+        args.device = "cpu"
         print("CUDA not available, using CPU")
-    print(f"Using device: {DEVICE}")
+    print(f"Using device: {args.device}")
 
-    tokenizer = CharTokenizer()
-    stop_token = tokenizer.encode("$")[0]
-
-    # load model
-    # ckpt_path = "checkpoints/addition-generalize-to-longer/trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss/step64755-train_loss0.0001-val_loss0.0000.ckpt"
-    # model_name = "trans_dec_6layers_768embd_4head_scratchpad_randsp0.5_ansloss"
     model_name = Path(args.ckpt_path).parent.name
     print(f"Model name: {model_name}")
 
-    model, hparams = load_model(args.ckpt_path, map_location=DEVICE)
-    model.to(DEVICE)
-    model.eval()
-
-    print(hparams["extra_hparams"]["data_format"])
-    reverse_ops = hparams["extra_hparams"]["data_format"]["reverse_ops"]
-    reverse_ans = hparams["extra_hparams"]["data_format"]["reverse_ans"]
-
-    # Define the evaluation configurations
     eval_configs = [
         {"n_digits": 17, "n_samples": args.n_samples},
         {"n_digits": 18, "n_samples": args.n_samples},
@@ -130,51 +173,18 @@ def main():
         {"n_digits": 21, "n_samples": args.n_samples},
     ]
 
-    # Initialize results DataFrame
-    results = pd.DataFrame()
+    # Initialize the pool with the global variables
+    pool = mp.Pool(initializer=worker_init, initargs=(args.ckpt_path, args.device))
 
-    # Evaluate on generated samples
-    for config in eval_configs:
-        n_digits = config["n_digits"]
-        n_samples = config["n_samples"]
+    # Use pool.map to parallelize the evaluation
+    results_list = pool.map(worker, eval_configs)
 
-        print(f"Evaluating {n_digits} digits, {n_samples} samples")
+    # Combine results
+    results = pd.concat(results_list, ignore_index=True)
 
-        for _ in tqdm(range(n_samples)):
-            a = random.randint(10 ** (n_digits - 1), 10**n_digits - 1)
-            b = random.randint(10 ** (n_digits - 1), 10**n_digits - 1)
-
-            a = str(a)
-            b = str(b)
-            if reverse_ops:
-                a = a[::-1]
-                b = b[::-1]
-
-            true_ans = scratchpad_addition(a, b)
-            # if reverse_ans:
-            #     true_ans = true_ans[::-1]
-
-            prompt = f"${a}+{b}="
-            prompt_idx = torch.tensor(tokenizer.encode(prompt, return_tensors=True)).to(
-                DEVICE
-            )
-
-            carry_str = get_carry_str(a, b, reverse=not reverse_ops)
-
-            pred_tensor = generate(
-                model,
-                idx=prompt_idx,
-                max_new_tokens=512,
-                stop_token=stop_token,
-            )
-            pred_ans = tokenizer.decode(pred_tensor[0])
-
-            result = eval_scratchpad_example(true_ans, pred_ans)
-            result["n_digits"] = n_digits
-            result["carry_ratio"] = (carry_str.count("c") + carry_str.count("C")) / len(
-                carry_str
-            )
-            results = pd.concat([results, pd.DataFrame([result])], ignore_index=True)
+    # Close the pool
+    pool.close()
+    pool.join()
 
     print(results.head())
 
@@ -207,10 +217,7 @@ def main():
 
     # plot metrics
     for i, metric in enumerate(metrics):
-        # Ensure that the groups are sorted by 'n_digits'
         sorted_n_digits = sorted(results["n_digits"].unique())
-
-        # Group data and ensure it's sorted by 'n_digits'
         grouped_data = [
             results[results["n_digits"] == n_digits][metric].values
             for n_digits in sorted_n_digits
@@ -220,7 +227,6 @@ def main():
             grouped_data, showmeans=True, showextrema=True, showmedians=True
         )
 
-        # Customize the violin plot
         for pc in parts["bodies"]:
             pc.set_facecolor("lightblue")
             pc.set_edgecolor("black")
@@ -233,7 +239,7 @@ def main():
         axs[i].set_ylabel(names[metric])
         axs[i].set_title(names[metric])
         axs[i].set_xticks(range(1, len(grouped_data) + 1))
-        axs[i].set_xticklabels(sorted_n_digits)  # Use sorted_n_digits for labels
+        axs[i].set_xticklabels(sorted_n_digits)
 
         if "accuracy" in metric:
             axs[i].set_ylim(0, 1)
@@ -259,13 +265,8 @@ def main():
         / "gen_to_longer_rand_spaces"
         / f"{model_name}_scratchpad_eval_violin.png"
     )
-    plt.savefig(
-        fig_path,
-        dpi=300,
-        bbox_inches="tight",
-    )
+    plt.savefig(fig_path, dpi=300, bbox_inches="tight")
     print(f"Saved plot to {fig_path}")
-    # plt.show()
 
 
 if __name__ == "__main__":
