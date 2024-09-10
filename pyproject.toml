@@ -22,6 +22,7 @@ einops = "^0.8.0"
 levenshtein = "^0.25.1"
 transformers = "^4.44.2"
 ipywidgets = "^8.1.5"
+seaborn = "^0.13.2"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.2"
