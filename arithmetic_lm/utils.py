@@ -99,9 +99,9 @@ def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
         a = a[::-1]
         b = b[::-1]
 
-    for aa, bb in zip(a, b):
-        aa = int(aa)
-        bb = int(bb)
+    for i in range(max(len(a), len(b))):
+        aa = int(a[i]) if i < len(a) else 0
+        bb = int(b[i]) if i < len(b) else 0
         s = aa + bb + carry
         if s >= 10:
             if carry == 1:
@@ -115,6 +115,7 @@ def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
             else:
                 carries.append(".")
             carry = 0
+        print(aa, bb, s, carry, carries)
 
     if carry == 1:
         carries.append("p")
