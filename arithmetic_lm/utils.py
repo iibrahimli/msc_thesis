@@ -115,7 +115,6 @@ def get_carry_str(a: str, b: str, reverse: bool = False) -> str:
             else:
                 carries.append(".")
             carry = 0
-        print(aa, bb, s, carry, carries)
 
     if carry == 1:
         carries.append("p")
