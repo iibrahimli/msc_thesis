@@ -158,7 +158,7 @@ def main():
     ap.add_argument(
         "--n_processes",
         type=int,
-        default=2,
+        default=1,
         help="Number of processes to use for evaluation",
     )
     ap.add_argument(
