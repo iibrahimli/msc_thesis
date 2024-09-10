@@ -173,11 +173,19 @@ def main():
         {"n_digits": 21, "n_samples": args.n_samples},
     ]
 
-    # Initialize the pool with the global variables
-    pool = mp.Pool(initializer=worker_init, initargs=(args.ckpt_path, args.device))
+    # Initialize the pool with 2 processes and the global variables
+    pool = mp.Pool(
+        processes=2, initializer=worker_init, initargs=(args.ckpt_path, args.device)
+    )
 
-    # Use pool.map to parallelize the evaluation
-    results_list = pool.map(worker, eval_configs)
+    # Use pool.imap to process configurations in order, 2 at a time
+    results_list = list(
+        tqdm(
+            pool.imap(worker, eval_configs),
+            total=len(eval_configs),
+            desc="Processing configs",
+        )
+    )
 
     # Combine results
     results = pd.concat(results_list, ignore_index=True)
