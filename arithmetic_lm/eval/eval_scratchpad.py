@@ -257,7 +257,7 @@ def main():
     fig_path = (
         PLOTS_DIR
         / "gen_to_longer_rand_spaces"
-        / f"{model_name}_scratchpad_eval_violin.png",
+        / f"{model_name}_scratchpad_eval_violin.png"
     )
     plt.savefig(
         fig_path,
