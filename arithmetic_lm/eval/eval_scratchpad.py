@@ -16,7 +16,7 @@ from arithmetic_lm.constants import CHECKPOINTS_DIR, PLOTS_DIR
 from arithmetic_lm.formatting import scratchpad_addition
 from arithmetic_lm.model import generate, load_model
 from arithmetic_lm.tokenizer import CharTokenizer
-from arithmetic_lm.utils import get_carry_str
+from arithmetic_lm.utils import get_carry_str, set_seed
 
 warnings.filterwarnings("ignore")
 
@@ -152,10 +152,22 @@ def main():
     ap.add_argument(
         "--n_samples",
         type=int,
-        default=1000,
+        default=1337,
         help="Number of samples (per digit) to evaluate",
     )
+    ap.add_argument(
+        "--n_processes",
+        type=int,
+        default=2,
+        help="Number of processes to use for evaluation",
+    )
+    ap.add_argument(
+        "--seed", type=int, default=42, help="Random seed for reproducibility"
+    )
     args = ap.parse_args()
+
+    # Set random seed
+    set_seed(args.seed)
 
     if "cuda" in args.device.lower() and not torch.cuda.is_available():
         args.device = "cpu"
@@ -175,7 +187,9 @@ def main():
 
     # Initialize the pool with 2 processes and the global variables
     pool = mp.Pool(
-        processes=2, initializer=worker_init, initargs=(args.ckpt_path, args.device)
+        processes=args.n_processes,
+        initializer=worker_init,
+        initargs=(args.ckpt_path, args.device),
     )
 
     # Use pool.imap to process configurations in order, 2 at a time
