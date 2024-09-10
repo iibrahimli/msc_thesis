@@ -13,7 +13,7 @@ Translations to other languages are available too:
 \begin{quote}
 	http://www.sce.carleton.ca/faculty/chinneck/thesis/translations.html
 \end{quote}
-Please see also \cite{Leunen:Scholars:1992,Zuber-Skerritt:ThesisWriting:1986}.
+
 
 \subsection{Introduction}
 
@@ -116,15 +116,15 @@ German mirror of which is \url{www.dante.de}.
 The table should be centred and should always have a caption positioned above it. A caption in a sentence form as well as in a short form must end with a period as seen in table~\ref{tab:sample}. Ideally the table can be understood sorely by the table and the caption itself. The parameters ``hbtp'' provide a list of priorities for the arrangement of the table: here, bottom, top, (next) page.
 
 \begin{table}[hbtp]
-  \caption{This caption has one line so it is centered.}\label{tab:sample} 
-  \centering
-  \begin{tabular}{|c|c|}
-    \hline
-    Example column 1 & Example column 2 \\
-    \hline
-    Example text 1 & Example text 2 \\
-    \hline
-  \end{tabular}
+	\caption{This caption has one line so it is centered.}\label{tab:sample}
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Example column 1 & Example column 2 \\
+		\hline
+		Example text 1   & Example text 2   \\
+		\hline
+	\end{tabular}
 \end{table}
 
 \subsection{Figures in \LaTeX}
@@ -135,7 +135,7 @@ As figures float around, expressions like ``the following figure'' must never be
 
 In general, only vector graphics in encapsulated postscript (EPS) or a similar format (SVG, PDF) should be included in any kind of text, as this allows arbitrary scaling, rotation etc.\ without any loss of quality. Bitmap formats (JPEG, GIF, \dots) should only be used if no other alternative exists --- basically the only case where bitmaps can be justified is when scanned pictures need to be included in a text, however, this should be avoided as hard as possible as the quality in usually not satisfactory. If a screen shot is needed a high resolution picture without visible fragments of a jpeg compression is allowed. Figures like the figure~\ref{fig:samplefig} (this is how you refer to figures correctly! the tilde is used as a non-breaking space) should always appear after the first referencing it.
 \begin{figure}[hbtp]
-	 \centerline{\includegraphics[width=0.6\textwidth]{samplefig.pdf}}
-	 {\caption{Network of transputers and the structure of individual
-processes.}\label{fig:samplefig}}
+	\centerline{\includegraphics[width=0.6\textwidth]{samplefig.pdf}}
+	{\caption{Network of transputers and the structure of individual
+			processes.}\label{fig:samplefig}}
 \end{figure}
