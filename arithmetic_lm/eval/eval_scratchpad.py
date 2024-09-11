@@ -1,6 +1,6 @@
 import argparse
+import math
 import multiprocessing as mp
-import os
 import random
 import warnings
 from pathlib import Path
@@ -129,19 +129,18 @@ def worker_init(ckpt_path, device):
     tokenizer = CharTokenizer()
 
 
-def worker(config):
+def worker(config, device):
     return evaluate_config(
         config,
         model,
         tokenizer,
-        args.device,
+        device,
         hparams["extra_hparams"]["data_format"]["reverse_ops"],
         hparams["extra_hparams"]["data_format"]["reverse_ans"],
     )
 
 
 def main():
-    global args
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--device", type=str, default="cuda:0", help="Device to use (default: cuda:0)"
@@ -192,28 +191,23 @@ def main():
         initargs=(args.ckpt_path, args.device),
     )
 
-    # Use pool.imap to process configurations in order, 2 at a time
-    results_list = list(
-        tqdm(
-            pool.imap(worker, eval_configs),
-            total=len(eval_configs),
-            desc="Processing configs",
-        )
+    # Use pool.starmap to process configurations in order, 2 at a time
+    results_list = pool.starmap(
+        worker, [(config, args.device) for config in eval_configs]
     )
 
     # Combine results
     results = pd.concat(results_list, ignore_index=True)
 
+    # save results
+    results_path = (
+        CHECKPOINTS_DIR / model_name / f"gen_to_longer_rand_spaces_{args.n_samples}.csv"
+    )
+    results.to_csv(results_path, index=False)
+
     # Close the pool
     pool.close()
     pool.join()
-
-    print(results.head())
-
-    # Calculate aggregated results (ignore rows with -1)
-    aggregated_results = (
-        results[results != -1].groupby("n_digits").agg(["mean", "min", "max"])
-    )
 
     # Plot results
     metrics = [
@@ -235,7 +229,13 @@ def main():
         "answer_edit_dist": "Answer edit distance",
     }
 
-    fig, axs = plt.subplots(1, len(metrics) + 1, figsize=(24, 4))
+    total_plots = len(metrics) + 1
+    nrows = 2
+    ncols = math.ceil(total_plots / 2)
+    scale = 3
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * scale, nrows * scale))
+
+    axs = axs.flatten()
 
     # plot metrics
     for i, metric in enumerate(metrics):
