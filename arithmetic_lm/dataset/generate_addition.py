@@ -705,7 +705,7 @@ def generate_generalize_to_longer_mini(out_dir: str | Path):
     train_sizes = {"100K": 100_000, "1M": 1_000_000, "10M": 10_000_000.0}
     train_file_paths = []
 
-    for tsn, ts in train_sizes:
+    for tsn, ts in train_sizes.items():
         # generate train dataset
         train_path = out_dir / f"train_add_1-9_except8_{tsn}.txt"
         train_file_paths.append(train_path)
@@ -714,7 +714,10 @@ def generate_generalize_to_longer_mini(out_dir: str | Path):
         n_except_1_and_2_digits = ts - (9901 + 100)
         generate_balanced(
             filepath=train_path,
-            num_examples={i: n_except_1_and_2_digits // len(in_dist) for i in in_dist}
+            num_examples={
+                i: min(n_except_1_and_2_digits, n_possible_examples(i)) // len(in_dist)
+                for i in in_dist
+            }
             | {
                 1: 100,
                 2: 9901,
