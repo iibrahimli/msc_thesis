@@ -688,6 +688,70 @@ def generate_generalize_to_longer_20_nocarry(out_dir: str | Path):
         )
 
 
+def generate_generalize_to_longer_mini(out_dir: str | Path):
+    """
+    Train on 1x1-9x9 excluding 8x8, test on 1x1-13x13 (8 digits are for
+    in-between OOD, 10-13 longer OOD generalization).
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for generalize-to-longer-mini to {out_dir}")
+
+    # out of distribution
+    out_dist = {8, 10, 11, 12, 13}
+    in_dist = set(range(1, 10)) - out_dist
+    train_sizes = {"100K": 100_000, "1M": 1_000_000, "10M": 10_000_000.0}
+    train_file_paths = []
+
+    for tsn, ts in train_sizes:
+        # generate train dataset
+        train_path = out_dir / f"train_add_1-9_except8_{tsn}.txt"
+        train_file_paths.append(train_path)
+        print(f"Generating {train_path}")
+        # 100 samples for 1x1, 9901 samples for 2x2
+        n_except_1_and_2_digits = ts - (9901 + 100)
+        generate_balanced(
+            filepath=train_path,
+            num_examples={i: n_except_1_and_2_digits // len(in_dist) for i in in_dist}
+            | {
+                1: 100,
+                2: 9901,
+            },
+            balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+        )
+
+    # train examples excluded from test
+    excluded = set()
+    for tf in train_file_paths:
+        excluded |= get_set_from_file(tf)
+
+    # generate test dataset with trained digit lengths (in distribution)
+    in_distribution_test_path = out_dir / "test_add_in_distribution_2000.txt"
+    print(f"Generating {in_distribution_test_path}")
+    generate_balanced(
+        filepath=in_distribution_test_path,
+        num_examples={
+            i: 2000 / len(in_dist) for i in in_dist if i not in (1, 2)
+        },  # exclude 1 and 2 since they're fully covered in training dataset
+        exclude=excluded,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+
+    # generate test dataset with out of distribution digit lengths
+    for i in out_dist:
+        out_dist_test_path = out_dir / f"test_add_ood_{i}digit_100.txt"
+        print(f"Generating {out_dist_test_path}")
+        generate_only_digit(
+            out_dist_test_path,
+            num_digits=i,
+            num_examples=100,
+            exclude=excluded,
+            seed=i,
+        )
+
+
 def main():
     # generate_experiment_1(DATA_DIR / "addition")
     # generate_experiment_2(DATA_DIR / "addition")
@@ -697,10 +761,13 @@ def main():
     # generate_experiment_10(DATA_DIR / "addition" / "exp_10")
     # generate_experiment_11(DATA_DIR / "addition" / "exp_11")
     # generate_experiment_12(DATA_DIR / "addition" / "exp_12")
-    generate_generalize_to_longer_19(DATA_DIR / "addition" / "generalize_to_longer_19")
+    # generate_generalize_to_longer_19(DATA_DIR / "addition" / "generalize_to_longer_19")
     # generate_experiment_14(DATA_DIR / "addition" / "exp_14")
-    generate_generalize_to_longer_20_nocarry(
-        DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
+    # generate_generalize_to_longer_20_nocarry(
+    #     DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
+    # )
+    generate_generalize_to_longer_mini(
+        DATA_DIR / "addition" / "generalize_to_longer_mini"
     )
 
 
