@@ -138,8 +138,8 @@ class TransformerDecoder(nn.Module):
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)
 
         # weight tying
-        # if self.embedding is not None:
-        #     self.lm_head.weight = self.embedding.weight
+        if self.embedding is not None:
+            self.lm_head.weight = self.embedding.weight
 
         self.apply(init_weights)
 
