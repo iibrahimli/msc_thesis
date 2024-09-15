@@ -12,7 +12,7 @@ format:
   filler_tokens_ans: null
   operand_random_spaces_amount: 0
   answer_random_spaces_amount: 0
-train: data/addition/generalize_to_longer_mini/train_add_1-9_except8_${train_size}.txt
+train: data/addition/generalize_to_longer_mini/train_add_1-9_except8_${.train_size}.txt
 test:
   in_dist: data/addition/generalize_to_longer_mini/test_add_in_distribution_2000.txt
   ood_8digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
