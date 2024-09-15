@@ -1,0 +1,22 @@
+# Training on 1-9 digits excluding 8, test on 1-13
+train_ds_class: ArithmeticLMSequenceDataset
+train_size: 1M
+format:
+  pad: $
+  pad_ops_zero: null
+  pad_ans_zero: null
+  reverse_ops: false
+  reverse_ans: ???
+  encdec: false
+  filler_tokens_prompt: null
+  filler_tokens_ans: null
+  operand_random_spaces_amount: 0
+  answer_random_spaces_amount: 0
+train: data/addition/generalize_to_longer_mini/train_add_1-9_except8_${train_size}.txt
+test:
+  in_dist: data/addition/generalize_to_longer_mini/test_add_in_distribution_2000.txt
+  ood_8digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
+  ood_10digit: data/addition/generalize_to_longer_mini/test_add_ood_10digit_100.txt
+  ood_11digit: data/addition/generalize_to_longer_mini/test_add_ood_11digit_100.txt
+  ood_12digit: data/addition/generalize_to_longer_mini/test_add_ood_12digit_100.txt
+  ood_13digit: data/addition/generalize_to_longer_mini/test_add_ood_13digit_100.txt

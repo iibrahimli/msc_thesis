@@ -111,3 +111,8 @@ Like Experiment 13 (addition-generalize-to-longer) but with no carries in traini
 ## [Experiment 22](../arithmetic_lm/conf/experiment/22)
 
 Same as generalize_to_longer_19, but using a 2M samples in train dataset instead of 1M. Dataset: [add_generalize_to_longer_19_2M.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_19_2M.yaml)
+
+
+## [Experiment 23](../arithmetic_lm/conf/experiment/23)
+
+Train on 1-7 and 9 digit addition, test on 8 and 10-13 digit addition. Try different training dataset sizes: 100K, 1M, 10M. Dataset: [add_generalize_to_longer_mini.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_mini.yaml)
