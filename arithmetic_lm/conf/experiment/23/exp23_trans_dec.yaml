@@ -38,4 +38,4 @@ model:
 
 wandb:
   project: "addition-generalize-to-longer-mini"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_randsp0.5_scratch_{data.train_size}
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_randsp0.5_scratch_${data.train_size}
