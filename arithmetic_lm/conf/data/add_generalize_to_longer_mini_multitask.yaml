@@ -15,60 +15,60 @@ format:
   filler_tokens_ans: null
   operand_random_spaces_amount: 0
   answer_random_spaces_amount: 0
-train: data/addition/generalize_to_longer_mini/train_${.task}_1-9_except8_${.train_size}.txt
+train: data/addition/generalize_to_longer_mini_multitask/train_${.task}_1-9_except8_${.train_size}.txt
 test: ${.available_test_datasets[${.task}]}
 
 # used for selecting test datasets based on the task
 available_test_datasets:
   rev:
-    rev_in_dist: data/addition/generalize_to_longer_mini/test_rev_in_distribution_2000.txt
-    rev_ood_8digit: data/addition/generalize_to_longer_mini/test_rev_ood_8digit_100.txt
-    rev_ood_10digit: data/addition/generalize_to_longer_mini/test_rev_ood_10digit_100.txt
-    rev_ood_11digit: data/addition/generalize_to_longer_mini/test_rev_ood_11digit_100.txt
+    rev_in_dist: data/addition/generalize_to_longer_mini_multitask/test_rev_in_distribution_2000.txt
+    rev_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_8digit_100.txt
+    rev_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_10digit_100.txt
+    rev_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_11digit_100.txt
   ali:
-    ali_in_dist: data/addition/generalize_to_longer_mini/test_ali_in_distribution_2000.txt
-    ali_ood_8digit: data/addition/generalize_to_longer_mini/test_ali_ood_8digit_100.txt
-    ali_ood_10digit: data/addition/generalize_to_longer_mini/test_ali_ood_10digit_100.txt
-    ali_ood_11digit: data/addition/generalize_to_longer_mini/test_ali_ood_11digit_100.txt
+    ali_in_dist: data/addition/generalize_to_longer_mini_multitask/test_ali_in_distribution_2000.txt
+    ali_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_8digit_100.txt
+    ali_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_10digit_100.txt
+    ali_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_11digit_100.txt
   mad:
-    mad_in_dist: data/addition/generalize_to_longer_mini/test_mad_in_distribution_2000.txt
-    mad_ood_8digit: data/addition/generalize_to_longer_mini/test_mad_ood_8digit_100.txt
-    mad_ood_10digit: data/addition/generalize_to_longer_mini/test_mad_ood_10digit_100.txt
-    mad_ood_11digit: data/addition/generalize_to_longer_mini/test_mad_ood_11digit_100.txt
+    mad_in_dist: data/addition/generalize_to_longer_mini_multitask/test_mad_in_distribution_2000.txt
+    mad_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_8digit_100.txt
+    mad_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_10digit_100.txt
+    mad_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_11digit_100.txt
   car:
-    car_in_dist: data/addition/generalize_to_longer_mini/test_car_in_distribution_2000.txt
-    car_ood_8digit: data/addition/generalize_to_longer_mini/test_car_ood_8digit_100.txt
-    car_ood_10digit: data/addition/generalize_to_longer_mini/test_car_ood_10digit_100.txt
-    car_ood_11digit: data/addition/generalize_to_longer_mini/test_car_ood_11digit_100.txt
+    car_in_dist: data/addition/generalize_to_longer_mini_multitask/test_car_in_distribution_2000.txt
+    car_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_8digit_100.txt
+    car_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_10digit_100.txt
+    car_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_11digit_100.txt
   add:
-    add_in_dist: data/addition/generalize_to_longer_mini/test_add_in_distribution_2000.txt
-    add_ood_8digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
-    add_ood_10digit: data/addition/generalize_to_longer_mini/test_add_ood_10digit_100.txt
-    add_ood_11digit: data/addition/generalize_to_longer_mini/test_add_ood_11digit_100.txt
+    add_in_dist: data/addition/generalize_to_longer_mini_multitask/test_add_in_distribution_2000.txt
+    add_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_8digit_100.txt
+    add_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_10digit_100.txt
+    add_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_11digit_100.txt
   # all subtasks for mix
   mix:
   # rev
-    rev_in_dist: data/addition/generalize_to_longer_mini/test_rev_in_distribution_2000.txt
-    rev_ood_8digit: data/addition/generalize_to_longer_mini/test_rev_ood_8digit_100.txt
-    rev_ood_10digit: data/addition/generalize_to_longer_mini/test_rev_ood_10digit_100.txt
-    rev_ood_11digit: data/addition/generalize_to_longer_mini/test_rev_ood_11digit_100.txt
+    rev_in_dist: data/addition/generalize_to_longer_mini_multitask/test_rev_in_distribution_2000.txt
+    rev_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_8digit_100.txt
+    rev_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_10digit_100.txt
+    rev_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_rev_ood_11digit_100.txt
   # ali
-    ali_in_dist: data/addition/generalize_to_longer_mini/test_ali_in_distribution_2000.txt
-    ali_ood_8digit: data/addition/generalize_to_longer_mini/test_ali_ood_8digit_100.txt
-    ali_ood_10digit: data/addition/generalize_to_longer_mini/test_ali_ood_10digit_100.txt
-    ali_ood_11digit: data/addition/generalize_to_longer_mini/test_ali_ood_11digit_100.txt
+    ali_in_dist: data/addition/generalize_to_longer_mini_multitask/test_ali_in_distribution_2000.txt
+    ali_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_8digit_100.txt
+    ali_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_10digit_100.txt
+    ali_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_ali_ood_11digit_100.txt
   # mad
-    mad_in_dist: data/addition/generalize_to_longer_mini/test_mad_in_distribution_2000.txt
-    mad_ood_8digit: data/addition/generalize_to_longer_mini/test_mad_ood_8digit_100.txt
-    mad_ood_10digit: data/addition/generalize_to_longer_mini/test_mad_ood_10digit_100.txt
-    mad_ood_11digit: data/addition/generalize_to_longer_mini/test_mad_ood_11digit_100.txt
+    mad_in_dist: data/addition/generalize_to_longer_mini_multitask/test_mad_in_distribution_2000.txt
+    mad_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_8digit_100.txt
+    mad_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_10digit_100.txt
+    mad_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_mad_ood_11digit_100.txt
   # car
-    car_in_dist: data/addition/generalize_to_longer_mini/test_car_in_distribution_2000.txt
-    car_ood_8digit: data/addition/generalize_to_longer_mini/test_car_ood_8digit_100.txt
-    car_ood_10digit: data/addition/generalize_to_longer_mini/test_car_ood_10digit_100.txt
-    car_ood_11digit: data/addition/generalize_to_longer_mini/test_car_ood_11digit_100.txt
+    car_in_dist: data/addition/generalize_to_longer_mini_multitask/test_car_in_distribution_2000.txt
+    car_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_8digit_100.txt
+    car_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_10digit_100.txt
+    car_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_car_ood_11digit_100.txt
   # add
-    add_in_dist: data/addition/generalize_to_longer_mini/test_add_in_distribution_2000.txt
-    add_ood_8digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
-    add_ood_10digit: data/addition/generalize_to_longer_mini/test_add_ood_10digit_100.txt
-    add_ood_11digit: data/addition/generalize_to_longer_mini/test_add_ood_11digit_100.txt
+    add_in_dist: data/addition/generalize_to_longer_mini_multitask/test_add_in_distribution_2000.txt
+    add_ood_8digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_8digit_100.txt
+    add_ood_10digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_10digit_100.txt
+    add_ood_11digit: data/addition/generalize_to_longer_mini_multitask/test_add_ood_11digit_100.txt
