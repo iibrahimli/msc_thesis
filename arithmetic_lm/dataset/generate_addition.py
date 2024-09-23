@@ -859,6 +859,8 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
     }
     for size in ["100K", "1M", "10M"]:
         train_files = list(out_dir.glob(f"train_*_{size}.txt"))
+        # exclude mix
+        train_files = list(filter(lambda x: "mix" not in x, train_files))
         name_parts = train_files[0].name.split("_")
         name_parts[1] = "mix"
         mix_file = out_dir / "_".join(name_parts)
