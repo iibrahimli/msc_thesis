@@ -55,6 +55,7 @@ def format_line(
     operand_random_spaces_amount: int | float = 0,
     answer_random_spaces_amount: int | float = 0,
     generic: bool = False,
+    task_prefix: str = "",
 ) -> str:
     """
     Format line based on args, assumes line ends with \n. pad_ans_zero is the number of digits
@@ -64,11 +65,12 @@ def format_line(
     with a random number of zeros between length of number and pad_*_zero.
     filler_tokens_* is the number of filler tokens to prepend before the prompt/ans.
     generic: whether to only apply pad, do not try to split numeric ops and answer.
+    task_prefix: prefix to prepend to sequence before first pad (for multi-task).
     """
 
     # HACK if non-numeric (e.g. matching)
     if generic:
-        return f"{pad}{line.strip()}{pad}"
+        return f"{task_prefix}{pad}{line.strip()}{pad}"
 
     ab, ans = line.split("=")
 
@@ -128,6 +130,8 @@ def format_line(
         res = "\n" + res
     if append_newline:
         res += "\n"
+
+    res = task_prefix + res
 
     return res
 

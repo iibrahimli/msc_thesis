@@ -1,0 +1,41 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_generalize_to_longer_mini
+  - override /training: default
+  - override /wandb: default
+  - override /model: transformer_dec
+  - _self_
+
+data:
+  train_ds_class: ArithmeticLMSequenceDataset
+  train_size: 100K
+  format:
+    pad: $
+    reverse_ans: false
+    scratchpad: true
+    operand_random_spaces_amount: 0.5
+
+training:
+  batch_size: 256
+  accumulate_grad_batches: 1
+  lr: 0.0003
+  only_answer_loss: true
+  max_iters: 25000
+  limit_test_examples: 1000 # since test set is large
+  val_interval: 2000
+  reload_dataloaders_every_n_epochs: 1
+  devices: [0]
+
+model:
+  args:
+    n_layers: 1
+    n_embd: 256
+    n_head: 4
+    context_len: 512
+
+wandb:
+  project: "addition-generalize-to-longer-mini"
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_randsp0.5_scratch_${data.train_size}

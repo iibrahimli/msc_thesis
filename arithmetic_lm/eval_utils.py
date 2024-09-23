@@ -3,6 +3,7 @@
 from functools import partial
 
 import torch
+from Levenshtein import distance
 
 from arithmetic_lm.tokenizer import Tokenizer
 
@@ -33,6 +34,12 @@ def eval_sample_string_match(
         # check how many chars match, return float
         n_correct = sum(1 for a, b in zip(pred_answer, answer) if a == b)
         return n_correct / len(answer)
+
+
+def edit_distance_ratio(pred_answer: str, answer: str) -> float:
+    """Return 1 - edit distance / max len, so 1 if equal, 0 if completely different"""
+
+    return 1 - distance(pred_answer, answer) / max(len(pred_answer), len(answer))
 
 
 def eval_on_batch(
@@ -66,4 +73,5 @@ EVAL_FUNCS = {
     "numeric": eval_sample_numeric,
     "string_match": eval_sample_string_match,
     "string_match_exact": partial(eval_sample_string_match, strict=True),
+    "edit_distance_ratio": edit_distance_ratio,
 }

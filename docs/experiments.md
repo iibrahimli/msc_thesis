@@ -116,3 +116,18 @@ Same as generalize_to_longer_19, but using a 2M samples in train dataset instead
 ## [Experiment 23](../arithmetic_lm/conf/experiment/23)
 
 Train on 1-7 and 9 digit addition, test on 8 and 10-13 digit addition. Try different training dataset sizes: 100K, 1M, 10M. Dataset: [add_generalize_to_longer_mini.yaml](../arithmetic_lm/conf/data/add_generalize_to_longer_mini.yaml)
+
+
+## [Experiment 24](../arithmetic_lm/conf/experiment/24)
+
+As in add_generalize_to_longer_mini, but with multitask setup.
+- Subtasks:
+  - `rev` operand reversing: `$123+456=` -> `321+654$`
+  - `ali` digit alignment: `$123+456=` -> `1+4,2+5,3+6$`
+  - `mad` digit-wise modular addition (ignore carries): `$345+678=` -> `913$`
+  - `car` detecting carries (c for carry, . otherwise): `$234+678=` -> `.cc$`
+    - (full) `add` addition: `$123+456=` -> `579$`
+- Use flags to specify tasks:
+  - prefix the prompt with task name
+  - `rev$123+456=` -> `321+654$`
+  - full addition task add: `add$123+456=` -> `579$`

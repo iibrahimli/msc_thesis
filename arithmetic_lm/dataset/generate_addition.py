@@ -8,7 +8,7 @@ from pathlib import Path
 
 from arithmetic_lm import formatting
 from arithmetic_lm.constants import DATA_DIR
-from arithmetic_lm.utils import set_seed
+from arithmetic_lm.utils import get_carry_str, set_seed
 
 FMT_STR = formatting.PLAIN_FORMAT_STR
 OPERATOR = "+"
@@ -755,6 +755,123 @@ def generate_generalize_to_longer_mini(out_dir: str | Path):
         )
 
 
+def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
+    """
+    Same digits as generalize_to_longer_mini, but generate multitask datasets.
+    NOTE: Assumes generate_generalize_to_longer_mini has already been generated, reads
+    its files to generate multitask datasets.
+    subtasks:
+        - `rev` operand reversing: $123+456= -> 321+654$
+        - `ali` digit alignment: $123+456= -> 1+4,2+5,3+6$
+        - `mad` digit-wise modular addition (ignore carries): $345+678= -> 913$
+        - `car` detecting carries (c for carry, . otherwise): $234+678= -> .cc$
+        - (full) `add` addition: $123+456= -> 579$
+    use flags to specify tasks:
+        - prefix the prompt with task name
+        - `rev$123+456=` -> `321+654$`
+        - full addition task add: `add$123+456=` -> `579$`
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for generalize-to-longer-mini-multitask to {out_dir}")
+
+    # check if the base dataset exists
+    base_dir = DATA_DIR / "addition" / "generalize_to_longer_mini"
+    assert base_dir.exists(), "Expected base dataset to exist"
+
+    # functions that take a line in dataset and return the modified line
+    # assume lines have format `123+456=579`,
+    def rev(line):
+        prompt = line[: line.index("=") + 1]
+        a, op, b = formatting.split_operands_and_op(line)
+        return f"{prompt}{a[::-1]}{op}{b[::-1]}"
+
+    def ali(line):
+        prompt = line[: line.index("=") + 1]
+        a, op, b = formatting.split_operands_and_op(line)
+        # left fill with 0s
+        maxlen = max(len(a), len(b))
+        a = a.zfill(maxlen)
+        b = b.zfill(maxlen)
+        return prompt + ",".join([f"{a[i]}{op}{b[i]}" for i in range(maxlen)])
+
+    def mad(line):
+        prompt = line[: line.index("=") + 1]
+        a, _, b = formatting.split_operands_and_op(line)
+        maxlen = max(len(a), len(b))
+        a = a.zfill(maxlen)
+        b = b.zfill(maxlen)
+        return prompt + "".join(
+            [str((int(a[i]) + int(b[i])) % 10) for i in range(maxlen)]
+        )
+
+    def car(line):
+        prompt = line[: line.index("=") + 1]
+        a, _, b = formatting.split_operands_and_op(line)
+        carries = get_carry_str(a, b)
+        return prompt + "".join(["c" if c in "cC" else "." for c in carries])
+
+    task_line_modifiers = {
+        "rev": rev,
+        "ali": ali,
+        "mad": mad,
+        "car": car,
+        "add": lambda l: l,
+    }
+
+    # assume dir structure:
+    # test_add_... for test files
+    # train_add_... for train files
+    # for each file, creates variations with different tasks
+
+    # read the base files
+    # file format is `{train,test}_{task}_...
+    # in base, all are `add` task
+    base_files = list(base_dir.glob("*.txt"))
+    for base_file in base_files:
+        # get file name
+        base_name = base_file.name
+
+        # read the base file
+        with open(base_file, "r") as f:
+            base_lines = f.readlines()
+
+        for task, modifier in task_line_modifiers.items():
+            task_file = out_dir / base_name.replace("add", task)
+            print(f"Generating {task_file}")
+            with open(task_file, "w") as f:
+                for line in base_lines:
+                    f.write(modifier(line).strip() + "\n")
+
+    # generate multitask train datasets (mixed tasks)
+    # for each size (train file name is `..._{100K,1M,10M}.txt`)
+    # but keep same size, i.e. mixed 100K, 1M, 10M so take less
+    # examples from each task
+    size_map = {
+        "100K": 100_000,
+        "1M": 1_000_000,
+        "10M": 10_000_000,
+    }
+    for size in ["100K", "1M", "10M"]:
+        multitask_file = out_dir / f"train_multitask_{size}.txt"
+        # delete if exists
+        if multitask_file.exists():
+            multitask_file.unlink()
+        print(f"Generating {multitask_file}")
+        # read all train files that end in size
+        train_files = list(out_dir.glob(f"train_*_{size}.txt"))
+        # number of examples to take from each task
+        n_samples_per_task = size_map[size] // len(train_files)
+        for tf in train_files:
+            with open(tf, "r") as f:
+                lines = f.readlines()
+                lines = random.sample(lines, n_samples_per_task)
+            with open(multitask_file, "a") as f:
+                f.writelines(lines)
+
+
 def main():
     # generate_experiment_1(DATA_DIR / "addition")
     # generate_experiment_2(DATA_DIR / "addition")
@@ -769,8 +886,11 @@ def main():
     # generate_generalize_to_longer_20_nocarry(
     #     DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
     # )
-    generate_generalize_to_longer_mini(
-        DATA_DIR / "addition" / "generalize_to_longer_mini"
+    # generate_generalize_to_longer_mini(
+    #     DATA_DIR / "addition" / "generalize_to_longer_mini"
+    # )
+    generate_generalize_to_longer_mini_multitask(
+        DATA_DIR / "addition" / "generalize_to_longer_mini_multitask"
     )
 
 
