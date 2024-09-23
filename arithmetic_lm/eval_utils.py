@@ -15,7 +15,7 @@ def eval_sample_numeric(pred_answer: str, answer: str, strict: bool = False) -> 
         return pred_answer.strip() == answer.strip()
     else:
         # HACK: if CoT, only look at part after last `=`
-        if "," in answer and "=" in answer:
+        if "," in answer and ";" in answer and "|" in answer and "=" in answer:
             answer = answer.split("=")[-1]
             pred_answer = pred_answer.split("=")[-1]
         # only compare digits
