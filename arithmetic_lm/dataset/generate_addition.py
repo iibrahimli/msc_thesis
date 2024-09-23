@@ -855,20 +855,22 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
         "10M": 10_000_000,
     }
     for size in ["100K", "1M", "10M"]:
-        multitask_file = out_dir / f"train_multitask_{size}.txt"
-        # delete if exists
-        if multitask_file.exists():
-            multitask_file.unlink()
-        print(f"Generating {multitask_file}")
-        # read all train files that end in size
         train_files = list(out_dir.glob(f"train_*_{size}.txt"))
+        name_parts = train_files[0].name.split("_")
+        name_parts[1] = "mix"
+        mix_file = out_dir / "_".join(name_parts)
+        # delete if exists
+        if mix_file.exists():
+            mix_file.unlink()
+        print(f"Generating {mix_file}")
+        # read all train files that end in size
         # number of examples to take from each task
         n_samples_per_task = size_map[size] // len(train_files)
         for tf in train_files:
             with open(tf, "r") as f:
                 lines = f.readlines()
                 lines = random.sample(lines, n_samples_per_task)
-            with open(multitask_file, "a") as f:
+            with open(mix_file, "a") as f:
                 f.writelines(lines)
 
 

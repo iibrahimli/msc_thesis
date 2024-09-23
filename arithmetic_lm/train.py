@@ -240,9 +240,11 @@ def main(cfg: omegaconf.DictConfig):
             "answer_random_spaces_amount", 0
         ),
     }
+
     # TODO: add support for multiple train files
     train_dataset = train_ds_class(txtfile=cfg.data.train, **ds_kwargs)
 
+    # test datasets
     test_ds_kwargs = deepcopy(ds_kwargs)
     # never add random spaces to test datasets
     test_ds_kwargs["operand_random_spaces_amount"] = 0

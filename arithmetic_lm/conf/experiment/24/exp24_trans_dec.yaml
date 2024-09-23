@@ -3,7 +3,7 @@
 defaults:
   - override /tokenizer: char
   - override /sampling: default
-  - override /data: add_generalize_to_longer_mini
+  - override /data: add_generalize_to_longer_mini_multitask
   - override /training: default
   - override /wandb: default
   - override /model: transformer_dec
@@ -12,10 +12,11 @@ defaults:
 data:
   train_ds_class: ArithmeticLMSequenceDataset
   train_size: 100K
+  task: mix
   format:
     pad: $
     reverse_ans: false
-    scratchpad: true
+    scratchpad: false
     operand_random_spaces_amount: 0.5
 
 training:
@@ -24,18 +25,19 @@ training:
   lr: 0.0003
   only_answer_loss: true
   max_iters: 25000
-  limit_test_examples: 1000 # since test set is large
+  limit_test_examples: 50 # since there are many test sets
   val_interval: 2000
   reload_dataloaders_every_n_epochs: 1
   devices: [0]
+  eval_func: string_match_exact
 
 model:
   args:
-    n_layers: 1
+    n_layers: 3
     n_embd: 256
     n_head: 4
     context_len: 512
 
 wandb:
-  project: "addition-generalize-to-longer-mini"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_randsp0.5_scratch_${data.train_size}
+  project: "addition-generalize-to-longer-mini-multitask"
+  run_name: tdec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.task}_${data.train_size}

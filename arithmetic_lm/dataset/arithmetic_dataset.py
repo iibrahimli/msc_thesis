@@ -75,7 +75,7 @@ class DatasetBase(Dataset):
         with open(self.txtfile, "r") as f:
             lines = f.readlines()
         if self.limit_examples is not None:
-            lines = lines[: self.limit_examples]
+            lines = random.sample(lines, min(self.limit_examples, len(lines)))
         lines = self._format_lines(format_line, lines)
         # number of lines, not sequences (a seq contains many examples)
         self.n_examples = len(lines)
@@ -89,7 +89,8 @@ class DatasetBase(Dataset):
         # HACK decide if non-numeric task
         generic = False
         for line in random.sample(lines, min(10, len(lines))):
-            if any(c.isalpha() for c in line):
+            line_after_pad = line[line.index("$") + 1 :]
+            if any(c.isalpha() for c in line_after_pad):
                 generic = True
                 break
         return list(
