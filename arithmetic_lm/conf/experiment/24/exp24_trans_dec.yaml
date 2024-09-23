@@ -39,5 +39,5 @@ model:
     context_len: 512
 
 wandb:
-  project: "addition-generalize-to-longer-mini-multitask"
+  project: "generalize-to-longer-mini-multitask"
   run_name: tdec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.task}_${data.train_size}
