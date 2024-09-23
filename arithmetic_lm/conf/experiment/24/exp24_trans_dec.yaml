@@ -25,7 +25,7 @@ training:
   lr: 0.0003
   only_answer_loss: true
   max_iters: 25000
-  limit_test_examples: 50 # since there are many test sets
+  limit_test_examples: 100 # since there are many test sets
   val_interval: 2000
   reload_dataloaders_every_n_epochs: 1
   devices: [0]
