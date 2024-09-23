@@ -72,8 +72,8 @@ def format_line(
     """
 
     if use_task_prefix:
-        line = line[TASK_PREFIX_LEN:]
         task_prefix = line[:TASK_PREFIX_LEN]
+        line = line[TASK_PREFIX_LEN:]
 
     # HACK if non-numeric (e.g. matching)
     if generic:
