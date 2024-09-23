@@ -77,7 +77,7 @@ class DatasetBase(Dataset):
         if use_task_prefix:
             assert all([l[:TASK_PREFIX_LEN].isalpha() for l in lines[:10]]), (
                 f"use_task_prefix=True, but not all of first 10 lines contain
-                task prefix: {lines[:10]}"
+                task prefix: {lines[:10]}")
 
         self._process_lines(lines)
 
