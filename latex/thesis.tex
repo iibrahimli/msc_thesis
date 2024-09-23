@@ -59,10 +59,10 @@
 %\usepackage{fancyheadings}             % Nicer numbering of headlines
 \usepackage[body={5.8in,9in}]{geometry} % Type area (size, margins...)
 
-%\geometry{a4paper,outer=3.35cm}        % !!!Release version (Normal margins)
+\geometry{a4paper,outer=3.35cm}        % !!!Release version (Normal margins)
 %\geometry{a4paper,outer=2.5cm}         % !!!Print version (Additional margin on the left for the binding)
 %\geometry{a4paper}                     % !!!Proofread version (Additional margin on the right for corrections)
-\geometry{a4paper,outer=3.134cm}        % !!!Draft version (Same margins on left and right)
+% \geometry{a4paper,outer=3.134cm}        % !!!Draft version (Same margins on left and right)
 %\geometry{paperheight=10.0in,paperwidth=6.4in,top=0.51in,left=0.3in}  % !!!Developer version (Minimal margins)
 
 \usepackage{graphicx}                   % Inclusion of graphics
@@ -79,6 +79,11 @@
 %\usepackage[font=footnotesize,labelfont=rm]{subfig}    % Pictures in a floating environment
 \usepackage{tabularx}                   % Tables with fixed width but variable rows
 \usepackage{url,xspace,boxedminipage}   % Accurate display of URLs
+\usepackage{csquotes}
+\usepackage[citestyle=authoryear,bibstyle=authoryear,backend=biber]{biblatex}
+
+\addbibresource{thesis.bib}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PDF Information und Definitions:
@@ -316,8 +321,8 @@ Hier die deutsche Zusammenfassung einf\"ugen (notwendig).
 \appendix
 \fancyhead[LO,RE]{}                      % Define the header style for the appendixpages
 
-\fancyhead[LE,RO]{\it Anhang A. Nomenclature}                %Adapt letter!
-\input{appA.tex}
+\fancyhead[LE,RO]{\it Appendix A. Nomenclature}                %Adapt letter!
+\input{appendix_a.tex}
 \cleardoublepage
 
 % ... add as much appendices as you need (one can also add source code, for example)
@@ -325,9 +330,10 @@ Hier die deutsche Zusammenfassung einf\"ugen (notwendig).
 %\fancyhead[LE]{\it \leftmark}
 %\chapter{}
 \fancyhead[LE,RO]{\it Bibliography}       % A bibliography never have a letter or numbering!
-\bibliographystyle{plain}             % Style for presenting the literature
+% \bibliographystyle{plain}             % Style for presenting the literature
 \phantomsection\addcontentsline{toc}{chapter}{Bibliography}% Add to the TOC
-\bibliography{thesis}
+% \bibliography{thesis}
+\printbibliography
 \cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
