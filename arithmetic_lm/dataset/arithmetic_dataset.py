@@ -23,6 +23,7 @@ from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
+from arithmetic_lm.constants import TASK_PREFIX_LEN
 from arithmetic_lm.formatting import format_line
 from arithmetic_lm.tokenizer import Tokenizer
 
@@ -47,6 +48,7 @@ class DatasetBase(Dataset):
         scratchpad: bool = False,
         operand_random_spaces_amount: int | float = 0,
         answer_random_spaces_amount: int | float = 0,
+        use_task_prefix: bool = False,
     ):
         self.txtfile = txtfile
         self.tokenizer = tokenizer
@@ -62,12 +64,19 @@ class DatasetBase(Dataset):
             scratchpad=scratchpad,
             operand_random_spaces_amount=operand_random_spaces_amount,
             answer_random_spaces_amount=answer_random_spaces_amount,
+            use_task_prefix=use_task_prefix,
         )
         self.limit_examples = limit_examples
         self.equal_in_prompt = equal_in_prompt
+        self.multitask = use_task_prefix
 
         # load lines and process
         lines = self._get_lines()
+
+        # check if task prefixes are there
+        if use_task_prefix:
+            assert all([l[:TASK_PREFIX_LEN].isalpha() for l in lines[:10]])
+
         self._process_lines(lines)
 
     def _get_lines(self) -> list[str]:
@@ -88,11 +97,12 @@ class DatasetBase(Dataset):
     def _format_lines(self, format_func: callable, lines: list[str]) -> list[str]:
         # HACK decide if non-numeric task
         generic = False
-        for line in random.sample(lines, min(10, len(lines))):
-            line_after_pad = line[line.index("$") + 1 :]
-            if any(c.isalpha() for c in line_after_pad):
-                generic = True
-                break
+        # not generic just because task prefixes are .isalpha
+        if not self.multitask:
+            for line in random.sample(lines, min(10, len(lines))):
+                if any(c.isalpha() for c in line):
+                    generic = True
+                    break
         return list(
             map(partial(format_func, generic=generic, **self.fmt_kwargs), lines)
         )

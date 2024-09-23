@@ -7,7 +7,7 @@ import random
 from pathlib import Path
 
 from arithmetic_lm import formatting
-from arithmetic_lm.constants import DATA_DIR
+from arithmetic_lm.constants import DATA_DIR, TASK_PREFIX_LEN
 from arithmetic_lm.utils import get_carry_str, set_seed
 
 FMT_STR = formatting.PLAIN_FORMAT_STR
@@ -839,11 +839,14 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
             base_lines = f.readlines()
 
         for task, modifier in task_line_modifiers.items():
+            assert (
+                len(task) == TASK_PREFIX_LEN
+            ), "Task name needs to be 3 chars, assumed in datasets and formatting"
             task_file = out_dir / base_name.replace("add", task)
             print(f"Generating {task_file}")
             with open(task_file, "w") as f:
                 for line in base_lines:
-                    f.write(modifier(line).strip() + "\n")
+                    f.write(task + modifier(line).strip() + "\n")
 
     # generate multitask train datasets (mixed tasks)
     # for each size (train file name is `..._{100K,1M,10M}.txt`)

@@ -239,6 +239,7 @@ def main(cfg: omegaconf.DictConfig):
         "answer_random_spaces_amount": cfg.data.format.get(
             "answer_random_spaces_amount", 0
         ),
+        "use_task_prefix": cfg.data.get("task") is not None,
     }
 
     # TODO: add support for multiple train files
