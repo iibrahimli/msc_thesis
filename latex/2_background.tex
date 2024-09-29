@@ -2,27 +2,140 @@
 
 \TODO{lay out how these all are connected}
 
+\TODO{make a diagram for transformer architecture}
+\TODO{make a diagram for how transformer is trained and inference}
+
 \section{Transformer}\label{sec:transformer_arch}
 
+The Transformer architecture, introduced by \textcite{vaswani_attention_2017}, has revolutionized natural language processing by enabling efficient modeling of sequential data without relying on recurrence or convolution. The core innovation lies in the self-attention mechanism, which allows the model to weigh the importance of different elements in the input sequence when generating representations.
+
 \paragraph{Encoder-Decoder}
+
+\TODO{go over with chatgpt, clarify dimensions in math, }
+
+The original Transformer is an \emph{encoder-decoder} architecture \parencite{vaswani_attention_2017}. The encoder maps an input sequence $\mathbf{x} = (x_1, x_2, \dots, x_n)$ into a sequence of continuous representations $\mathbf{z} = (z_1, z_2, \dots, z_n)$. The decoder then generates an output sequence $\mathbf{y} = (y_1, y_2, \dots, y_m)$ by predicting the next token $y_t$ based on the previous tokens and the encoder's output.
+
+Mathematically, each encoder layer consists of a multi-head self-attention mechanism followed by a position-wise feed-forward network:
+
+\begin{align}
+    \text{SelfAttention}(Q, K, V) & = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V, \\
+    \text{where } Q               & = XW_Q, \quad K = XW_K, \quad V = XW_V.
+\end{align}
+
+Here, $X$ represents the input embeddings, and $W_Q$, $W_K$, $W_V$ are learned projection matrices.
+
 \paragraph{Encoder-only}
+
+Encoder-only models utilize only the encoder part to produce contextualized embeddings of the input sequence. These models are effective for understanding and classification tasks where the entire input sequence is available at once. BERT \parencite{devlin_bert_2019} is a prominent example of an encoder-only Transformer.
+
 \paragraph{Decoder-only}
 
+Decoder-only models focus on autoregressive generation by predicting the next token based solely on previous tokens. GPT-3 \parencite{brown_language_2020} is a notable example, where the model generates text by sequentially extending the input prompt. This work focuses on decoder-only Transformers, since this modification is the most commonly used, and is general enough to be applied to many different types of tasks.
 
 \subsection{Positional Encoding Schemes}\label{subsec:positional_encoding}
 
+Transformers lack inherent positional information due to their permutation-invariant self-attention mechanism. To address this, positional encodings are added to the input embeddings.
 
+\paragraph{Sinusoidal Positional Encoding}
+
+The original Transformer uses sinusoidal positional encodings \parencite{vaswani_attention_2017}:
+
+\begin{align}
+    \text{PE}_{(pos, 2i)}   & = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right), \\
+    \text{PE}_{(pos, 2i+1)} & = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),
+\end{align}
+
+where $pos$ is the position index and $i$ is the dimension.
+
+\paragraph{Relative Position Representations}
+
+\textcite{shaw_self-attention_2018} introduced relative position representations to allow the self-attention mechanism to consider the relative distances between sequence elements. The attention weights are modified to include a term based on the relative position $k$:
+
+\begin{align}
+    e_{ij} = \frac{(x_i W_Q)(x_j W_K + a_{ij}^K)^\top}{\sqrt{d_k}},
+\end{align}
+
+where $a_{ij}^K$ is a learned embedding for the relative position between positions $i$ and $j$.
+
+\paragraph{Rotary Position Embedding (RoPE)}
+
+\textcite{su_roformer_2024} proposed RoPE, which encodes absolute positions using rotation matrices. This method introduces relative position dependency by rotating the query and key vectors:
+
+\begin{align}
+    \text{RoPE}(x, p) = x \cdot \cos(\theta_p) + (\text{rotate}(x)) \cdot \sin(\theta_p),
+\end{align}
+
+where $\theta_p$ is a function of the position $p$, and $\text{rotate}(x)$ rotates the vector $x$.
+
+\paragraph{Randomized Positional Encodings}
+
+To improve length generalization, \textcite{ruoss_randomized_2023} proposed randomized positional encodings. By simulating positions of longer sequences during training, the model can better handle unseen sequence lengths.
+
+\paragraph{Functional Interpolation for Relative Positions (FIRE)}
+
+\textcite{li_functional_2024} introduced FIRE, a functional relative position encoding with progressive interpolation. This approach generalizes existing relative position encodings and improves long-context Transformer performance.
 
 \subsection{Training and Inference}\label{subsec:training_inference}
 
+\TODO{clean up math + notation}
+
+\paragraph{Training}
+
+Training a Transformer involves minimizing a loss function $\mathcal{L}$ over a dataset $\mathcal{D}$:
+
+\begin{align}
+    \min_{\theta} \sum_{(x, y) \in \mathcal{D}} \mathcal{L}(f_\theta(x), y),
+\end{align}
+
+where $f_\theta$ is the Transformer model with parameters $\theta$. The loss function is typically the cross-entropy loss for sequence prediction tasks.
+
+% cross-entropy loss
+\begin{align}
+    \mathcal{L}(y, \hat{y}) = -\sum_{t=1}^{m} y_t \log \hat{y}_t,
+\end{align}
+
+where $y$ is the ground-truth sequence and $\hat{y}$ is the predicted sequence.
+
+\paragraph{Inference}
+
+During inference, the model generates outputs by autoregressively predicting the next token. For a decoder-only model, the probability of the next token is conditioned on all previous tokens:
+
+\begin{align}
+    P(y_t | y_{<t}, x) = \text{softmax}(f_\theta(y_{<t}, x)).
+\end{align}
+
+Beam search or other decoding strategies are used to find the most probable output sequence.
 
 \section{Mechanistic Interpretability}\label{sec:mech_interp}
 
-Residual stream, activation patching, logitlens, etc.
+\TODO{expand}
 
-\section{Realizability?}\label{sec:realizability}
+Understanding how Transformers make decisions is crucial for interpretability and debugging. Key concepts include:
 
-Complexity classes? RASP?
-- RASP-L proves that transformers can learn addition (expand more, paper WHAT ALGORITHMS CAN TRANSFORMERS LEARN)
+\paragraph{Residual Stream}
 
-\section{Deep double descent}\label{sec:interpretability}
+The residual stream in a Transformer accumulates information across layers through residual connections. Analyzing this stream helps in understanding how information is propagated and transformed.
+
+\paragraph{Activation Patching}
+
+Activation patching involves replacing activations in a model with activations from a different context to study causal effects \parencite{olsson_-context_2022}. This technique can identify which components contribute to specific model behaviors.
+
+\paragraph{Logit Lens}
+
+The logit lens method inspects the logits (pre-softmax outputs) at different layers to interpret intermediate representations. It provides insights into how predictions evolve across layers.
+
+\textcite{olsson_-context_2022} investigated "induction heads," attention heads that enable in-context learning by recognizing patterns like repeated sequences.
+
+\section{Realizability}\label{sec:realizability}
+
+\TODO{maybe rename, fill, RASP/RASP-L and  Ahuja and Mansouri paper}
+
+\section{Deep Double Descent}\label{sec:deep_double_descent}
+
+The phenomenon of \emph{deep double descent} refers to the observation that increasing model capacity or training epochs can initially degrade performance before improving it \parencite{nakkiran_deep_2021}. This challenges the traditional bias–variance trade-off, where increasing complexity always leads to overfitting.
+
+\textcite{belkin_reconciling_2019} explored this phenomenon, showing that modern machine learning models can benefit from overparameterization, achieving better generalization even when they perfectly fit the training data.
+
+Understanding deep double descent is important for training Transformers effectively, as it informs decisions about model size and training duration to optimize performance on tasks like integer addition.
+
+\TODO{explain why I care about this}

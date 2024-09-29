@@ -1,3 +1,103 @@
+
+@article{nakkiran_deep_2021,
+  title        = {Deep double descent: where bigger models and more data hurt*},
+  volume       = {2021},
+  issn         = {1742-5468},
+  url          = {https://dx.doi.org/10.1088/1742-5468/ac3a74},
+  doi          = {10.1088/1742-5468/ac3a74},
+  shorttitle   = {Deep double descent},
+  abstract     = {We show that a variety of modern deep learning tasks exhibit a ‘double-descent’ phenomenon where, as we increase model size, performance first gets worse and then gets better. Moreover, we show that double descent occurs not just as a function of model size, but also as a function of the number of training epochs. We unify the above phenomena by defining a new complexity measure we call the effective model complexity and conjecture a generalized double descent with respect to this measure. Furthermore, our notion of model complexity allows us to identify certain regimes where increasing (even quadrupling) the number of train samples actually hurts test performance.},
+  pages        = {124003},
+  number       = {12},
+  journaltitle = {Journal of Statistical Mechanics: Theory and Experiment},
+  shortjournal = {J. Stat. Mech.},
+  author       = {Nakkiran, Preetum and Kaplun, Gal and Bansal, Yamini and Yang, Tristan and Barak, Boaz and Sutskever, Ilya},
+  urldate      = {2024-09-24},
+  date         = {2021-12},
+  langid       = {english},
+  note         = {Publisher: {IOP} Publishing and {SISSA}},
+  file         = {IOP Full Text PDF:/Users/imran/Zotero/storage/SX3UQ8XK/Nakkiran et al. - 2021 - Deep double descent where bigger models and more data hurt.pdf:application/pdf}
+}
+
+@misc{fan_looped_2024,
+  title      = {Looped Transformers for Length Generalization},
+  url        = {http://arxiv.org/abs/2409.15647},
+  doi        = {10.48550/arXiv.2409.15647},
+  abstract   = {Recent work has shown that Transformers trained from scratch can successfully solve various arithmetic and algorithmic tasks, such as adding numbers and computing parity. While these Transformers generalize well on unseen inputs of the same length, they struggle with length generalization, i.e., handling inputs of unseen lengths. In this work, we demonstrate that looped Transformers with an adaptive number of steps significantly improve length generalization. We focus on tasks with a known iterative solution, involving multiple iterations of a {RASP}-L operation - a length-generalizable operation that can be expressed by a finite-sized Transformer. We train looped Transformers using our proposed learning algorithm and observe that they learn highly length-generalizable solutions for various tasks.},
+  number     = {{arXiv}:2409.15647},
+  publisher  = {{arXiv}},
+  author     = {Fan, Ying and Du, Yilun and Ramchandran, Kannan and Lee, Kangwook},
+  urldate    = {2024-09-27},
+  date       = {2024-09-25},
+  eprinttype = {arxiv},
+  eprint     = {2409.15647 [cs]},
+  keywords   = {Computer Science - Machine Learning},
+  file       = {arXiv Fulltext PDF:/Users/imran/Zotero/storage/ILBBUVQ9/Fan et al. - 2024 - Looped Transformers for Length Generalization.pdf:application/pdf;arXiv.org Snapshot:/Users/imran/Zotero/storage/AN8RJGHE/2409.html:text/html}
+}
+
+@inproceedings{press_train_2021,
+  title      = {Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation},
+  url        = {https://openreview.net/forum?id=R8sQPpGCv0},
+  shorttitle = {Train Short, Test Long},
+  abstract   = {Since the introduction of the transformer model by Vaswani et al. (2017), a fundamental question has yet to be answered: how does a model achieve extrapolation at inference time for sequences that are longer than it saw during training? We first show that extrapolation can be enabled by simply changing the position representation method, though we find that current methods do not allow for efficient extrapolation. We therefore introduce a simpler and more efficient position method, Attention with Linear Biases ({ALiBi}). {ALiBi} does not add positional embeddings to word embeddings; instead, it biases query-key attention scores with a penalty that is proportional to their distance. We show that this method trains a 1.3 billion parameter model on input sequences of length 1024 that extrapolates to input sequences of length 2048, achieving the same perplexity as a sinusoidal position embedding model trained on inputs of length 2048 but training 11\% faster and using 11\% less memory. {ALiBi}'s inductive bias towards recency also leads it to outperform multiple strong position methods on the {WikiText}-103 benchmark.},
+  eventtitle = {International Conference on Learning Representations},
+  author     = {Press, Ofir and Smith, Noah and Lewis, Mike},
+  urldate    = {2024-09-27},
+  date       = {2021-10-06},
+  langid     = {english},
+  file       = {Full Text PDF:/Users/imran/Zotero/storage/ZPEISPUS/Press et al. - 2021 - Train Short, Test Long Attention with Linear Biases Enables Input Length Extrapolation.pdf:application/pdf}
+}
+
+@misc{zhou_pre-trained_2024,
+  title      = {Pre-trained Large Language Models Use Fourier Features to Compute Addition},
+  url        = {http://arxiv.org/abs/2406.03445},
+  doi        = {10.48550/arXiv.2406.03445},
+  abstract   = {Pre-trained large language models ({LLMs}) exhibit impressive mathematical reasoning capabilities, yet how they compute basic arithmetic, such as addition, remains unclear. This paper shows that pre-trained {LLMs} add numbers using Fourier features -- dimensions in the hidden state that represent numbers via a set of features sparse in the frequency domain. Within the model, {MLP} and attention layers use Fourier features in complementary ways: {MLP} layers primarily approximate the magnitude of the answer using low-frequency features, while attention layers primarily perform modular addition (e.g., computing whether the answer is even or odd) using high-frequency features. Pre-training is crucial for this mechanism: models trained from scratch to add numbers only exploit low-frequency features, leading to lower accuracy. Introducing pre-trained token embeddings to a randomly initialized model rescues its performance. Overall, our analysis demonstrates that appropriate pre-trained representations (e.g., Fourier features) can unlock the ability of Transformers to learn precise mechanisms for algorithmic tasks.},
+  number     = {{arXiv}:2406.03445},
+  publisher  = {{arXiv}},
+  author     = {Zhou, Tianyi and Fu, Deqing and Sharan, Vatsal and Jia, Robin},
+  urldate    = {2024-09-27},
+  date       = {2024-06-05},
+  eprinttype = {arxiv},
+  eprint     = {2406.03445 [cs]},
+  keywords   = {Computer Science - Computation and Language, Computer Science - Machine Learning},
+  file       = {arXiv Fulltext PDF:/Users/imran/Zotero/storage/AABUENSD/Zhou et al. - 2024 - Pre-trained Large Language Models Use Fourier Features to Compute Addition.pdf:application/pdf;arXiv.org Snapshot:/Users/imran/Zotero/storage/6ZPS45SZ/2406.html:text/html}
+}
+
+@article{belkin_reconciling_2019,
+  title        = {Reconciling modern machine-learning practice and the classical bias–variance trade-off},
+  volume       = {116},
+  url          = {https://www.pnas.org/doi/10.1073/pnas.1903070116},
+  doi          = {10.1073/pnas.1903070116},
+  abstract     = {Breakthroughs in machine learning are rapidly changing science and society, yet our fundamental understanding of this technology has lagged far behind. Indeed, one of the central tenets of the field, the bias–variance trade-off, appears to be at odds with the observed behavior of methods used in modern machine-learning practice. The bias–variance trade-off implies that a model should balance underfitting and overfitting: Rich enough to express underlying structure in data and simple enough to avoid fitting spurious patterns. However, in modern practice, very rich models such as neural networks are trained to exactly fit (i.e., interpolate) the data. Classically, such models would be considered overfitted, and yet they often obtain high accuracy on test data. This apparent contradiction has raised questions about the mathematical foundations of machine learning and their relevance to practitioners. In this paper, we reconcile the classical understanding and the modern practice within a unified performance curve. This “double-descent” curve subsumes the textbook U-shaped bias–variance trade-off curve by showing how increasing model capacity beyond the point of interpolation results in improved performance. We provide evidence for the existence and ubiquity of double descent for a wide spectrum of models and datasets, and we posit a mechanism for its emergence. This connection between the performance and the structure of machine-learning models delineates the limits of classical analyses and has implications for both the theory and the practice of machine learning.},
+  pages        = {15849--15854},
+  number       = {32},
+  journaltitle = {Proceedings of the National Academy of Sciences},
+  author       = {Belkin, Mikhail and Hsu, Daniel and Ma, Siyuan and Mandal, Soumik},
+  urldate      = {2024-09-29},
+  date         = {2019-08-06},
+  note         = {Publisher: Proceedings of the National Academy of Sciences},
+  file         = {Full Text PDF:/Users/imran/Zotero/storage/MTEINQHT/Belkin et al. - 2019 - Reconciling modern machine-learning practice and the classical bias–variance trade-off.pdf:application/pdf}
+}
+
+
+@inproceedings{devlin_bert_2019,
+  location   = {Minneapolis, Minnesota},
+  title      = {{BERT}: Pre-training of Deep Bidirectional Transformers for Language Understanding},
+  url        = {https://aclanthology.org/N19-1423},
+  doi        = {10.18653/v1/N19-1423},
+  shorttitle = {{BERT}},
+  abstract   = {We introduce a new language representation model called {BERT}, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models (Peters et al., 2018a; Radford et al., 2018), {BERT} is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. As a result, the pre-trained {BERT} model can be fine-tuned with just one additional output layer to create state-of-the-art models for a wide range of tasks, such as question answering and language inference, without substantial task-specific architecture modifications. {BERT} is conceptually simple and empirically powerful. It obtains new state-of-the-art results on eleven natural language processing tasks, including pushing the {GLUE} score to 80.5 (7.7 point absolute improvement), {MultiNLI} accuracy to 86.7\% (4.6\% absolute improvement), {SQuAD} v1.1 question answering Test F1 to 93.2 (1.5 point absolute improvement) and {SQuAD} v2.0 Test F1 to 83.1 (5.1 point absolute improvement).},
+  eventtitle = {{NAACL}-{HLT} 2019},
+  pages      = {4171--4186},
+  booktitle  = {Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers)},
+  publisher  = {Association for Computational Linguistics},
+  author     = {Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  editor     = {Burstein, Jill and Doran, Christy and Solorio, Thamar},
+  urldate    = {2024-09-29},
+  date       = {2019-06}
+}
+
 @inproceedings{achiam_gpt-4_2023,
   title    = {{GPT}-4 Technical Report},
   url      = {https://www.semanticscholar.org/paper/GPT-4-Technical-Report-Achiam-Adler/163b4d6a79a5b19af88b8585456363340d9efd04},
