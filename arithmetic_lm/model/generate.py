@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor, nn
 
+from arithmetic_lm.utils import set_seed
+
 
 def beam_search_generate(
     model: nn.Module,
@@ -107,6 +109,9 @@ def generate(
     encoder_source will be encoded and used as memory for the decoder.
     """
 
+    # set seed
+    set_seed(seed)
+
     # unsqueeze
     if idx.ndim == 1:
         idx = idx.unsqueeze(0)
@@ -131,8 +136,6 @@ def generate(
             n_beams,
         )
     # else, do top-k sampling
-
-    # TODO implement seed w/ device support
 
     # keep track of where generated part starts to only return it
     gen_start_idx = idx.size(-1)

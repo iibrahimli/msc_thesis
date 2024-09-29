@@ -61,7 +61,8 @@ def train(
     pause_token: str = "p",
 ):
     """test_data_dict contains {'name': dataset}"""
-    set_seed(42)
+
+    set_seed(seed=cfg.training.seed)
 
     full_resume_from_ckpt = resume_ckpt_path and not ckpt_weights_only
 
