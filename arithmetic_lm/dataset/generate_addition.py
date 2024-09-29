@@ -764,7 +764,7 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
         - `rev` operand reversing: $123+456= -> 321+654$
         - `ali` digit alignment: $123+456= -> 1+4,2+5,3+6$
         - `mad` digit-wise modular addition (ignore carries): $345+678= -> 913$
-        - `car` detecting carries (c for carry, . otherwise): $234+678= -> .cc$
+        - `car` detecting carries (c for carry, - otherwise): $234+678= -> -cc$
         - (full) `add` addition: $123+456= -> 579$
     use flags to specify tasks:
         - prefix the prompt with task name
@@ -811,7 +811,7 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
         prompt = line[: line.index("=") + 1]
         a, _, b = formatting.split_operands_and_op(line)
         carries = get_carry_str(a, b)
-        return prompt + "".join(["c" if c in "cC" else "." for c in carries])
+        return prompt + "".join(["c" if c in "cC" else "-" for c in carries])
 
     task_line_modifiers = {
         "rev": rev,
