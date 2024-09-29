@@ -171,8 +171,8 @@ class LightningModel(L.LightningModule):
             test_dl_name = self.test_dataloader_names[dataloader_idx - 1]
             self.log_dict(
                 {
-                    f"test_acc_{test_dl_name}": res["accuracy"],
-                    f"test_loss_{test_dl_name}": res["loss"],
+                    f"val_acc/{test_dl_name}": res["accuracy"],
+                    f"val_loss/{test_dl_name}": res["loss"],
                 },
                 batch_size=1,  # since ArithmeticEvalDataset returns 1 example
                 add_dataloader_idx=False,
