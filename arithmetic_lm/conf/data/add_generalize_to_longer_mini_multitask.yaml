@@ -1,6 +1,6 @@
 # Training on 1-9 digits excluding 8, test on 1-13, but multitask
 train_ds_class: ArithmeticLMSequenceDataset
-train_size: 1M
+train_size: 1000000
 # if the task != "mix" then only that task's test datasets will be used, rest
 # will be ignored in train.py
 task: mix

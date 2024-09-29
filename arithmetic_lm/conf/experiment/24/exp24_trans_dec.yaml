@@ -11,7 +11,7 @@ defaults:
 
 data:
   train_ds_class: ArithmeticLMSequenceDataset
-  train_size: 100K
+  train_size: 100000
   task: mix
   format:
     pad: $

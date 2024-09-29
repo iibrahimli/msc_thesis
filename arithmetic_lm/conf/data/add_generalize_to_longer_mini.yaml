@@ -1,6 +1,6 @@
 # Training on 1-9 digits excluding 8, test on 1-13
 train_ds_class: ArithmeticLMSequenceDataset
-train_size: 1M
+train_size: 1000000
 format:
   pad: $
   pad_ops_zero: null

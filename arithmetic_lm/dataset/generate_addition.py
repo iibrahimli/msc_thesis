@@ -702,26 +702,44 @@ def generate_generalize_to_longer_mini(out_dir: str | Path):
     # out of distribution
     out_dist = {8, 10, 11, 12, 13}
     in_dist = set(range(1, 10)) - out_dist
-    train_sizes = {"100K": 100_000, "1M": 1_000_000, "10M": 10_000_000.0}
+    train_sizes = [
+        10**4,  # 10k
+        10**5,  # 100k
+        10**6,  # 1M
+        10**7,  # 10M
+    ]
     train_file_paths = []
 
-    for tsn, ts in train_sizes.items():
+    for ts in train_sizes:
         # generate train dataset
-        train_path = out_dir / f"train_add_1-9_except8_{tsn}.txt"
+        train_path = out_dir / f"train_add_1-9_except8_{ts}.txt"
         train_file_paths.append(train_path)
         print(f"Generating {train_path}")
+
         # 100 samples for 1x1, 9901 samples for 2x2
-        n_except_1_and_2_digits = ts - (9901 + 100)
+        n_examples = {
+            1: 100,
+            2: 9901,
+        }
+        # if we don't have enough for other digits, take less from 1 and 2
+        if ts - sum(n_examples.values()) < 5000:
+            n_examples.update({1: 100, 2: 990})  # 10x less than usual
+        elif ts > 9_000_000:
+            n_examples.update({1: 100, 2: 990, 3: 99901})  # 10x less than usual
+        n_except_low_digits = ts - sum(n_examples.values())
+        n_examples.update(
+            {
+                i: min(
+                    n_except_low_digits // (len(in_dist) - 2),
+                    n_possible_examples(i),
+                )
+                for i in in_dist - set(n_examples.keys())
+            }
+        )
+        print(f"Number of examples: {n_examples}")
         generate_balanced(
             filepath=train_path,
-            num_examples={
-                i: min(n_except_1_and_2_digits, n_possible_examples(i)) // len(in_dist)
-                for i in in_dist
-            }
-            | {
-                1: 100,
-                2: 9901,
-            },
+            num_examples=n_examples,
             balance_carries=False,  # too slow for large digit numbers, TODO: optimize
         )
 
@@ -849,15 +867,13 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
                     f.write(task + modifier(line).strip() + "\n")
 
     # generate multitask train datasets (mixed tasks)
-    # for each size (train file name is `..._{100K,1M,10M}.txt`)
+    # for each size (train file name is `..._{train_size}.txt`)
     # but keep same size, i.e. mixed 100K, 1M, 10M so take less
     # examples from each task
-    size_map = {
-        "100K": 100_000,
-        "1M": 1_000_000,
-        "10M": 10_000_000,
-    }
-    for size in ["100K", "1M", "10M"]:
+    train_files = list(out_dir.glob("train_*.txt"))
+    sizes = list(set([f.name.split("_")[-1].split(".")[0] for f in train_files]))
+    print(f"Found sizes: {sizes}")
+    for size in sizes:
         train_files = list(out_dir.glob(f"train_*_{size}.txt"))
         # exclude mix
         train_files = list(filter(lambda x: "mix" not in x.name, train_files))
@@ -870,7 +886,7 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
         print(f"Generating {mix_file}")
         # read all train files that end in size
         # number of examples to take from each task
-        n_samples_per_task = size_map[size] // len(train_files)
+        n_samples_per_task = int(size) // len(train_files)
         for tf in train_files:
             with open(tf, "r") as f:
                 lines = f.readlines()
@@ -893,9 +909,9 @@ def main():
     # generate_generalize_to_longer_20_nocarry(
     #     DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
     # )
-    # generate_generalize_to_longer_mini(
-    #     DATA_DIR / "addition" / "generalize_to_longer_mini"
-    # )
+    generate_generalize_to_longer_mini(
+        DATA_DIR / "addition" / "generalize_to_longer_mini"
+    )
     generate_generalize_to_longer_mini_multitask(
         DATA_DIR / "addition" / "generalize_to_longer_mini_multitask"
     )
