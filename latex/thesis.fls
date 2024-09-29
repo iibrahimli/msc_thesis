@@ -300,9 +300,9 @@ INPUT 1_introduction.tex
 INPUT ./2_background.tex
 INPUT ./2_background.tex
 INPUT 2_background.tex
-INPUT ./3_sota.tex
-INPUT ./3_sota.tex
-INPUT 3_sota.tex
+INPUT ./3_related_work.tex
+INPUT ./3_related_work.tex
+INPUT 3_related_work.tex
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
