@@ -116,7 +116,12 @@ class LightningModel(L.LightningModule):
     def validation_step(
         self, batch: Tensor | list, batch_idx: int, dataloader_idx: int = 0
     ) -> Tensor:
-        """Dataloader 0 is the val split, others are from test data (see self.test_dataloader_names)"""
+        """
+        Dataloader 0 is the val split, others are from "test" data
+        (see self.test_dataloader_names). I mistakenly refer to validation
+        datasets as test. The true test dataset that is run to get the final
+        results is not included here.
+        """
         if dataloader_idx == 0:
             # evaluate language modeling loss on sequence
             x, y = batch
