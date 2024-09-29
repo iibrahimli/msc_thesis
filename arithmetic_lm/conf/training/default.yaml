@@ -23,4 +23,4 @@ eval_func: "numeric"
 
 # added by datasets (search for 'filler')
 # suitable for char tokenizer (TODO: change if different tokenizer)
-pause_token: "."
+pause_token: null

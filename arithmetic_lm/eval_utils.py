@@ -42,6 +42,22 @@ def edit_distance_ratio(pred_answer: str, answer: str) -> float:
     return 1 - distance(pred_answer, answer) / max(len(pred_answer), len(answer))
 
 
+def compute_loss_on_prompt_and_answer(
+    model: torch.nn.Module,
+    prompt: torch.Tensor,
+    answer: torch.Tensor,
+) -> float:
+    """Compute loss on prompt and answer"""
+    seq = torch.cat([prompt, answer], dim=1)
+    logits = model(seq)
+    # take only the logits for the answer
+    logits = logits[:, prompt.numel() :]
+    loss = torch.nn.functional.cross_entropy(
+        logits.view(-1, logits.size(-1)), answer.reshape(-1)
+    )
+    return loss
+
+
 def eval_on_batch(
     model: torch.nn.Module,
     tokenizer: Tokenizer,
@@ -50,6 +66,7 @@ def eval_on_batch(
     **gen_kwargs
 ) -> dict:
     """Returns dict"""
+    # compute accuracy
     prompt, answer = batch
     answer = answer.squeeze()
     if prompt.ndim == 1:
@@ -66,7 +83,11 @@ def eval_on_batch(
     if isinstance(correct, bool):
         correct = int(correct)
 
-    return {"accuracy": correct}
+    # compute loss
+    with torch.inference_mode():
+        loss = compute_loss_on_prompt_and_answer(model, prompt, answer)
+
+    return {"accuracy": correct, "loss": loss.item()}
 
 
 EVAL_FUNCS = {

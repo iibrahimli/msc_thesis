@@ -159,7 +159,7 @@ class LightningModel(L.LightningModule):
             )
             return loss
         else:
-            # evaluate accuracy on TEST set (other val dataloaders than 0)
+            # evaluate accuracy and loss on TEST set (other val dataloaders than 0)
             res = eval_on_batch(
                 self,
                 self.tokenizer,
@@ -172,6 +172,7 @@ class LightningModel(L.LightningModule):
             self.log_dict(
                 {
                     f"test_acc_{test_dl_name}": res["accuracy"],
+                    f"test_loss_{test_dl_name}": res["loss"],
                 },
                 batch_size=1,  # since ArithmeticEvalDataset returns 1 example
                 add_dataloader_idx=False,
