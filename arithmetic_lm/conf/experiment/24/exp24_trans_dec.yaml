@@ -29,7 +29,7 @@ training:
   val_interval: 2000
   reload_dataloaders_every_n_epochs: 1
   devices: [0]
-  eval_func: numeric
+  eval_func: string_match_exact
 
 model:
   args:
