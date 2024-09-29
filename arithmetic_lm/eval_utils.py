@@ -48,6 +48,11 @@ def compute_loss_on_prompt_and_answer(
     answer: torch.Tensor,
 ) -> float:
     """Compute loss on prompt and answer"""
+    if prompt.ndim == 1:
+        prompt = prompt.unsqueeze(0)
+    if answer.ndim == 1:
+        answer = answer.unsqueeze(0)
+    assert prompt.size(0) == answer.size(0) == 1, "Only supports batch size 1"
     seq = torch.cat([prompt, answer], dim=1)
     logits = model(seq)
     # take only the logits for the answer
