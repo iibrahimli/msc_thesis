@@ -56,7 +56,7 @@ def compute_loss_on_prompt_and_answer(
     seq = torch.cat([prompt, answer], dim=1)
     logits = model(seq)
     # take only the logits for the answer
-    logits = logits[:, prompt.numel() :]
+    logits = logits[:, prompt.numel() - 1 : -1]
     loss = torch.nn.functional.cross_entropy(
         logits.view(-1, logits.size(-1)), answer.reshape(-1)
     )
