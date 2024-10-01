@@ -41,4 +41,4 @@ model:
 
 wandb:
   project: "looped-decoder-test"
-  run_name: loop_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${model.args.pos_enc}_${data.task}_${data.train_size}
+  run_name: loop_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${model.args.pos_enc}_${data.task}_${data.train_size}_${.suffix}
