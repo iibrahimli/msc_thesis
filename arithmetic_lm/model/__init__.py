@@ -1,5 +1,6 @@
 from .generate import generate
 from .lightning_module import LightningModel
+from .looped_decoder import LoopedDecoder
 from .pos_enc import (
     AbsolutePositionalEncoding,
     CoordinateEncoding,
@@ -18,4 +19,5 @@ MODELS = {
     "Transformer": Transformer,
     "UniversalTransformerDecoder": UniversalTransformerDecoder,
     "UniversalTransformer": UniversalTransformer,
+    "LoopedDecoder": LoopedDecoder,
 }

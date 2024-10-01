@@ -1,0 +1,44 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_generalize_to_longer_mini_multitask
+  - override /training: default
+  - override /wandb: default
+  - override /model: looped_dec
+  - _self_
+
+data:
+  train_ds_class: ArithmeticLMSequenceDataset
+  train_size: 100000
+  task: add
+  format:
+    pad: $
+    reverse_ans: false
+    scratchpad: false
+    operand_random_spaces_amount: 0
+
+training:
+  batch_size: 512
+  accumulate_grad_batches: 1
+  lr: 0.0003
+  only_answer_loss: true
+  max_iters: 50000
+  limit_test_examples: 100 # since there are many test sets
+  val_interval: 2000
+  reload_dataloaders_every_n_epochs: 1
+  devices: [0]
+  eval_func: string_match_exact
+
+model:
+  args:
+    n_layers: 4
+    n_embd: 256
+    n_head: 8
+    context_len: 256
+    pos_enc: "nope"
+
+wandb:
+  project: "looped-decoder-test"
+  run_name: loop_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${data.task}_${data.train_size}

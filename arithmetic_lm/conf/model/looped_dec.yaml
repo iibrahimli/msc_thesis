@@ -1,0 +1,10 @@
+name: "LoopedDecoder"
+args:
+  context_len: 256
+  n_embd: 256
+  n_head: 6
+  n_layers: 4
+  dropout: 0.1
+  pos_enc: "nope"
+  pos_enc_max_shift: 0
+  emb_type: "learned"

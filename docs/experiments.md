@@ -131,3 +131,8 @@ As in add_generalize_to_longer_mini, but with multitask setup.
   - prefix the prompt with task name
   - `rev$123+456=` -> `321+654$`
   - full addition task add: `add$123+456=` -> `579$`
+
+
+## [Experiment 25](../arithmetic_lm/conf/experiment/25)
+
+Looped transformer decoder on addition 100K.
