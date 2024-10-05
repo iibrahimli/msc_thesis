@@ -38,5 +38,5 @@ model:
     pos_enc: "alibi" # "abs", "random"
 
 wandb:
-  project: "alibi-test-gen-to-longer-mini"
+  project: "pe-test-gen-to-longer-mini"
   run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${model.args.pos_enc}_${data.train_size}
