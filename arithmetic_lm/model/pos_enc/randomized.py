@@ -32,16 +32,22 @@ class RandomizedPositionalEncoding(nn.Module):
         Arguments:
             x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
         """
-        max_rand_idx = min(int(x.size(1) * 1.5), self.pe.size(1))
-        # sample [x.size(0), x.size(1)] random indices from range(0, max_rand_idx)
-        # without replacement
-        rand_idx = torch.cat(
-            [torch.randperm(max_rand_idx)[None, : x.size(1)] for _ in range(x.size(0))],
-            dim=0,
-        )
-        # sort along dim=1
-        rand_idx, _ = rand_idx.sort(dim=1)
-        rand_idx = rand_idx.to(x.device)
-        # get positional encoding for random indices
-        pes = self.pe[:, rand_idx, :]
+        if self.training:
+            max_rand_idx = min(int(x.size(1) * 1.5), self.pe.size(1))
+            # sample [x.size(0), x.size(1)] random indices from range(0, max_rand_idx)
+            # without replacement
+            rand_idx = torch.cat(
+                [
+                    torch.randperm(max_rand_idx)[None, : x.size(1)]
+                    for _ in range(x.size(0))
+                ],
+                dim=0,
+            )
+            # sort along dim=1
+            rand_idx, _ = rand_idx.sort(dim=1)
+            rand_idx = rand_idx.to(x.device)
+            # get positional encoding for random indices
+            pes = self.pe[:, rand_idx, :]
+        else:
+            pes = self.pe[:, : x.size(1), :]
         return self.dropout(x + pes)
