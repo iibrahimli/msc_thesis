@@ -1,7 +1,3 @@
-"""
-Source: https://github.com/labmlai/annotated_deep_learning_paper_implementations/blob/master/labml_nn/transformers/alibi/__init__.py
-"""
-
 import math
 from typing import Optional
 
