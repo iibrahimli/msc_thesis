@@ -19,7 +19,15 @@ class TransformerDecoder(nn.Module):
         ff_factor: int = 4,
         dropout: float = 0.1,
         pos_enc: Literal[
-            "abs", "learned", "abacus", "nope", "rel", "rotary", "cope", "alibi"
+            "abs",
+            "learned",
+            "abacus",
+            "nope",
+            "rel",
+            "rotary",
+            "cope",
+            "alibi",
+            "random",
         ] = "abs",
         pos_enc_max_shift: int = 0,
         emb_type: Literal["learned", "sinusoidal"] = "learned",
@@ -75,6 +83,12 @@ class TransformerDecoder(nn.Module):
                 max_seq_length=context_len,
                 max_k=30,
             )
+        elif self.pos_enc == "random":
+            self.pos_encoder = RandomizedPositionalEncoding(
+                d_model=n_embd,
+                max_len=context_len,
+                dropout=dropout,
+            )
         elif self.pos_enc == "nope":
             self.pos_encoder = nn.Identity()
 
@@ -127,7 +141,7 @@ class TransformerDecoder(nn.Module):
                 )
         elif self.pos_enc == "alibi":
             for layer in self.transformer_encoder.layers:
-                layer.self_attn = AlibiMultiHeadAttention(
+                layer.self_attn = AlibiMultiheadAttention(
                     n_embd,
                     n_head,
                     dropout=dropout,
