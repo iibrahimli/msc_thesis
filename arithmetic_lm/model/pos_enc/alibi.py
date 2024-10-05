@@ -6,9 +6,10 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-def get_relative_positions(seq_len: int) -> torch.tensor:
-    x = torch.arange(seq_len)[None, :]
-    y = torch.arange(seq_len)[:, None]
+def get_relative_positions(seq_len: int, device: torch.device) -> torch.tensor:
+    r = torch.arange(seq_len, device=device)
+    x = r[None, :]
+    y = r[:, None]
     return x - y
 
 
@@ -29,9 +30,7 @@ class AlibiMultiheadAttention(nn.MultiheadAttention):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.register_buffer(
-            "m", get_alibi_slope(self.num_heads).to(self.in_proj_weight.device)
-        )
+        self.register_buffer("m", get_alibi_slope(self.num_heads))
 
     def forward(
         self,
@@ -99,7 +98,9 @@ class AlibiMultiheadAttention(nn.MultiheadAttention):
         # scores has shape [B, n_heads, L, S]
 
         alibi_bias = (
-            (self.m * get_relative_positions(seq_len)).unsqueeze(0).to(scores.device)
+            (self.m * get_relative_positions(seq_len, device=q.device))
+            .unsqueeze(0)
+            .to(scores.device)
         )
         # alibi_bias.shape = (1, num_heads, seq_len, seq_len)
 
