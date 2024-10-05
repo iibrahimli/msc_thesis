@@ -29,7 +29,9 @@ class AlibiMultiheadAttention(nn.MultiheadAttention):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.register_buffer("m", get_alibi_slope(self.num_heads))
+        self.register_buffer(
+            "m", get_alibi_slope(self.num_heads).to(self.in_proj_weight.device)
+        )
 
     def forward(
         self,
