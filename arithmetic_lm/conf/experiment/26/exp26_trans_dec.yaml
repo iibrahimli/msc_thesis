@@ -15,7 +15,7 @@ data:
   format:
     pad: $
     reverse_ans: false
-    scratchpad: true
+    scratchpad: false
     operand_random_spaces_amount: 0
 
 training:

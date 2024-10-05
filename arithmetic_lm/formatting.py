@@ -71,6 +71,8 @@ def format_line(
     NOTE: task prefix assumed to be first 3 chars in each line.
     """
 
+    task_prefix = ""
+
     if use_task_prefix:
         task_prefix = line[:TASK_PREFIX_LEN]
         line = line[TASK_PREFIX_LEN:]
