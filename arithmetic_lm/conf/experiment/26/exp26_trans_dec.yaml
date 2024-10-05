@@ -39,4 +39,4 @@ model:
 
 wandb:
   project: "pe-test-gen-to-longer-mini"
-  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${model.args.pos_enc}_${data.train_size}
+  run_name: trans_dec_${model.args.n_layers}layers_${model.args.n_embd}embd_${model.args.n_head}head_${model.args.pos_enc}_rev-${data.format.reverse_ans}_${data.train_size}
