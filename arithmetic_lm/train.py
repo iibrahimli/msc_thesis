@@ -183,7 +183,7 @@ def train(
         # limit_test_batches=N_TEST_BATCHES,
         reload_dataloaders_every_n_epochs=reload_dataloaders_every_n_epochs,
         log_every_n_steps=20,
-        gradient_clip_val=1.0,
+        gradient_clip_val=1.0,  # norm by default
         devices=devices,
         accumulate_grad_batches=accumulate_grad_batches,
         # fast_dev_run=True,

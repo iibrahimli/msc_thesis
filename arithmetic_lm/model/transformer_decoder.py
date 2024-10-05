@@ -2,15 +2,7 @@ from typing import Literal
 
 from torch import Tensor, nn
 
-from arithmetic_lm.model.pos_enc import (
-    AbacusEncoding,
-    AbsolutePositionalEncoding,
-    ContextualMultiheadAttention,
-    LearnedPositionalEncoding,
-    RelativeMultiheadAttention,
-    RotaryEmbedding,
-    RotaryMultiheadAttention,
-)
+from arithmetic_lm.model.pos_enc import *
 from arithmetic_lm.model.utils import SinusoidalEmbedding, init_weights
 
 
@@ -27,7 +19,7 @@ class TransformerDecoder(nn.Module):
         ff_factor: int = 4,
         dropout: float = 0.1,
         pos_enc: Literal[
-            "abs", "learned", "abacus", "nope", "rel", "rotary", "cope"
+            "abs", "learned", "abacus", "nope", "rel", "rotary", "cope", "alibi"
         ] = "abs",
         pos_enc_max_shift: int = 0,
         emb_type: Literal["learned", "sinusoidal"] = "learned",
@@ -132,6 +124,15 @@ class TransformerDecoder(nn.Module):
                     bias=True,  # is true by default
                     batch_first=True,
                     npos_max=128,
+                )
+        elif self.pos_enc == "alibi":
+            for layer in self.transformer_encoder.layers:
+                layer.self_attn = AlibiMultiHeadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
                 )
 
         # output to vocab dim

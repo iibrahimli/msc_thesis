@@ -128,6 +128,15 @@ class LoopedDecoder(nn.Module):
                     batch_first=True,
                     npos_max=128,
                 )
+        elif self.pos_enc == "alibi":
+            for layer in self.transformer_encoder.layers:
+                layer.self_attn = AlibiMultiHeadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                )
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)

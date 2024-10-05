@@ -1,7 +1,8 @@
-from .abacus_pos_encoding import AbacusEncoding
-from .absolute_pos_encoding import AbsolutePositionalEncoding
-from .contextual_pos_encoding import ContextualMultiheadAttention
-from .coordinate_encoding import CoordinateEncoding
-from .learned_pos_encoding import LearnedPositionalEncoding
-from .relative_pos_encoding import RelativeMultiheadAttention
-from .rotary_pos_encoding import RotaryEmbedding, RotaryMultiheadAttention
+from .abacus import AbacusEncoding
+from .absolute import AbsolutePositionalEncoding
+from .alibi import AlibiMultiheadAttention
+from .coordinate import CoordinateEncoding
+from .cope import ContextualMultiheadAttention
+from .learned import LearnedPositionalEncoding
+from .relative import RelativeMultiheadAttention
+from .rotary import RotaryEmbedding, RotaryMultiheadAttention
