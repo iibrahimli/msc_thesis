@@ -2,6 +2,9 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces A single Transformer layer, consisting of multi-head self-attention, feed-forward network (MLP), and layer normalization. In the decoder, the self-attention mechanism has a causal mask to prevent attending to future tokens.}}{6}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces The encoder-only, decoder-only, and encoder-decoder Transformer architectures. Note that the only difference between the encoder-only and decoder-only architectures is the presence of the causal masking in the self-attention mechanism of the decoder.}}{7}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Training and inference processes for Transformers TODO TODO TODO TODO.}}{10}{figure.2.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
