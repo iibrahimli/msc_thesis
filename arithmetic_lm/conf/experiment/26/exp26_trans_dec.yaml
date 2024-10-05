@@ -23,7 +23,7 @@ training:
   accumulate_grad_batches: 1
   lr: 0.0003
   only_answer_loss: true
-  max_iters: 25000
+  max_iters: 30000
   limit_test_examples: 1000 # since test set is large
   val_interval: 2000
   reload_dataloaders_every_n_epochs: 1
@@ -35,7 +35,7 @@ model:
     n_embd: 256
     n_head: 8
     context_len: 512
-    pos_enc: "alibi"
+    pos_enc: "alibi" # "abs", "random"
 
 wandb:
   project: "alibi-test-gen-to-longer-mini"
