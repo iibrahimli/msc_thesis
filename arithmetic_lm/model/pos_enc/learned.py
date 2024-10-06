@@ -9,7 +9,8 @@ class LearnedPositionalEncoding(nn.Module):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
         self.max_shift = max_shift
-        self.pe = nn.Parameter(torch.randn(max_len, d_model) * 0.2)
+        self.max_len = max_len
+        self.pe = nn.Embedding(max_len, d_model)
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -17,9 +18,9 @@ class LearnedPositionalEncoding(nn.Module):
             x: Tensor, shape ``[batch_size, seq_len, embedding_dim]``
         """
         shift = (
-            random.randint(0, min(self.max_shift, self.pe.shape[0] - x.size(1)))
+            random.randint(0, min(self.max_shift, self.max_len - x.size(1)))
             if self.training
             else 0
         )
-        x = x + self.pe[shift : x.size(1) + shift]
+        x = x + self.pe.weight[shift : x.size(1) + shift]
         return self.dropout(x)
