@@ -8,3 +8,4 @@ args:
   pos_enc: "nope"
   pos_enc_max_shift: 0
   emb_type: "learned"
+  input_injection: true
