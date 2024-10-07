@@ -109,26 +109,12 @@ The original Transformer introduced in \cite{vaswani_attention_2017} consists of
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{fig/transformer_layer.pdf}
-    \caption{A single Transformer layer, consisting of multi-head self-attention, feed-forward network (MLP), and layer normalization. In the decoder, the self-attention mechanism has a causal mask to prevent attending to future tokens.}
+    \caption{(a) A single Transformer layer, consisting of multi-head self-attention, feed-forward network (MLP), and layer normalization. (b) A decoder-only transformer model. In the decoder, the self-attention mechanism has a causal mask to prevent attending to future tokens.}
     \label{fig:transformer_layer}
 \end{figure}
 
 
 \subsection{Encoder and Decoder Architectures}\label{subsec:types_transformers}
-
-\TODO{enc dec diagram}
-
-\begin{figure}[h!]
-    \centering
-    % \includegraphics[width=0.8\textwidth]{fig/encoder_decoder}
-
-    % placeholder
-    \begin{tikzpicture}
-        \node[draw, minimum width=0.7\linewidth, minimum height=4cm, color=red] (transformer_layer) {Transformer Encoder decoder};
-    \end{tikzpicture}
-
-    \caption{The encoder-only, decoder-only, and encoder-decoder Transformer architectures. Note that the only difference between the encoder-only and decoder-only architectures is the presence of the causal masking in the self-attention mechanism of the decoder.}
-\end{figure}
 
 \TODO{overview}
 
@@ -173,6 +159,13 @@ The Universal Transformer \cite{dehghani_universal_2018} introduces recurrence i
 where $t$ denotes the iteration step. This enables the model to generalize better to sequences longer than those seen during training.
 
 \paragraph{Looped Transformer}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/looped_transformer.pdf}
+    \caption{(a) A block of multiple transformer layers used in the looped transformer. (b) Looped decoder-only transformer architecture. The input injection mechanism adds skip connections from the input sequence to the input of each block.}
+    \label{fig:looped_transformer}
+\end{figure}
 
 Looped Transformers \parencite{yang_looped_2023} extend the Transformer by incorporating iterative application of a block of transformer layers.
 

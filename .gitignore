@@ -46,6 +46,7 @@ latex/**/*.fls
 
 # drawio backup
 *.drawio.bkp
+*.drawio.dtmp
 
 # ======================
 
