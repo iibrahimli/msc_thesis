@@ -183,9 +183,9 @@ class LoopedDecoder(nn.Module):
 
         x_orig = x
 
-        for _ in range(n_loops):
+        for i in range(n_loops):
             x = self.transformer_encoder(
-                x + x_orig if self.input_injection else x,
+                x + x_orig if self.input_injection and i > 0 else x,
                 mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
                     x.device
                 ),  # use to instead of passing device= due to bug that returns NaNs on MPS

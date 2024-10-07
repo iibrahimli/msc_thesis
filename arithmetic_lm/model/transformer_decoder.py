@@ -31,6 +31,7 @@ class TransformerDecoder(nn.Module):
         ] = "abs",
         pos_enc_max_shift: int = 0,
         emb_type: Literal["learned", "sinusoidal"] = "learned",
+        input_injection: bool = False,
     ):
         """
         Arguments:
@@ -42,6 +43,7 @@ class TransformerDecoder(nn.Module):
             ff_factor: factor by which to scale the hidden layer dimensionality in the feedforward layer
             dropout: dropout probability
             pos_enc: type of positional encoding to use
+            input_injection: whether to add original input before each layer
         """
 
         super().__init__()
@@ -54,6 +56,7 @@ class TransformerDecoder(nn.Module):
         self.dropout = dropout
         self.enc_dec = False
         self.pos_enc = pos_enc
+        self.input_injection = input_injection
 
         # embedding
         # default is legacy name
@@ -93,19 +96,20 @@ class TransformerDecoder(nn.Module):
             self.pos_encoder = nn.Identity()
 
         # same as decoder layer essentially, but without cross attention
-        layer = nn.TransformerEncoderLayer(
-            d_model=n_embd,
-            nhead=n_head,
-            dim_feedforward=n_embd * ff_factor,
-            dropout=dropout,
-            batch_first=True,
-            activation="gelu",
+        self.layers = nn.ModuleList(
+            [
+                nn.TransformerEncoderLayer(
+                    d_model=n_embd,
+                    nhead=n_head,
+                    dim_feedforward=n_embd * ff_factor,
+                    dropout=dropout,
+                    batch_first=True,
+                    activation="gelu",
+                )
+                for _ in range(n_layers)
+            ]
         )
-        self.transformer_encoder = nn.TransformerEncoder(
-            layer,
-            num_layers=n_layers,
-            norm=nn.LayerNorm(n_embd),
-        )
+        self.ln = nn.LayerNorm(n_embd)
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
@@ -173,12 +177,17 @@ class TransformerDecoder(nn.Module):
         if self.pos_enc == "abacus":
             x += self.pos_encoder(ids)
 
-        x = self.transformer_encoder(
-            x,
-            mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
-                x.device
-            ),  # use to instead of passing device= due to bug that returns NaNs on MPS
-        )
+        x_orig = x
+
+        for i, layer in enumerate(self.layers):
+            x = layer(
+                x + x_orig if self.input_injection and i > 0 else x,
+                mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                    x.device
+                ),  # use to instead of passing device= due to bug that returns NaNs on MPS)
+            )
+
+        x = self.ln(x)
         x = self.lm_head(x)
         return x
 
