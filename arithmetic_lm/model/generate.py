@@ -1,8 +1,6 @@
 import torch
 from torch import Tensor, nn
 
-from arithmetic_lm.utils import set_seed
-
 
 def beam_search_generate(
     model: nn.Module,
@@ -97,7 +95,6 @@ def generate(
     top_k: int = 1,
     stop_token: int = None,
     n_beams: int = 0,
-    seed: int = 42,
 ) -> Tensor:
     """
     Take a conditioning sequence of indices idx (tensor of shape [batch, seq_len])
@@ -108,9 +105,6 @@ def generate(
     encoder_source hints that the model is an encoder-decoder model and the
     encoder_source will be encoded and used as memory for the decoder.
     """
-
-    # set seed
-    set_seed(seed)
 
     # unsqueeze
     if idx.ndim == 1:

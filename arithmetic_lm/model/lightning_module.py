@@ -239,7 +239,6 @@ class LightningModel(L.LightningModule):
         temperature: float = 1.0,
         top_k: int = None,
         stop_token: int = None,
-        seed: int = 42,
     ) -> Tensor:
         encoder_source = None
         if self.enc_dec:
@@ -253,5 +252,4 @@ class LightningModel(L.LightningModule):
             temperature=temperature,
             top_k=top_k,
             stop_token=stop_token,
-            seed=seed,
         )
