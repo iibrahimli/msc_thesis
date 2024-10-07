@@ -109,7 +109,6 @@ class TransformerDecoder(nn.Module):
                 for _ in range(n_layers)
             ]
         )
-        self.ln = nn.LayerNorm(n_embd)
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
@@ -187,7 +186,6 @@ class TransformerDecoder(nn.Module):
                 ),  # use to instead of passing device= due to bug that returns NaNs on MPS)
             )
 
-        x = self.ln(x)
         x = self.lm_head(x)
         return x
 
