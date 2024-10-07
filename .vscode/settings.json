@@ -44,12 +44,17 @@
                 "%DOCFILE%"
             ],
             "env": {}
+        },
+        {
+            "name": "drawio2pdf",
+            "command": "/Users/imran/Desktop/studies/thesis/msc_thesis/scripts/convert_drawio_to_pdf.sh",
         }
     ],
     "latex-workshop.latex.recipes": [
         {
             "name": "latexmk 🔃",
             "tools": [
+                "drawio2pdf",
                 "latexmk"
             ]
         },

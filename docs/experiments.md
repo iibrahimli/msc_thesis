@@ -136,3 +136,8 @@ As in add_generalize_to_longer_mini, but with multitask setup.
 ## [Experiment 25](../arithmetic_lm/conf/experiment/25)
 
 Looped transformer decoder on addition 100K.
+
+
+## [Experiment 26](../arithmetic_lm/conf/experiment/26)
+
+Different pos encodings on gen-to-longer-mini.

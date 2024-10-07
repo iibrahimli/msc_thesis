@@ -36,7 +36,7 @@ In practice, the inputs to the Transformer are batched, so the input has an addi
 
 \subsection{Elements}\label{subsec:elements_transformers}
 
-The Transformer is composed of several key components to model dependencies in sequential data: multi-head attention, feed-forward networks, layer normalization, and residual connections. Informally, the attention mechanism transfers information \emph{between} tokens, while the feed-forward networks process information \emph{within} tokens.
+The Transformer is composed of several key components to model dependencies in sequential data: multi-head attention, feed-forward networks, layer normalization, and residual connections. Informally, the attention mechanism transfers information \emph{between} tokens, while the feed-forward networks process information \emph{within} tokens. These components are stacked in each layer of the Transformer as shown in Figure \ref{fig:transformer_layer} (a).
 
 \paragraph{Attention Mechanism}
 
@@ -104,22 +104,15 @@ The residual connections-based view of the model also enables the concept of a \
 
 \paragraph{Block Structure}
 
-\TODO{trans layer diagram}
+The original Transformer introduced in \cite{vaswani_attention_2017} consists of stacked encoder and decoder blocks, each containing multi-head attention and feed-forward networks, along with residual connections and layer normalization. However, different modified architectures have been proposed, such as the encoder-only BERT model \parencite{devlin_bert_2019} and the decoder-only GPT model \parencite{radford_improving_2018}.
 
 \begin{figure}[h!]
     \centering
-    % \includegraphics[width=0.8\textwidth]{fig/transformer_layer}
-
-    % placeholder square before I have the actual diagram:
-    \begin{tikzpicture}
-        \node[draw, minimum width=0.7\linewidth, minimum height=4cm, color=red] (transformer_layer) {Transformer Layer};
-    \end{tikzpicture}
-
+    \includegraphics[width=0.8\textwidth]{fig/transformer_layer.pdf}
     \caption{A single Transformer layer, consisting of multi-head self-attention, feed-forward network (MLP), and layer normalization. In the decoder, the self-attention mechanism has a causal mask to prevent attending to future tokens.}
     \label{fig:transformer_layer}
 \end{figure}
 
-The original Transformer introduced in \cite{vaswani_attention_2017} consists of stacked encoder and decoder blocks, each containing multi-head attention and feed-forward networks, along with residual connections and layer normalization. However, different modified architectures have been proposed, such as the encoder-only BERT model \cite{devlin_bert_2019} and the decoder-only GPT model \cite{radford_improving_2018}.
 
 \subsection{Encoder and Decoder Architectures}\label{subsec:types_transformers}
 
@@ -185,7 +178,7 @@ Looped Transformers \parencite{yang_looped_2023} extend the Transformer by incor
 
 \subsection{Positional Encoding Schemes}\label{subsec:positional_encoding}
 
-Since the Transformer lacks inherent sequential order, positional encodings are added to input embeddings to provide position information.
+Since the Transformer lacks inherent sequential order, positional encodings are added to input embeddings to provide position information. Though, several recent works have shown that the causal attention mechanism in a decoder-only transformer can also implicitly learn to encode positional information \parencite{zuo_breaking_2024,zhou_transformers_2024} in the absence of explicit positional encodings.
 
 \paragraph{Sinusoidal Positional Encoding}\label{subsec:sinusoidal_pos_enc}
 
@@ -204,9 +197,9 @@ Relative position representations \cite{shaw_self-attention_2018} encode the rel
 \end{equation*}
 where $\mathbf{a}_{i-j}^K$ and $\mathbf{b}_{i-j}^Q$ are learned relative position embeddings.
 
-\paragraph{Rotary Position Embedding (RoPE)}\label{subsec:rope}
+\paragraph{Rotary Position Encoding (RoPE)}\label{subsec:rope}
 
-RoPE \cite{su_roformer_2024} encodes absolute positions using rotation matrices and incorporates relative position information into the self-attention mechanism. For each position $i$, the embedding is rotated by a position-dependent angle:
+RoPE \cite{su_roformer_2024} encodes positions using rotation matrices and incorporates relative position information into the self-attention mechanism. For each position $i$, the embedding is rotated by a position-dependent angle:
 \begin{equation*}
     \mathbf{h}_i = \mathbf{e}_i \cdot \mathbf{R}(i),
 \end{equation*}
@@ -222,7 +215,7 @@ ALiBi \cite{press_train_2021} introduces a linear bias to the attention scores b
 \begin{equation*}
     e_{ij} = \frac{\mathbf{q}_i^\top \mathbf{k}_j}{\sqrt{d_k}} + m \cdot |i - j|,
 \end{equation*}
-where $m$ is a head-specific learned parameter. This bias encourages the model to focus on recent tokens and enables better extrapolation to longer sequences.
+where $m$ is a head-specific constant slope parameter. This bias encourages the model to focus on recent tokens and enables better extrapolation to longer sequences.
 
 \subsection{Training and Inference}\label{subsec:training_inference}
 
