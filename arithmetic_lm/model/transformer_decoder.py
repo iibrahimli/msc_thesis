@@ -182,7 +182,7 @@ class TransformerDecoder(nn.Module):
         for i, layer in enumerate(self.layers):
             x = layer(
                 x + x_orig if self.input_injection and i > 0 else x,
-                mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
+                src_mask=nn.Transformer.generate_square_subsequent_mask(x.size(1)).to(
                     x.device
                 ),  # use to instead of passing device= due to bug that returns NaNs on MPS)
             )
