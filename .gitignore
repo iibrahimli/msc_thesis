@@ -44,7 +44,8 @@ latex/**/*.blg
 latex/**/*.fdb_latexmk
 latex/**/*.fls
 
-
+# drawio backup
+*.drawio.bkp
 
 # ======================
 
