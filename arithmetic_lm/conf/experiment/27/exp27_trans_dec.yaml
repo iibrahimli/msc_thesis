@@ -41,4 +41,4 @@ model:
 
 wandb:
   project: "compositional-gap"
-  run_name: tdec_${model.args.n_embd}embd_${data.task}_${data.train_size}
+  run_name: tdec_${model.args.n_embd}embd_${data.task}_${data.train_size}_s${training.seed}
