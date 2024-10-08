@@ -40,5 +40,5 @@ model:
     pos_enc: abs
 
 wandb:
-  project: "compositional-gap"
+  project: "experiment-27"
   run_name: tdec_${model.args.n_embd}embd_${data.task}_${data.train_size}_s${training.seed}
