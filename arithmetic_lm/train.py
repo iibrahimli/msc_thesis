@@ -28,6 +28,8 @@ from arithmetic_lm.model.lightning_module import LightningModel
 from arithmetic_lm.tokenizer import TOKENIZERS, Tokenizer
 from arithmetic_lm.utils import set_seed
 
+torch.set_float32_matmul_precision("high")
+
 
 def train(
     run_name: str,
