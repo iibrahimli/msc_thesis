@@ -38,8 +38,10 @@ In practice, the inputs to the Transformer are batched, so the input has an addi
 
 The Transformer is composed of several key components to model dependencies in sequential data: multi-head attention, feed-forward networks, layer normalization, and residual connections. Informally, the attention mechanism transfers information \emph{between} tokens, while the feed-forward networks process information \emph{within} tokens. These components are stacked in each layer of the Transformer as shown in Figure \ref{fig:transformer_layer} (a).
 
-\paragraph{Attention Mechanism}
+\paragraph{Token Embeddings}
+The discrete input tokens are first converted into continuous embeddings using an embedding matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d}$, where $|\mathcal{V}|$ is the size of the vocabulary and $d$ is the embedding dimension. The embedding matrix is learned during training, and the embeddings are used as input to the Transformer.
 
+\paragraph{Attention Mechanism}
 The attention mechanism \parencite{bahdanau_neural_2014} allows the model to weigh the relevance of different positions in the input sequence. For this purpose, it computes \emph{queries}, \emph{keys}, and \emph{values} from the input embeddings and uses them to calculate attention scores. The output is a weighted sum of the values, where the weights are determined by the attention scores. The names ``queries'', ``keys'', and ``values'' are derived from the context of information retrieval, where the queries are the elements being searched for, the keys are the elements being searched, and the values are the elements being retrieved. In the context of the Transformer, intuitively, the query represents what the current token is ``looking for'' in the sequence, the keys represent what the token at a given position ``offers'' to the current token, and the values are the actual information that the current token ``receives'' from the other tokens.
 
 First, the queries, keys, and values are computed as:
@@ -62,7 +64,6 @@ where the softmax function is applied along the last dimension, and is defined a
 Note that the output of the attention mechanism has the same shape as the input, $\mathbf{O_{att}} \in \mathbb{R}^{n \times d}$.
 
 \paragraph{Multi-Head Attention}
-
 Multi-head attention extends the attention mechanism with multiple independent \emph{heads} to allow the model to focus on information from different representation subspaces. So, instead of applying attention to the $d$-dimensional queries, keys, and values directly, they are projected into $h$ different $d_{head}$-dimensional subspaces, where $h$ is the number of heads. In this work, the head dimension $d_{head}$ is set to $d/h$, so that the total dimensionality remains $d$. The outputs the heads are concatenated and linearly transformed to the original dimensionality:
 \begin{equation*}
     \text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h) \mathbf{W}^O,
@@ -82,7 +83,6 @@ Position-wise feed-forward networks (FFN), also called the Multi-layer Perceptro
 where $\mathbf{h}_i \in \mathbb{R}^d$ is the input vector, $\mathbf{W}_1 \in \mathbb{R}^{d \times d_{\text{ff}}}$, $\mathbf{W}_2 \in \mathbb{R}^{d_{\text{ff}} \times d}$, and $\sigma$ is an activation function such as Rectified Linear Unit (ReLU).
 
 \paragraph{Layer Normalization}
-
 Layer normalization \parencite{ba_layer_2016} is applied after each sub-layer over the last (feature) dimension. The $\text{LayerNorm}$ function for a vector $v \in \mathbb{R}^d$ is defined as:
 \begin{equation*}
     \text{LayerNorm}(v) = \frac{v - \mu}{\sigma}\gamma + \beta,
@@ -94,7 +94,6 @@ where the scale $\gamma$ and bias vector $\beta$ are learned scaling and shiftin
 \end{align*}
 
 \paragraph{Residual Connections}
-
 Residual connections \parencite{he_deep_2016} are usually applied to ease gradient flow and enable the training of deeper networks. In Transformer models, the residual connections are applied after each sub-layer (self-attention and MLP), followed by a layer normalization. Thus, the output of each sub-layer is:
 \begin{equation*}
     \text{SubLayerOutput} = \text{LayerNorm}(\mathbf{x} + \text{SubLayer}(\mathbf{x})).
@@ -103,7 +102,6 @@ Residual connections \parencite{he_deep_2016} are usually applied to ease gradie
 The residual connections-based view of the model also enables the concept of a \emph{residual stream}, which is important in mechanistic interpretability. In this alternative view of the model, the residual connections are the main backbone of information flow through the model, with the sub-layers processing the hidden representation tensor $\mathbf{H}$ and adding it back to the residual stream.
 
 \paragraph{Block Structure}
-
 The original Transformer introduced in \cite{vaswani_attention_2017} consists of stacked encoder and decoder blocks, each containing multi-head attention and feed-forward networks, along with residual connections and layer normalization. However, different modified architectures have been proposed, such as the encoder-only BERT model \parencite{devlin_bert_2019} and the decoder-only GPT model \parencite{radford_improving_2018}.
 
 \begin{figure}[h!]
@@ -163,7 +161,7 @@ where $t$ denotes the iteration step. This enables the model to generalize bette
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{fig/looped_transformer.pdf}
-    \caption{(a) A block of multiple transformer layers used in the looped transformer. (b) Looped decoder-only transformer architecture. The input injection mechanism adds skip connections from the input sequence to the input of each block.}
+    \caption{(a) A block of multiple transformer layers used in the looped transformer. (b) Looped decoder-only transformer architecture. The input injection mechanism adds skip connections (arrow around blocks) from the original input sequence to the input of each block.}
     \label{fig:looped_transformer}
 \end{figure}
 
@@ -173,9 +171,9 @@ Looped Transformers \parencite{yang_looped_2023} extend the Transformer by incor
 
 Since the Transformer lacks inherent sequential order, positional encodings are added to input embeddings to provide position information. Though, several recent works have shown that the causal attention mechanism in a decoder-only transformer can also implicitly learn to encode positional information \parencite{zuo_breaking_2024,zhou_transformers_2024} in the absence of explicit positional encodings.
 
-\paragraph{Sinusoidal Positional Encoding}\label{subsec:sinusoidal_pos_enc}
+\paragraph{Absolute Positional Encoding}\label{subsec:sinusoidal_pos_enc}
 
-The original Transformer uses sinusoidal positional encodings \cite{vaswani_attention_2017}, defined as:
+The original Transformer \parencite{vaswani_attention_2017} uses additive vectors of same dimensionality as the embeddings to encode the \emph{absolute} positions of the tokens. These vectors can be defined as:
 \begin{align*}
     \mathbf{p}_{i,2k}   & = \sin\left( \frac{i}{10000^{2k/d}} \right), \\
     \mathbf{p}_{i,2k+1} & = \cos\left( \frac{i}{10000^{2k/d}} \right),
@@ -183,6 +181,8 @@ The original Transformer uses sinusoidal positional encodings \cite{vaswani_atte
 for position $i$ and dimension $k$. These encodings allow the model to generalize to longer sequences by extrapolating the sinusoidal patterns.
 
 \paragraph{Relative Position Representations}\label{subsec:relative_pos_rep}
+
+\TODO{show as score before softmax + B (n x n)}
 
 Relative position representations \cite{shaw_self-attention_2018} encode the relative distances between sequence elements directly into the attention mechanism. The attention scores are modified as:
 \begin{equation*}

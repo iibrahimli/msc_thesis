@@ -43,6 +43,7 @@ latex/**/*-blx.bib
 latex/**/*.blg
 latex/**/*.fdb_latexmk
 latex/**/*.fls
+latex/**/*.lof
 
 # drawio backup
 *.drawio.bkp

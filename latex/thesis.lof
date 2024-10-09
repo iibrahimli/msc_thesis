@@ -3,8 +3,8 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces (a) A single Transformer layer, consisting of multi-head self-attention, feed-forward network (MLP), and layer normalization. (b) A decoder-only transformer model. In the decoder, the self-attention mechanism has a causal mask to prevent attending to future tokens.}}{7}{figure.2.1}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces (a) A block of multiple transformer layers used in the looped transformer. (b) Looped decoder-only transformer architecture. The input injection mechanism adds skip connections from the input sequence to the input of each block.}}{9}{figure.2.2}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Training and inference processes for Transformers TODO TODO TODO TODO.}}{10}{figure.2.3}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces (a) A block of multiple transformer layers used in the looped transformer. (b) Looped decoder-only transformer architecture. The input injection mechanism adds skip connections (arrow around blocks) from the original input sequence to the input of each block.}}{9}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Training and inference processes for Transformers TODO TODO TODO TODO.}}{11}{figure.2.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
