@@ -151,6 +151,15 @@ class TransformerDecoder(nn.Module):
                     bias=True,  # is true by default
                     batch_first=True,
                 )
+        elif self.pos_enc == "fire":
+            for layer in self.layers:
+                layer.self_attn = FireMultiheadAttention(
+                    n_embd,
+                    n_head,
+                    dropout=dropout,
+                    bias=True,  # is true by default
+                    batch_first=True,
+                )
 
         # output to vocab dim
         self.lm_head = nn.Linear(n_embd, vocab_size, bias=False)

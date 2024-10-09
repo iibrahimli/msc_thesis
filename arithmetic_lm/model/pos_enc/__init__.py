@@ -3,6 +3,7 @@ from .absolute import AbsolutePositionalEncoding
 from .alibi import AlibiMultiheadAttention
 from .coordinate import CoordinateEncoding
 from .cope import ContextualMultiheadAttention
+from .fire import FireMultiheadAttention
 from .learned import LearnedPositionalEncoding
 from .randomized import RandomizedPositionalEncoding
 from .relative import RelativeMultiheadAttention
