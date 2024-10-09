@@ -139,7 +139,6 @@ class FireMultiheadAttention(nn.MultiheadAttention):
         # at this point, q and k have shape [B, n_heads, L, head_dim]
 
         scores = torch.matmul(q, k.transpose(-2, -1))
-        print("scores shape:", scores.shape)
         # scores shape: [B, n_heads, L, L]
 
         # === fire ===
