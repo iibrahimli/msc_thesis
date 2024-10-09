@@ -112,7 +112,7 @@ class TransformerDecoder(nn.Module):
 
         # change all self-attention layers to relative multi-head attention
         if self.pos_enc == "rel":
-            for layer in self.transformer_encoder.layers:
+            for layer in self.layers:
                 layer.self_attn = RelativeMultiheadAttention(
                     n_embd,
                     n_head,
@@ -123,7 +123,7 @@ class TransformerDecoder(nn.Module):
                 )
         elif self.pos_enc == "rotary":
             self.rotary_emb = RotaryEmbedding(dim=self.n_embd / self.n_head)
-            for layer in self.transformer_encoder.layers:
+            for layer in self.layers:
                 layer.self_attn = RotaryMultiheadAttention(
                     n_embd,
                     n_head,
@@ -133,7 +133,7 @@ class TransformerDecoder(nn.Module):
                     rotary_emb=self.rotary_emb,
                 )
         elif self.pos_enc == "cope":
-            for layer in self.transformer_encoder.layers:
+            for layer in self.layers:
                 layer.self_attn = ContextualMultiheadAttention(
                     n_embd,
                     n_head,
@@ -143,7 +143,7 @@ class TransformerDecoder(nn.Module):
                     npos_max=128,
                 )
         elif self.pos_enc == "alibi":
-            for layer in self.transformer_encoder.layers:
+            for layer in self.layers:
                 layer.self_attn = AlibiMultiheadAttention(
                     n_embd,
                     n_head,
