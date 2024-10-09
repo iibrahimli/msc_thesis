@@ -1,26 +1,28 @@
 \chapter{Background}\label{background}
 
-This chapter provides an in-depth overview of the Transformer architecture, focusing on its core components, different variants, positional encoding schemes, and the processes of training and inference.
+\TODO{rewrite}
+
+This chapter provides an overview of the Transformer architecture, focusing on its core components, different variants, positional encoding schemes, and the processes of training and inference. It also discusses mechanistic interpretability and the deep double descent phenomenon.
 
 \section*{Notation}\label{sec:notation}
 
 \begin{center}
     \begin{tabular}{cl}
-        $\mathcal{V}$ \qquad & Vocabulary of input tokens.                                                          \\
-        $n$                  & Length of the input sequence.                                                        \\
-        $b$                  & Batch size for batched input sequences.                                              \\
-        $\mathbf{x}$         & Input sequence of tokens, $\mathbf{x} \in \mathcal{V}^{n}$                           \\
-        $x_i$                & $i$-th token in the input sequence, $x_i \in \mathcal{V}$.                           \\
-        $d$                  & Dimensionality of the token embedding space.                                         \\
-        $\mathbf{e}_i$       & $d$-dimensional embedding vector of token $x_i$, $\mathbf{e}_i \in \mathbb{R}^d$.    \\
-        $\mathbf{E}$         & Embedding matrix, $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d}$.              \\
-        $\mathbf{H}$         & Matrix of a sequence of embedding vectors, $\mathbf{H} \in \mathbb{R}^{n \times d}$. \\
-        $\mathbf{h}_i$       & $i$-th vector in the sequence of embeddings, $\mathbf{h}_i \in \mathbb{R}^d$.        \\
-        $\mathbf{O}$         & Output matrix from a Transformer layer, $\mathbf{O} \in \mathbb{R}^{n \times d}$.    \\
-        $\mathbf{Q}$         & Queries matrix, $\mathbf{Q} \in \mathbb{R}^{n \times d}$.                            \\
-        $\mathbf{K}$         & Keys matrix, $\mathbf{K} \in \mathbb{R}^{n \times d}$.                               \\
-        $\mathbf{V}$         & Values matrix, $\mathbf{V} \in \mathbb{R}^{n \times d}$.                             \\
-        $\theta$             & Model parameters (weights and biases).                                               \\
+        $\mathcal{V}$ \qquad & Vocabulary (set) of input tokens.                                           \\
+        $n$                  & Length of the input sequence.                                               \\
+        $b$                  & Batch size for batched input sequences.                                     \\
+        $\mathbf{x}$         & Input sequence of tokens, $\mathbf{x} \in \mathcal{V}^{n}$                  \\
+        $x_i$                & $i$-th token in the input sequence, $x_i \in \mathcal{V}$.                  \\
+        $d$                  & Dimensionality of the token embedding space.                                \\
+        $E_i$                & $d$-dimensional embedding vector of token $x_i$, $E_i \in \mathbb{R}^d$.    \\
+        $E$                  & Embedding matrix, $E \in \mathbb{R}^{|\mathcal{V}| \times d}$.              \\
+        $H$                  & Matrix of a sequence of embedding vectors, $H \in \mathbb{R}^{n \times d}$. \\
+        $H_i$                & $i$-th vector in the sequence of embeddings, $H_i \in \mathbb{R}^d$.        \\
+        $O$                  & Output matrix from a Transformer layer, $O \in \mathbb{R}^{n \times d}$.    \\
+        $Q$                  & Queries matrix, $Q \in \mathbb{R}^{n \times d}$.                            \\
+        $K$                  & Keys matrix, $K \in \mathbb{R}^{n \times d}$.                               \\
+        $V$                  & Values matrix, $V \in \mathbb{R}^{n \times d}$.                             \\
+        $\theta$             & Model parameters (weights and biases).                                      \\
     \end{tabular}
 \end{center}
 
@@ -28,59 +30,59 @@ This chapter provides an in-depth overview of the Transformer architecture, focu
 
 The Transformer architecture, introduced by \textcite{vaswani_attention_2017}, performs sequence modeling by relying entirely on self-attention mechanism, instead of using convolution or recurrence.
 
-Let $\mathcal{V}$ denote the vocabulary of input tokens. While the tokens can represent anything, in language modeling tasks they are usually learned subword units. In this work, however, a simple character tokenization scheme is used that is suitable for algorithmic tasks, so each token corresponds to a single character (letter, digit or symbol) in the sequence. An input sequence is represented as $\mathbf{x} = [x_1, x_2, \dots, x_n]$, where $x_i \in \mathcal{V}$ and $n$ is the sequence length. Each token $x_i$ is mapped to a $d$-dimensional embedding vector $\mathbf{e}_i \in \mathbb{R}^d$ using an embedding matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d}$. Thus, each row of $\mathbf{E}$ corresponds to the embedding of a token in the vocabulary.
+Let $\mathcal{V}$ denote the vocabulary of input tokens. While the tokens can represent anything, in language modeling tasks they are usually learned subword units. In this work, however, a simple character tokenization scheme is used that is suitable for algorithmic tasks, so each token corresponds to a single character (letter, digit or symbol) in the sequence. An input sequence is represented as $\mathbf{x} = [x_1, x_2, \dots, x_n]$, where $x_i \in \mathcal{V}$ and $n$ is the sequence length. Each token $x_i$ is mapped to a $d$-dimensional embedding vector $E_i \in \mathbb{R}^d$ using an embedding matrix $E \in \mathbb{R}^{|\mathcal{V}| \times d}$. Thus, each row of $E$ corresponds to the embedding of a token in the vocabulary.
 
-The input matrix to a Transformer layer is a sequence of vector embeddings (also called the \emph{latent} or \emph{hidden representation} for intermediate layer inputs), denoted $\mathbf{H} \in \mathbb{R}^{n \times d}$, where $\mathbf{H} = [\mathbf{h}_1^\top, \mathbf{h}_2^\top, \dots, \mathbf{h}_n^\top]^\top$. The output of a Transformer layer is also a sequence of vectors with the same sequence length, denoted $\mathbf{O} \in \mathbb{R}^{n \times d}$.
+The input matrix to a Transformer layer is a sequence of vector embeddings (also called the \emph{latent} or \emph{hidden representation} for intermediate layer inputs), denoted $H \in \mathbb{R}^{n \times d}$, where $H = [H_1^\top, H_2^\top, \dots, H_n^\top]^\top$. The output of a Transformer layer is also a sequence of vectors with the same sequence length, denoted $O \in \mathbb{R}^{n \times d}$.
 
-In practice, the inputs to the Transformer are batched, so the input has an additional dimension for the batch size, denoted $b$, with $\mathbf{H} \in \mathbb{R}^{b \times n \times d}$. This results in the first (batch) dimension being added throughout the intermediate representation and the output, but has no bearing on the description of the Transformer model.
+In practice, the inputs to the Transformer are batched, so the input has an additional dimension for the batch size, denoted $b$, with $H \in \mathbb{R}^{b \times n \times d}$. This results in the first (batch) dimension being added throughout the intermediate representation and the output, but has no bearing on the description of the Transformer model.
 
 \subsection{Elements}\label{subsec:elements_transformers}
 
 The Transformer is composed of several key components to model dependencies in sequential data: multi-head attention, feed-forward networks, layer normalization, and residual connections. Informally, the attention mechanism transfers information \emph{between} tokens, while the feed-forward networks process information \emph{within} tokens. These components are stacked in each layer of the Transformer as shown in Figure \ref{fig:transformer_layer} (a).
 
 \paragraph{Token Embeddings}
-The discrete input tokens are first converted into continuous embeddings using an embedding matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d}$, where $|\mathcal{V}|$ is the size of the vocabulary and $d$ is the embedding dimension. The embedding matrix is learned during training, and the embeddings are used as input to the Transformer.
+The discrete input tokens are first converted into continuous embeddings using an embedding matrix $E \in \mathbb{R}^{|\mathcal{V}| \times d}$, where $|\mathcal{V}|$ is the size of the vocabulary and $d$ is the embedding dimension. The embedding matrix is learned during training, and the embeddings are used as input to the Transformer. After applying the Transformer layers, the output embeddings are passed through a linear \emph{unembedding} layer to get the \emph{logits} (unnormalized log-probabilities) for the next token.
 
 \paragraph{Attention Mechanism}
 The attention mechanism \parencite{bahdanau_neural_2014} allows the model to weigh the relevance of different positions in the input sequence. For this purpose, it computes \emph{queries}, \emph{keys}, and \emph{values} from the input embeddings and uses them to calculate attention scores. The output is a weighted sum of the values, where the weights are determined by the attention scores. The names ``queries'', ``keys'', and ``values'' are derived from the context of information retrieval, where the queries are the elements being searched for, the keys are the elements being searched, and the values are the elements being retrieved. In the context of the Transformer, intuitively, the query represents what the current token is ``looking for'' in the sequence, the keys represent what the token at a given position ``offers'' to the current token, and the values are the actual information that the current token ``receives'' from the other tokens.
 
 First, the queries, keys, and values are computed as:
 \begin{align*}
-    \mathbf{Q} & = \mathbf{H} \mathbf{W}^Q, \\
-    \mathbf{K} & = \mathbf{H} \mathbf{W}^K, \\
-    \mathbf{V} & = \mathbf{H} \mathbf{W}^V,
+    Q & = H W^Q, \\
+    K & = H W^K, \\
+    V & = H W^V,
 \end{align*}
-where $\mathbf{W}^Q, \mathbf{W}^K, \mathbf{W}^V \in \mathbb{R}^{d \times d_k}$ are the weight matrices, and $d_k$ is the dimension of the queries, keys, and values. In practice, the convention is to set $d_k = d$, which is the case for the models in this work. Thus, $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{n \times d}$.
+where $W^Q, W^K, W^V \in \mathbb{R}^{d \times d_k}$ are the weight matrices, and $d_k$ is the dimension of the queries, keys, and values. In practice, the convention is to set $d_k = d$, which is the case for the models in this work. Thus, $Q, K, V \in \mathbb{R}^{n \times d}$.
 
-Given queries $\mathbf{Q}$, keys $\mathbf{K}$, and values $\mathbf{V}$, the attention output is computed as:
+Given queries $Q$, keys $K$, and values $V$, the attention output is computed as:
 \begin{equation*}
-    \mathbf{O_{att}} = \text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left( \frac{\mathbf{Q} \mathbf{K}^\top}{\sqrt{d}} \right) \mathbf{V}.
+    O_{att} = \text{Attention}(Q, K, V) = \text{softmax}\left( \frac{Q K^\top}{\sqrt{d}} \right) V.
 \end{equation*}
 where the softmax function is applied along the last dimension, and is defined as:
 \begin{equation*}
     \text{softmax}(\mathbf{x})_i = \frac{e^{x_i}}{\sum_j e^{x_j}}.
 \end{equation*}
 
-Note that the output of the attention mechanism has the same shape as the input, $\mathbf{O_{att}} \in \mathbb{R}^{n \times d}$.
+Note that the output of the attention mechanism has the same shape as the input, $O_{att} \in \mathbb{R}^{n \times d}$.
 
 \paragraph{Multi-Head Attention}
 Multi-head attention extends the attention mechanism with multiple independent \emph{heads} to allow the model to focus on information from different representation subspaces. So, instead of applying attention to the $d$-dimensional queries, keys, and values directly, they are projected into $h$ different $d_{head}$-dimensional subspaces, where $h$ is the number of heads. In this work, the head dimension $d_{head}$ is set to $d/h$, so that the total dimensionality remains $d$. The outputs the heads are concatenated and linearly transformed to the original dimensionality:
 \begin{equation*}
-    \text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h) \mathbf{W}^O,
+    \text{MultiHeadAttention}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h) W^O,
 \end{equation*}
-where $\mathbf{W}^O \in \mathbb{R}^{d \times d}$ is the learned output weight matrix, and each head is computed as:
+where $W^O \in \mathbb{R}^{d \times d}$ is the learned output weight matrix, and each head is computed as:
 \begin{equation*}
-    \text{head}_i = \text{Attention}(\mathbf{Q} \mathbf{W}_i^Q, \mathbf{K} \mathbf{W}_i^K, \mathbf{V} \mathbf{W}_i^V),
+    \text{head}_i = \text{Attention}(Q W_i^Q, K W_i^K, V W_i^V),
 \end{equation*}
-and $\mathbf{W}_i^Q, \mathbf{W}_i^K, \mathbf{W}_i^V \in \mathbb{R}^{d \times d_{head}}$ are the weight matrices for the $i$-th head.
+and $W_i^Q, W_i^K, W_i^V \in \mathbb{R}^{d \times d_{head}}$ are the weight matrices for the $i$-th head.
 
 \paragraph{Feed-Forward Networks}
 
 Position-wise feed-forward networks (FFN), also called the Multi-layer Perceptron (MLP), are applied independently to each position in the sequence:
 \begin{equation*}
-    \text{FFN}(\mathbf{h}_i) = \sigma(\mathbf{h}_i \mathbf{W}_1 + \mathbf{b}_1) \mathbf{W}_2 + \mathbf{b}_2,
+    \text{FFN}(H_i) = \sigma(H_i W_1 + \mathbf{b}_1) W_2 + \mathbf{b}_2,
 \end{equation*}
-where $\mathbf{h}_i \in \mathbb{R}^d$ is the input vector, $\mathbf{W}_1 \in \mathbb{R}^{d \times d_{\text{ff}}}$, $\mathbf{W}_2 \in \mathbb{R}^{d_{\text{ff}} \times d}$, and $\sigma$ is an activation function such as Rectified Linear Unit (ReLU).
+where $H_i \in \mathbb{R}^d$ is the input vector, $W_1 \in \mathbb{R}^{d \times d_{\text{ff}}}$, $W_2 \in \mathbb{R}^{d_{\text{ff}} \times d}$, and $\sigma$ is an activation function such as Rectified Linear Unit (ReLU).
 
 \paragraph{Layer Normalization}
 Layer normalization \parencite{ba_layer_2016} is applied after each sub-layer over the last (feature) dimension. The $\text{LayerNorm}$ function for a vector $v \in \mathbb{R}^d$ is defined as:
@@ -99,7 +101,7 @@ Residual connections \parencite{he_deep_2016} are usually applied to ease gradie
     \text{SubLayerOutput} = \text{LayerNorm}(\mathbf{x} + \text{SubLayer}(\mathbf{x})).
 \end{equation*}
 
-The residual connections-based view of the model also enables the concept of a \emph{residual stream}, which is important in mechanistic interpretability. In this alternative view of the model, the residual connections are the main backbone of information flow through the model, with the sub-layers processing the hidden representation tensor $\mathbf{H}$ and adding it back to the residual stream.
+The residual connections-based view of the model also enables the concept of a \emph{residual stream}, which is important in mechanistic interpretability. In this alternative view of the model, the residual connections are the main backbone of information flow through the model, with the sub-layers processing the hidden representation tensor $H$ and adding it back to the residual stream.
 
 \paragraph{Block Structure}
 The original Transformer introduced in \cite{vaswani_attention_2017} consists of stacked encoder and decoder blocks, each containing multi-head attention and feed-forward networks, along with residual connections and layer normalization. However, different modified architectures have been proposed, such as the encoder-only BERT model \parencite{devlin_bert_2019} and the decoder-only GPT model \parencite{radford_improving_2018}.
@@ -114,25 +116,20 @@ The original Transformer introduced in \cite{vaswani_attention_2017} consists of
 
 \subsection{Encoder and Decoder Architectures}\label{subsec:types_transformers}
 
-\TODO{overview}
+In this section, different Transformer architectures are summarized: encoder-decoder, encoder-only, and decoder-only models. The original Transformer~\parencite{vaswani_attention_2017} employs an encoder-decoder structure, where the encoder transforms input sequences into continuous representations, and the decoder generates output sequences based on these representations and previously generated tokens. Encoder-only models like BERT~\parencite{devlin_bert_2019} focus solely on encoding input sequences into contextual embeddings, making them well-suited for understanding tasks such as text classification and question answering. Decoder-only models, like GPT~\parencite{radford_improving_2018}, generate sequences by predicting the next token based on prior tokens, primarily used for text generation. While both encoder-decoder and decoder-only architectures can perform autoregressive sequence generation, decoder-only models are the focus of this work.
 
 \paragraph{Encoder-Decoder}
-
 The original Transformer model introduced by Vaswani et al.~\cite{vaswani_attention_2017} employs an encoder-decoder architecture. In this architecture, the encoder processes an input sequence $\mathbf{x} = (x_1, x_2, \dots, x_n)$ into a sequence of continuous representations $\mathbf{z} = (z_1, z_2, \dots, z_n)$. The decoder then generates an output sequence $\mathbf{y} = (y_1, y_2, \dots, y_m)$ by predicting the next token $y_t$ based on the encoder's output and the previously generated tokens.
 
 The encoder consists of a stack of $N$ identical layers, each containing two sub-layers: a multi-head self-attention mechanism and a position-wise fully connected feed-forward network. The decoder has a similar structure but includes a third sub-layer: the \emph{cross-attention}, also called \emph{encoder-decoder attention}, where the queries come from the previous decoder layer, and the keys and values come from the output of the encoder. Hence, the difference between the self-attention and cross-attention mechanisms is that self-attention is usually applied to the same sequence, while cross-attention is applied between two different sequences (e.g. one from the encoder, and one from the decoder). Moreover, the self-attention mechanism in the decoder has a causal mask to prevent attending to ``future tokens'', ensuring output is generated autoregressively.
 
 \paragraph{Encoder-only}
-
 Encoder-only models focus exclusively on encoding the input sequence into a contextual representation without a decoder component. BERT (Bidirectional Encoder Representations from Transformers)~\cite{devlin_bert_2019} is a prominent example of this architecture. BERT utilizes a stack of Transformer encoder layers to produce deep bidirectional representations by jointly conditioning on both left and right context. This makes encoder-only models particularly well-suited for tasks that require a comprehensive understanding of the input, such as text classification, named entity recognition, and question answering.
 
 These models are typically pre-trained on large unlabeled text corpora using self-supervised objectives like masked language modeling (MLM) and next sentence prediction (NSP). The pre-trained models can then be fine-tuned on specific downstream tasks.
 
 \paragraph{Decoder-only}
-
-Decoder-only models generate sequences based on prior tokens and are designed primarily for autoregressive language modeling and text generation tasks. GPT (Generative Pre-trained Transformer)~\cite{radford_improving_2018} is a canonical example of a decoder-only architecture. In these models, the Transformer decoder predicts the next token in a sequence by attending to the previous tokens without an encoder component. Recent research on language modeling has mostly focused decoder-only models, since they can also be used on other language tasks through prompting, few-shot learning, and fine-tuning.
-
-Decoder-only models are pre-trained on large text corpora to predict the next token, enabling them to generate coherent and contextually relevant text.
+Decoder-only models generate sequences based on prior tokens and are designed primarily for autoregressive language modeling and text generation tasks. GPT (Generative Pre-trained Transformer)~\cite{radford_improving_2018} is a canonical example of a decoder-only architecture. In these models, the Transformer decoder predicts the next token in a sequence by attending to the previous tokens without an encoder component. The encoder is not needed since in a decoder-only Transformer, the input sequence $\mathbf{x}$ is prepended to the decoder input sequence $\mathbf{y}$, and only passed through the decoder layers to autoregressively generate the output sequence. Recent research on language modeling has mostly focused decoder-only models, since they can also be used on other language tasks through prompting, few-shot learning, and fine-tuning. In particular, majority of the latest state-of-the-art large language models (LLMs) are decoder-only transformers pre-trained on large text corpora.
 
 \bigskip
 
@@ -146,17 +143,15 @@ In summary, the choice of Transformer architecture depends on the specific requi
 
 \subsection{Recurrent and Looping Architectures}\label{subsec:recurrent_looping}
 
-To enhance length generalization, some Transformers incorporate recurrence or looping mechanisms.
+Multiple Transformer extensions have been proposed that incorporate iterative application of weight-sharing layers, particularly suitable for algorithmic tasks that require reasoning over sequences. The Universal Transformer and Looped Transformer are two such examples that introduce recurrence into the Transformer architecture. There are other modifications the Transformer architecture, a few examples of which include the Memory Transformer \parencite{burtsev_memory_2021}, Recurrent Memory Transformer \parencite{bulatov_recurrent_2022}, and Neural Data Router \parencite{csordas_neural_2021}, but these architectures are not widely adopted in pretrained language models, and are not tested in this work.
 
 \paragraph{Universal Transformer}
 
-The Universal Transformer \cite{dehghani_universal_2018} introduces recurrence into the Transformer architecture by repeatedly applying the same transformer layers multiple times:
+The Universal Transformer \parencite{dehghani_universal_2018} introduces recurrence into the Transformer architecture by repeatedly applying the same transformer layers multiple times, in both encoder and decoder parts:
 \begin{equation*}
-    \mathbf{H}^{(t+1)} = \text{TransformerLayer}(\mathbf{H}^{(t)}),
+    H^{(t+1)} = \text{TransformerLayer}(H^{(t)}),
 \end{equation*}
-where $t$ denotes the iteration step. This enables the model to generalize better to sequences longer than those seen during training.
-
-\paragraph{Looped Transformer}
+where $t$ denotes the iteration step. An adaptive computation time (ACT) mechanism is used to dynamically adjust the number of iterations based on the input sequence. The Universal Transformer has been shown to achieve better performance on algorithmic tasks compared to the original Transformer. It is also an interesting extension of the Transformer architecture from theoretical point of view, since it makes the model Turing-complete under certain conditions \parencite{dehghani_universal_2018}.
 
 \begin{figure}[h!]
     \centering
@@ -165,50 +160,44 @@ where $t$ denotes the iteration step. This enables the model to generalize bette
     \label{fig:looped_transformer}
 \end{figure}
 
-Looped Transformers \parencite{yang_looped_2023} extend the Transformer by incorporating iterative application of a block of transformer layers.
+\paragraph{Looped Transformer}
+Similar to the Universal Transformer, the Looped Transformer \parencite{yang_looped_2023} extends the Transformer by incorporating iterative application of a block of transformer layers. This modification has been shown to perform better than the original, non-recurrent Transformer on algorithmic tasks \parencite{csordas_systematic_2023,yang_looped_2023}. In particular, looped transformer achieves better length generalization on the binary addition task as shown by \cite{fan_looped_2024}. The looped decoder-only transformer architecture is illustrated in Figure \ref{fig:looped_transformer}. However, unlike the Universal Transformer, the Looped Transformer is not necessarily encoder-decoder, and might not use the adaptive computation time mechanism.
 
 \subsection{Positional Encoding Schemes}\label{subsec:positional_encoding}
 
-Since the Transformer lacks inherent sequential order, positional encodings are added to input embeddings to provide position information. Though, several recent works have shown that the causal attention mechanism in a decoder-only transformer can also implicitly learn to encode positional information \parencite{zuo_breaking_2024,zhou_transformers_2024} in the absence of explicit positional encodings.
+Since the Transformer lacks inherent sequential order, positional encodings are added to input embeddings to provide position information. Though, several recent works have shown that the causal attention mechanism in a decoder-only transformer can also implicitly learn to encode positional information in the absence of explicit positional encodings \parencite{haviv_transformer_2022,zuo_breaking_2024,zhou_transformers_2024}.
 
-\paragraph{Absolute Positional Encoding}\label{subsec:sinusoidal_pos_enc}
-
-The original Transformer \parencite{vaswani_attention_2017} uses additive vectors of same dimensionality as the embeddings to encode the \emph{absolute} positions of the tokens. These vectors can be defined as:
+\paragraph{Absolute Positional Encoding}\label{subsec:absolute_pos_enc}
+The original Transformer \parencite{vaswani_attention_2017} uses additive vectors of same dimensionality as the embeddings to encode the \emph{absolute} positions of the tokens. These vectors could be learned (from a random initialization), or \emph{sinusoidal}, where the latter are defined as:
 \begin{align*}
     \mathbf{p}_{i,2k}   & = \sin\left( \frac{i}{10000^{2k/d}} \right), \\
     \mathbf{p}_{i,2k+1} & = \cos\left( \frac{i}{10000^{2k/d}} \right),
 \end{align*}
-for position $i$ and dimension $k$. These encodings allow the model to generalize to longer sequences by extrapolating the sinusoidal patterns.
-
-\paragraph{Relative Position Representations}\label{subsec:relative_pos_rep}
-
-\TODO{show as score before softmax + B (n x n)}
-
-Relative position representations \cite{shaw_self-attention_2018} encode the relative distances between sequence elements directly into the attention mechanism. The attention scores are modified as:
-\begin{equation*}
-    e_{ij} = \frac{\mathbf{q}_i^\top \mathbf{k}_j + \mathbf{q}_i^\top \mathbf{a}_{i-j}^K + \mathbf{b}_{i-j}^Q{}^\top \mathbf{k}_j}{\sqrt{d_k}},
-\end{equation*}
-where $\mathbf{a}_{i-j}^K$ and $\mathbf{b}_{i-j}^Q$ are learned relative position embeddings.
-
-\paragraph{Rotary Position Encoding (RoPE)}\label{subsec:rope}
-
-RoPE \cite{su_roformer_2024} encodes positions using rotation matrices and incorporates relative position information into the self-attention mechanism. For each position $i$, the embedding is rotated by a position-dependent angle:
-\begin{equation*}
-    \mathbf{h}_i = \mathbf{e}_i \cdot \mathbf{R}(i),
-\end{equation*}
-where $\mathbf{R}(i)$ is a rotation matrix function of position $i$.
+for position in the sequence $i$ and dimension $k$. In \cite{vaswani_attention_2017}, the performance difference between learned and sinusoidal positional encodings was found to be insignificant, and the use of sinusoidal encodings is justified by possibility of generalization to longer sequences. In practice, however, absolute positional encodings do not generalize well to sequences longer than the ones seen during training \parencite{press_train_2021}.
 
 \paragraph{Randomized Positional Encodings}\label{subsec:random_pos_enc}
-
 Randomized positional encodings \cite{ruoss_randomized_2023} aim to improve length generalization by simulating longer sequences during training. They randomly select a subset of positions to represent the sequence, enhancing the model's ability to handle sequences of unseen lengths.
 
-\paragraph{Attention with Linear Biases (ALiBi)}\label{subsec:alibi}
-
-ALiBi \cite{press_train_2021} introduces a linear bias to the attention scores based on the relative positions:
+\paragraph{Relative Position Encoding}\label{subsec:relative_pos_enc}
+Relative position representations \parencite{shaw_self-attention_2018} encode the relative distances between sequence elements directly into the attention mechanism. In RPE, a vector $\mathbf{a}_{i, j} \in \mathbb{R}^d$ is learned for each pair of positions $(i, j)$, and added to the keys before computing the attention scores:
 \begin{equation*}
-    e_{ij} = \frac{\mathbf{q}_i^\top \mathbf{k}_j}{\sqrt{d_k}} + m \cdot |i - j|,
+    A_{ij} = \frac{\mathbf{q}_i (\mathbf{k}_i + \mathbf{a}_{ij}^K)^\top}{\sqrt{d}}
 \end{equation*}
-where $m$ is a head-specific constant slope parameter. This bias encourages the model to focus on recent tokens and enables better extrapolation to longer sequences.
+where $\mathbf{q}_i$ and $\mathbf{k}_j$ are the query and key vectors for positions $i$ and $j$, respectively. Relative position encodings have been shown to improve performance on tasks requiring long-range dependencies \parencite{shaw_self-attention_2018}.
+
+\paragraph{Attention with Linear Biases (ALiBi)}\label{subsec:alibi}
+ALiBi \parencite{press_train_2021} introduces a linear bias to the attention scores based on the relative positions. For this additive method, the computation of the (pre-softmax) attention logits is modified as:
+\begin{equation*}
+    A_{\text{ALiBi}}(X) = Q K^\top + B,
+\end{equation*}
+where the bias matrix $B \in \mathbb{R}^{n \times n}$ is computed by the position encoding function $b : \mathbb{N}^2 \to \mathbb{R}$, such that the $(i,j)$-th entry of $B$ is $b(i,j)$. The bias function for the relative position encoding is defined as:
+\begin{equation*}
+    b(i,j) = -r|i - j|
+\end{equation*}
+where the $r > 0$ is a fixed slope pre-computed for each head.
+
+\paragraph{Rotary Position Encoding (RoPE)}\label{subsec:rope}
+RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and key vectors with an angle proportional to their absolute positions before the dot product attention, which results in attention being a function of the relative distance between the tokens, capturing the relative positional information. It is a non-additive relative positional encoding. Works such as \cite{press_train_2021,kazemnejad_impact_2023} show that RoPE also has poor length generalization.
 
 \subsection{Training and Inference}\label{subsec:training_inference}
 

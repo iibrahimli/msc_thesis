@@ -1,4 +1,34 @@
 
+@inproceedings{haviv_transformer_2022,
+  location   = {Abu Dhabi, United Arab Emirates},
+  title      = {Transformer Language Models without Positional Encodings Still Learn Positional Information},
+  url        = {https://aclanthology.org/2022.findings-emnlp.99},
+  doi        = {10.18653/v1/2022.findings-emnlp.99},
+  abstract   = {Causal transformer language models ({LMs}), such as {GPT}-3, typically require some form of positional encoding, such as positional embeddings. However, we show that {LMs} without any explicit positional encoding are still competitive with standard models and that this phenomenon is robust across different datasets, model sizes, and sequence lengths.Probing experiments reveal that such models acquire an implicit notion of absolute positions throughout the network, effectively compensating for the missing information.We conjecture that causal attention enables the model to infer the number of predecessors that each token can attend to, thereby approximating its absolute position.Our findings indicate that causal {LMs} might derive positional awareness not only from the explicit positioning mechanism but also from the effects of the causal mask.},
+  eventtitle = {Findings 2022},
+  pages      = {1382--1390},
+  booktitle  = {Findings of the Association for Computational Linguistics: {EMNLP} 2022},
+  publisher  = {Association for Computational Linguistics},
+  author     = {Haviv, Adi and Ram, Ori and Press, Ofir and Izsak, Peter and Levy, Omer},
+  editor     = {Goldberg, Yoav and Kozareva, Zornitsa and Zhang, Yue},
+  urldate    = {2024-10-09},
+  date       = {2022-12},
+  file       = {Full Text PDF:/Users/imran/Zotero/storage/DBV3ABXJ/Haviv et al. - 2022 - Transformer Language Models without Positional Encodings Still Learn Positional Information.pdf:application/pdf}
+}
+
+@inproceedings{csordas_neural_2021,
+  title      = {The Neural Data Router: Adaptive Control Flow in Transformers Improves Systematic Generalization},
+  url        = {https://openreview.net/forum?id=KBQP4A_J1K},
+  shorttitle = {The Neural Data Router},
+  abstract   = {Despite progress across a broad range of applications, Transformers have limited success in systematic generalization. The situation is especially frustrating in the case of algorithmic tasks, where they often fail to find intuitive solutions that route relevant information to the right node/operation at the right time in the grid represented by Transformer columns. To facilitate the learning of useful control flow, we propose two modifications to the Transformer architecture, copy gate and geometric attention. Our novel Neural Data Router ({NDR}) achieves 100\% length generalization accuracy on the classic compositional table lookup task, as well as near-perfect accuracy on the simple arithmetic task and a new variant of {ListOps} testing for generalization across computational depths. {NDR}’s attention and gating patterns tend to be interpretable as an intuitive form of neural routing},
+  eventtitle = {International Conference on Learning Representations},
+  author     = {Csordás, Róbert and Irie, Kazuki and Schmidhuber, Jürgen},
+  urldate    = {2024-10-09},
+  date       = {2021-10-06},
+  langid     = {english},
+  file       = {Full Text PDF:/Users/imran/Zotero/storage/K9322MEK/Csordás et al. - 2021 - The Neural Data Router Adaptive Control Flow in Transformers Improves Systematic Generalization.pdf:application/pdf}
+}
+
 @misc{zhao_length_2024,
   title      = {Length Extrapolation of Transformers: A Survey from the Perspective of Positional Encoding},
   url        = {http://arxiv.org/abs/2312.17044},
