@@ -22,7 +22,6 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
         self.rel_pos_emb = nn.Parameter(
             torch.empty(self.num_heads, 2 * self.rel_pos_k - 1, self.head_dim)
         )
-        torch.nn.init.xavier_uniform_(self.rel_pos_emb)
 
     def rel_pos_indices(self, n: int, k: int) -> Tensor:
         """
@@ -93,12 +92,14 @@ class RelativeMultiheadAttention(nn.MultiheadAttention):
 
         # at this point, q and k have shape [B, n_heads, L, head_dim]
 
+        R = self.rel_pos_emb[:, self.rel_pos_indices(seq_len, self.rel_pos_k), :]
         # R shape [n_heads, L, L, head_dim]
-        R = self.rel_pos_emb[:, self.rel_pos_indices(query.size(-2), self.rel_pos_k), :]
-        S_rel = torch.matmul(q.permute(1, 2, 0, 3), R.transpose(-1, -2)).permute(
-            2, 0, 1, 3
-        )
-        # S_rel = torch.einsum("bhld,hsld->bhsl", q, R)
+
+        # S_rel = torch.matmul(q.permute(1, 2, 0, 3), R.transpose(-1, -2)).permute(
+        #     2, 0, 1, 3
+        # )
+
+        S_rel = torch.einsum("bhld,hlsd->bhls", q, R)
 
         # Compute attention scores (adding S_rel)
         scores = (torch.matmul(q, k.transpose(-2, -1)) + S_rel) / math.sqrt(
