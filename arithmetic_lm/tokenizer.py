@@ -40,7 +40,7 @@ class CharTokenizer(Tokenizer):
     ) -> list[int] | torch.Tensor:
         tokens = [self.stoi_array[ord(char)] for char in text]
         if return_tensors:
-            return torch.tensor(tokens, dtype=torch.int64)
+            return torch.tensor(tokens, dtype=torch.long)
         return tokens
 
     def decode(self, tokens: int | list[int] | torch.Tensor) -> str:
