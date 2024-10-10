@@ -258,7 +258,6 @@ class LightningArithmeticDataModule(L.LightningDataModule):
         )
 
     def val_dataloader(self):
-        self.reset_datasets()
         dls = [
             torch.utils.data.DataLoader(
                 self.val_ds,
