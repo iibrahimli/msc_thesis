@@ -1,3 +1,47 @@
 \chapter{Introduction}\label{introduction}
 
 
+\section*{Research Questions}
+
+\begin{enumerate}
+    \item How do (smaller) transformers learn to compose sub-tasks for integer addition?
+    \item What architectural features or training strategies enhance compositional learning? (we want them to be applicable to other domains as well, at least not hurt in regular unsupervised text setting)
+    \item How do transformers generalize to larger sequences than seen during training?
+\end{enumerate}
+
+Compositionality gap: difference between performance on subtasks and the full task. In our case full task is integer addition, with subtasks being digit-wise alignment, addition, and carry operations.
+
+\subsection*{Experiments / Hypotheses}
+
+\begin{itemize}
+    \item RQ3: Models generalize to in-distribution sequence lengths but not OOD (longer or shorter) lengths.
+          \begin{itemize}
+              \item Baseline performance.
+              \item Smaller $3 \times 3$, $7 \times 7$ experiments, 1-19 digits and 18/20+ digits
+              \item Scratchpad can improve it to 18 and 20, not 21+
+          \end{itemize}
+          
+    \item RQ1: Sub-task decomposition: models decompose addition into:
+          \begin{itemize}
+              \item digit-wise alignment
+              \item modular digit-wise addition
+              \item carry operations
+              \item Probing tasks for sub-task neural networks, saliency, etc. (TODO)
+          \end{itemize}
+          
+    \item RQ2: Positional embeddings are important for digit-wise addition and source of errors (e.g., alignment).
+          \begin{itemize}
+              \item Random spaces
+              \item Abacus
+              \item Relative pos encodings
+          \end{itemize}
+          
+    \item RQ1: Compositional learning strategies:
+          \begin{itemize}
+              \item Simple to complex tasks (curriculum)
+              \item Multi-task learning (aux loss) (TODO)
+          \end{itemize}
+          
+    \item Error analysis: TODO for robustness.
+          
+\end{itemize}

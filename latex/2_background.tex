@@ -194,7 +194,7 @@ where the bias matrix $B \in \mathbb{R}^{n \times n}$ is computed by the positio
 \begin{equation*}
     b(i,j) = -r|i - j|
 \end{equation*}
-where the $r > 0$ is a fixed slope pre-computed for each head.
+where the $r$ is a fixed slope pre-computed for each head.
 
 \paragraph{Rotary Position Encoding (RoPE)}\label{subsec:rope}
 RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and key vectors with an angle proportional to their absolute positions before the dot product attention, which results in attention being a function of the relative distance between the tokens, capturing the relative positional information. It is a non-additive relative positional encoding. Works such as \cite{press_train_2021,kazemnejad_impact_2023} show that RoPE also has poor length generalization.
@@ -230,7 +230,6 @@ where $b$ is the batch size, $n$ is the sequence length, and $p(x_{i,j} | x_{i,<
 \paragraph{Inference}
 
 During inference, the trained model generates outputs by computing the forward pass through the network. For autoregressive models, techniques like beam search may be used to generate sequences.
-
 
 
 \section{Mechanistic Interpretability}\label{sec:mech_interp}
