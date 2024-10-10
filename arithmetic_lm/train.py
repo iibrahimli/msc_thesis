@@ -69,6 +69,8 @@ def train(
 
     if num_threads:
         torch.set_num_threads(num_threads)
+        os.environ["OMP_NUM_THREADS"] = str(num_threads)
+        os.environ["MKL_NUM_THREADS"] = str(num_threads)
 
     full_resume_from_ckpt = resume_ckpt_path and not ckpt_weights_only
 
