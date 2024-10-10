@@ -1,3 +1,7 @@
+"""
+slow, need to optimize
+"""
+
 import string
 from abc import ABC, abstractmethod
 
