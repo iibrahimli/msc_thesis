@@ -55,3 +55,8 @@ class CharTokenizer(Tokenizer):
         ):
             tokens = tokens[0]
         return "".join(self.itos[token] for token in tokens)
+
+
+TOKENIZERS = {
+    "CharTokenizer": CharTokenizer,
+}
