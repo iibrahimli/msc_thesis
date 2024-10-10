@@ -12,6 +12,7 @@ reload_dataloaders_every_n_epochs: 0
 only_answer_loss: false
 devices: null
 accumulate_grad_batches: 1
+num_threads: null
 seed: 1337
 
 # ckpt to resume training run

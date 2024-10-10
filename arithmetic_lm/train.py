@@ -61,10 +61,14 @@ def train(
     ckpt_weights_only: bool = False,
     eval_func: str = "numeric",
     pause_token: str = "p",
+    num_threads: int | None = None,
 ):
     """test_data_dict contains {'name': dataset}"""
 
     set_seed(seed=cfg.training.seed)
+
+    if num_threads:
+        torch.set_num_threads(num_threads)
 
     full_resume_from_ckpt = resume_ckpt_path and not ckpt_weights_only
 
@@ -303,6 +307,7 @@ def main(cfg: omegaconf.DictConfig):
         ckpt_weights_only=cfg.training.ckpt_weights_only,
         eval_func=cfg.training.eval_func,
         pause_token=cfg.training.pause_token,
+        num_threads=cfg.training.num_threads,
     )
 
 

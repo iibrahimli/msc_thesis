@@ -31,6 +31,7 @@ training:
   devices: [0]
   eval_func: string_match_exact
   num_dl_workers: 0
+  num_threads: 4 # 32 cores / 8 runs = 4 threads per run
 
 model:
   args:
