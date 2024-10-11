@@ -1,1 +1,49 @@
 \chapter{Approach}\label{approach}
+
+\section{Data Formatting and Preprocessing}
+
+To investigate the impact of data formatting on length generalization, we experimented with various input representations:
+
+\begin{itemize}
+    \item \textbf{Standard Format}: Direct representation of numbers without any modifications.
+    \item \textbf{Reversed Operands}: Reversing the digits of the operands to test positional alignment (e.g., transforming ``123 + 456'' to ``321 + 654'').
+    \item \textbf{Random Spaces}: Introducing random spaces between digits to disrupt positional patterns and assess the model's robustness.
+    \item \textbf{Scratchpad}: Incorporating a chain-of-thought by including intermediate computational steps before the final answer.
+    \item \textbf{Sub-task Annotations}: Augmenting the data with labels for sub-tasks such as carry detection and digit alignment to encourage compositional learning.
+\end{itemize}
+
+\section{Positional Encoding Schemes}
+
+We evaluated multiple positional encoding methods to understand their effect on digit alignment and generalization:
+
+\begin{itemize}
+    \item \textbf{Absolute Positional Encoding}: Both learned and sinusoidal encodings assigning unique positions to each token.
+    \item \textbf{Randomized Positional Encoding}: Randomly assigning positions to examine the model's reliance on position information.
+    \item \textbf{Relative Positional Encoding}: Encoding positions relative to each other to capture distance information.
+    \item \textbf{No Positional Encoding (NoPE)}: Omitting positional information to test the model's ability to infer positions implicitly.
+    \item \textbf{ALiBi Encoding}: Using attention linear biases to encode position without additional embeddings.
+    \item \textbf{Contextual Positional Encoding}: Incorporating context-dependent position information.
+    \item \textbf{FIRE Encoding}: A frequency-based encoding aiming to capture longer-range dependencies.
+    \item \textbf{Abacus Encoding}: Assigning positions based on digit indices within operands to enhance digit alignment.
+\end{itemize}
+
+\section{Model Architecture and Training Setup}
+
+We utilized decoder-only transformer models with varying configurations:
+
+\begin{itemize}
+    \item \textbf{Model Dimensions}: Tested dimensions from 64 to 1536 in increments of 64 to assess the effect of model capacity.
+    \item \textbf{Number of Layers and Heads}: Fixed at six layers with standard attention head configurations.
+    \item \textbf{Training Data}: Generated datasets with sizes of 10K, 100K, 1M, and 10M examples, training on numbers with 1--7 and 9 digits to evaluate OOD generalization to unseen lengths.
+    \item \textbf{Sub-task Training}: Compared models trained on pure addition tasks versus those trained on mixed datasets including sub-tasks.
+\end{itemize}
+
+\section{Mechanistic Interpretability Analysis}
+
+To understand \emph{why} certain positional encodings like Abacus lead to better generalization, we performed mechanistic interpretability studies:
+
+\begin{itemize}
+    \item \textbf{Activation Pattern Analysis}: Examined neuron activations to identify patterns corresponding to digit alignment and carry operations.
+    \item \textbf{Attention Weight Visualization}: Analyzed attention distributions to see how models focus on relevant digits during computation.
+    \item \textbf{Comparative Studies}: Compared models trained with and without sub-task data to observe differences in internal representations.
+\end{itemize}

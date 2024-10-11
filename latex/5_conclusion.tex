@@ -1,1 +1,16 @@
 \chapter{Conclusion}\label{conclusion}
+
+\section{Summary of Findings}
+
+Our investigation revealed that the failure of transformer models with standard absolute positional encodings to generalize integer addition to longer sequences is primarily due to their inability to align digits correctly across varying lengths. Positional encodings that do not emphasize digit-wise alignment hinder the model's capacity to extrapolate learned addition mechanisms to longer numbers.
+
+Positional encoding schemes like Abacus significantly improve length generalization by providing explicit alignment cues, effectively informing the model of the positional correspondence between digits in the operands and solving the digit-wise alignment sub-task for the model. Incorporating sub-task data further enhances the model's compositional learning, allowing it to build circuits that internalize intermediate computational steps such as carry detection and digit addition.
+
+\section{Insights and Contributions}
+
+Through mechanistic interpretability, we uncovered that models utilizing effective positional encodings develop internal circuits that mirror the step-by-step process of human addition. Our findings contribute to a deeper understanding of how positional information and data formatting influence the algorithmic reasoning abilities of transformer models.
+
+\section{Future Work}
+
+Future research could explore the generalization of these findings to other algorithmic tasks requiring length extrapolation. Investigating alternative architectures or hybrid models that inherently capture positional hierarchies may also yield improved generalization without task-specific positional encodings. Additionally, refining mechanistic interpretability techniques could provide more granular insights into the learning dynamics of transformer models.
+

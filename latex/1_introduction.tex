@@ -1,47 +1,22 @@
 \chapter{Introduction}\label{introduction}
 
+\section{Motivation}
 
-\section*{Research Questions}
+Length generalization in sequence modeling tasks is a fundamental challenge in deep learning, particularly in algorithmic problems such as integer addition. While humans can effortlessly generalize addition to numbers of arbitrary length, transformer models often struggle with out-of-distribution (OOD) generalization to sequences longer than those seen during training. Understanding the underlying reasons for this limitation is crucial for advancing the capabilities of neural networks in algorithmic reasoning and compositional generalization.
 
-\begin{enumerate}
-    \item How do (smaller) transformers learn to compose sub-tasks for integer addition?
-    \item What architectural features or training strategies enhance compositional learning? (we want them to be applicable to other domains as well, at least not hurt in regular unsupervised text setting)
-    \item How do transformers generalize to larger sequences than seen during training?
-\end{enumerate}
+\section{Problem Statement}
 
-Compositionality gap: difference between performance on subtasks and the full task. In our case full task is integer addition, with subtasks being digit-wise alignment, addition, and carry operations.
+Despite the success of transformers in various domains, their ability to perform multi-digit integer addition with length generalization remains limited. Prior work suggests that positional encoding schemes play a significant role in this failure. Standard absolute positional encodings do not provide the necessary alignment cues for the model to correctly match digits by their place value, leading to errors when extrapolating to longer sequences. Alternative methods, such as the Abacus positional encoding, have been proposed but often involve task-specific modifications that may not generalize to other problems.
 
-\subsection*{Experiments / Hypotheses}
+\section{Research Questions}
+
+The primary goal of this thesis is to investigate the reasons behind the failure of transformer models to generalize integer addition to longer sequences and to understand how different positional encoding schemes and data formatting strategies impact this ability. Specifically, we aim to address the following research questions:
 
 \begin{itemize}
-    \item RQ3: Models generalize to in-distribution sequence lengths but not OOD (longer or shorter) lengths.
-          \begin{itemize}
-              \item Baseline performance.
-              \item Smaller $3 \times 3$, $7 \times 7$ experiments, 1-19 digits and 18/20+ digits
-              \item Scratchpad can improve it to 18 and 20, not 21+
-          \end{itemize}
-          
-    \item RQ1: Sub-task decomposition: models decompose addition into:
-          \begin{itemize}
-              \item digit-wise alignment
-              \item modular digit-wise addition
-              \item carry operations
-              \item Probing tasks for sub-task neural networks, saliency, etc. (TODO)
-          \end{itemize}
-          
-    \item RQ2: Positional embeddings are important for digit-wise addition and source of errors (e.g., alignment).
-          \begin{itemize}
-              \item Random spaces
-              \item Abacus
-              \item Relative pos encodings
-          \end{itemize}
-          
-    \item RQ1: Compositional learning strategies:
-          \begin{itemize}
-              \item Simple to complex tasks (curriculum)
-              \item Multi-task learning (aux loss) (TODO)
-          \end{itemize}
-          
-    \item Error analysis: TODO for robustness.
-          
+    \item \textbf{Why} do transformer models with standard absolute positional encodings fail to generalize integer addition to sequences longer than those seen during training?
+    \item \textbf{How} do different positional encoding schemes affect the model's ability to perform addition correctly on longer sequences?
+    \item \textbf{How} does the inclusion of sub-task data (e.g., carry detection, digit alignment) influence the model's compositional learning and generalization capabilities?
+    \item \textbf{How} can mechanistic interpretability techniques be applied to understand the internal representations and failure modes of transformer models in the context of integer addition?
 \end{itemize}
+
+By exploring these questions, we aim to gain insights into the limitations of current transformer architectures and positional encoding methods, and to identify principles that could lead to improved generalization in algorithmic tasks.

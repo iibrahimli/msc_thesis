@@ -131,22 +131,19 @@ These models are typically pre-trained on large unlabeled text corpora using sel
 \paragraph{Decoder-only}
 Decoder-only models generate sequences based on prior tokens and are designed primarily for autoregressive language modeling and text generation tasks. GPT (Generative Pre-trained Transformer)~\cite{radford_improving_2018} is a canonical example of a decoder-only architecture. In these models, the Transformer decoder predicts the next token in a sequence by attending to the previous tokens without an encoder component. The encoder is not needed since in a decoder-only Transformer, the input sequence $\mathbf{x}$ is prepended to the decoder input sequence $\mathbf{y}$, and only passed through the decoder layers to autoregressively generate the output sequence. Recent research on language modeling has mostly focused decoder-only models, since they can also be used on other language tasks through prompting, few-shot learning, and fine-tuning. In particular, majority of the latest state-of-the-art large language models (LLMs) are decoder-only transformers pre-trained on large text corpora.
 
-\bigskip
-
 \paragraph{Encoder-Decoder vs. Decoder-Only} Both model types are capable of autoregressive sequence generation and can be used for a wide range of tasks. The decoder-only models are favored in recent works due to them being simpler and having less inductive bias. However, encoder-decoder models are still widely used in machine translation, robotics, and multi-modal learning tasks. The additional structure in encoder-decoder models, as compared to using a decoder-only model with would-be encoder input sequence prepended to the decoder's input can be summarized as:
 \begin{itemize}
     \item The input to the encoder passes through more layers (encoder layers) before reaching the decoder.
     \item It is assumed that input and output sequences are sufficiently different to justify using separate parameters for them (encoder and decoder).
 \end{itemize}
 
-In summary, the choice of Transformer architecture depends on the specific requirements of the task, though decoder-only models have been more widely used in recent research and are the focus of this work.
+With large language models and massive datasets, the difference between the two architecture becomes less relevant. In summary, the choice of Transformer architecture depends on the specific requirements of the task, though decoder-only models have been more widely used in recent research and are the focus of this work.
 
 \subsection{Recurrent and Looping Architectures}\label{subsec:recurrent_looping}
 
 Multiple Transformer extensions have been proposed that incorporate iterative application of weight-sharing layers, particularly suitable for algorithmic tasks that require reasoning over sequences. The Universal Transformer and Looped Transformer are two such examples that introduce recurrence into the Transformer architecture. There are other modifications the Transformer architecture, a few examples of which include the Memory Transformer \parencite{burtsev_memory_2021}, Recurrent Memory Transformer \parencite{bulatov_recurrent_2022}, and Neural Data Router \parencite{csordas_neural_2021}, but these architectures are not widely adopted in pretrained language models, and are not tested in this work.
 
 \paragraph{Universal Transformer}
-
 The Universal Transformer \parencite{dehghani_universal_2018} introduces recurrence into the Transformer architecture by repeatedly applying the same transformer layers multiple times, in both encoder and decoder parts:
 \begin{equation*}
     H^{(t+1)} = \text{TransformerLayer}(H^{(t)}),
@@ -176,7 +173,7 @@ The original Transformer \parencite{vaswani_attention_2017} uses additive vector
 for position in the sequence $i$ and dimension $k$. In \cite{vaswani_attention_2017}, the performance difference between learned and sinusoidal positional encodings was found to be insignificant, and the use of sinusoidal encodings is justified by possibility of generalization to longer sequences. In practice, however, absolute positional encodings do not generalize well to sequences longer than the ones seen during training \parencite{press_train_2021}.
 
 \paragraph{Randomized Positional Encodings}\label{subsec:random_pos_enc}
-Randomized positional encodings \cite{ruoss_randomized_2023} aim to improve length generalization by simulating longer sequences during training. They randomly select a subset of positions to represent the sequence, enhancing the model's ability to handle sequences of unseen lengths.
+Randomized positional encodings \cite{ruoss_randomized_2023} aim to improve length generalization by simulating longer sequences during training. Similarly to absolute positional encodings, they are added to the input embeddings, and have separate vectors for each position in the sequence. However, instead of using sequential positions $1, 2, \dots, n$, the positions are randomly sampled (keeping order) from a range $[1, n_{\text{max}}]$, where $n_{\text{max}}$ is the maximum sequence length. Thus, the model is exposed to a wider range of positional encodings during training, which helps improve generalization to longer sequences.
 
 \paragraph{Relative Position Encoding}\label{subsec:relative_pos_enc}
 Relative position representations \parencite{shaw_self-attention_2018} encode the relative distances between sequence elements directly into the attention mechanism. In RPE, a vector $\mathbf{a}_{i, j} \in \mathbb{R}^d$ is learned for each pair of positions $(i, j)$, and added to the keys before computing the attention scores:
@@ -197,7 +194,7 @@ where the bias matrix $B \in \mathbb{R}^{n \times n}$ is computed by the positio
 where the $r$ is a fixed slope pre-computed for each head.
 
 \paragraph{Rotary Position Encoding (RoPE)}\label{subsec:rope}
-RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and key vectors with an angle proportional to their absolute positions before the dot product attention, which results in attention being a function of the relative distance between the tokens, capturing the relative positional information. It is a non-additive relative positional encoding. Works such as \cite{press_train_2021,kazemnejad_impact_2023} show that RoPE also has poor length generalization.
+RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and key vectors with an angle proportional to their absolute positions before the dot product attention, which results in attention being a function of the relative distance between the tokens, capturing the relative positional information. It is a non-additive relative positional encoding. Works such as \cite{press_train_2021,kazemnejad_impact_2023} show that RoPE also has poor length generalization in addition tasks.
 
 \subsection{Training and Inference}\label{subsec:training_inference}
 
@@ -218,50 +215,57 @@ RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and 
 \end{figure}
 
 \paragraph{Training}
-
 Training involves minimizing a loss function, typically the \emph{cross-entropy loss} for language tasks, using an optimization algorithm like Stochastic Gradient Descent (SGD) or AdamW \parencite{loshchilov_decoupled_2018}. The model learns the parameters $\theta$ by backpropagating the loss through the network layers. The cross-entropy loss is defined as:
 \begin{equation*}
     \mathcal{L} = -\frac{1}{b} \sum_{i=1}^{b} \sum_{j=1}^{n} \log p(x_{i,j} | x_{i,<j}),
 \end{equation*}
 where $b$ is the batch size, $n$ is the sequence length, and $p(x_{i,j} | x_{i,<j})$ is the probability of token $x_{i,j}$ given the previous tokens $x_{i,<j}$.
 
-\TODO{describe answer-only loss}
+\paragraph{Answer Loss Masking}
+For tasks like integer addition, the loss is modified to focus only on the answer tokens, where a binary mask \( m_{i,j} \in \{0, 1\} \) is applied to denote whether a token at position \( j \) in sequence \( i \) corresponds to an answer. The loss becomes:
+
+\begin{equation*}
+    \mathcal{L}_{\text{answer-only}} = -\frac{1}{b} \sum_{i=1}^{b} \sum_{j=1}^{n} m_{i,j} \log p(x_{i,j} | x_{i,<j}),
+\end{equation*}
+
+where $b$ is the batch size, $n$ is the sequence length, $m_{i,j} = 1$ if token \( x_{i,j} \) is an answer token, otherwise \( m_{i,j} = 0 \), and \( p(x_{i,j} | x_{i,<j}) \) is the predicted probability of token \( x_{i,j} \) given the preceding tokens \( x_{i,<j} \).
+
+This formulation ensures that the loss is computed only over the answer tokens, with non-answer tokens effectively ignored (since \( m_{i,j} = 0 \) for those positions). Without answer loss masking, the cross-entropy loss would penalize the model for incorrectly predicting randomly generated operands as well (which are not possible to predict in the first place), thus adding noise to the training process never reaching 0 loss.
 
 \paragraph{Inference}
-
-During inference, the trained model generates outputs by computing the forward pass through the network. For autoregressive models, techniques like beam search may be used to generate sequences.
+During inference, the trained model generates outputs by iteratively computing the forward pass through the network and adding the sampled tokens to the prompt sequence each time. In autoregressive models, tokens are generated one by one, conditioned on previous outputs. The token at each step is selected using \emph{greedy sampling}, where:
+\begin{equation*}
+    x_j = \arg\max_{x \in \mathcal{V}} p_{\theta}(x | x_{<j}),
+\end{equation*}
+where $\mathcal{V}$ is the vocabulary, $p_{\theta}(x | x_{<j})$ are the logits computed by the model, and $\text{softmax}$ is applied to obtain the probabilities from non-normalized logits. The input sequence for the next step is updated by appending the predicted token to the previous sequence:
+\begin{equation*}
+    x^{t+1} = [x^t, x_j].
+\end{equation*}
+The sampling process continues until a predefined stopping criterion is met, such as reaching a maximum sequence length or generating a special end-of-sequence token. Greedy sampling is computationally efficient but does not explore alternative sequences. However, it is sufficient for tasks like integer addition, where the output is deterministic.
 
 
 \section{Mechanistic Interpretability}\label{sec:mech_interp}
 
-\TODO{expand}
-
-Understanding how Transformers make decisions is crucial for interpretability and debugging. Key concepts include:
+Understanding how Transformers make decisions is crucial for interpretability and debugging. Relevant concepts include the \emph{residual stream}, \emph{activation patching}, and the \emph{logit lens}, which provide insights into the model's internal representations and decision-making processes.
 
 \paragraph{Residual Stream}
 
-The residual stream in a Transformer accumulates information across layers through residual connections. Analyzing this stream helps in understanding how information is propagated and transformed.
+The residual stream in a Transformer is enabled by the residual connections around operations (as described in Subsection \ref{subsec:elements_transformers}) and serves as a shared memory, accumulating information across layers via residual connections. Both attention heads and feedforward layers read from and write to this stream, which ensures the propagation of information throughout the model. Since each layer can only read from earlier layers, analyzing this stream is essential for understanding how information is transformed and stored across layers \parencite{elhage2021mathematical}. The residual stream can be studied by techniques such as activation patching to trace information flow.
 
 \paragraph{Activation Patching}
 
-Activation patching involves replacing activations in a model with activations from a different context to study causal effects \parencite{olsson_-context_2022}. This technique can identify which components contribute to specific model behaviors.
+Activation patching \parencite{zhang_towards_2023} is a causal analysis technique where activations from a run of the model are replaced by activations from a different context, allowing to observe how this change affects the model's predictions. By selectively patching different layers or tokens, it becomes possible to identify which parts of the model are responsible for specific behaviors, such as copying repeated sequences or in-context learning. For instance, patching activations in the residual stream can reveal the contribution of circuits like \emph{induction heads}, which are attention heads that predict repeated sequences \parencite{olsson_-context_2022}.
 
 \paragraph{Logit Lens}
 
-The logit lens method inspects the logits (pre-softmax outputs) at different layers to interpret intermediate representations. It provides insights into how predictions evolve across layers.
-
-\textcite{olsson_-context_2022} investigated "induction heads," attention heads that enable in-context learning by recognizing patterns like repeated sequences.
+The logit lens method \parencite{nostalgebraist_interpreting_2020} involves inspecting the logits (pre-softmax outputs) of the model at various layers to interpret intermediate representations. By projecting the activations of each layer onto the output logits, it allows the predictions to be tracked as they are refined through the layers of the network.
 
 \section{Realizability}\label{sec:realizability}
 
-\TODO{maybe rename, fill, RASP/RASP-L and  Ahuja and Mansouri paper}
+In the context of Transformers, realizability refers to whether a given task or behavior can be reliably implemented using the model's learned representations. One framework for analyzing this is \emph{RASP}, a restricted-access sequence processing language \parencite{weiss_thinking_2021} that mimics the operations of transformers in a more interpretable manner. Moreover, \cite{fan_looped_2024} show using RASP that looped transformers can generalize to longer sequence lengths for binary addition task, along with other algorithmic tasks.
 
 \section{Deep Double Descent}\label{sec:deep_double_descent}
 
-The phenomenon of \emph{deep double descent} refers to the observation that increasing model capacity or training epochs can initially degrade performance before improving it \parencite{nakkiran_deep_2021}. This challenges the traditional bias–variance trade-off, where increasing complexity always leads to overfitting.
+The phenomenon of \emph{deep double descent} describes how increasing model capacity or training duration can initially lead to worse generalization before ultimately improving it. This was initially believed to challenge the traditional bias-variance tradeoff, where increasing model complexity was believed to always result in overfitting \parencite{belkin_reconciling_2019, nakkiran_deep_2021}. Deep double descent arises when models, especially overparameterized ones, first memorize the training data, but later discover more generalizable features, leading to improved performance on the test set and zero training loss.
 
-\textcite{belkin_reconciling_2019} explored this phenomenon, showing that modern machine learning models can benefit from overparameterization, achieving better generalization even when they perfectly fit the training data.
-
-Understanding deep double descent is important for training Transformers effectively, as it informs decisions about model size and training duration to optimize performance on tasks like integer addition.
-
-\TODO{explain why I care about this}
+This phenomenon is particularly relevant in integer addition tasks, where by studying how double descent phenomenon emerges with respect to different sequence lengths and model dimensions can shed light on the interpolation threshold — the point where the model transitions from memorization to generalization.
