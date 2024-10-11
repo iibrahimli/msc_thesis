@@ -82,7 +82,7 @@ Position-wise feed-forward networks (FFN), also called the Multi-layer Perceptro
 \begin{equation*}
     \text{FFN}(H_i) = \sigma(H_i W_1 + \mathbf{b}_1) W_2 + \mathbf{b}_2,
 \end{equation*}
-where $H_i \in \mathbb{R}^d$ is the input vector, $W_1 \in \mathbb{R}^{d \times d_{\text{ff}}}$, $W_2 \in \mathbb{R}^{d_{\text{ff}} \times d}$, and $\sigma$ is an activation function such as Rectified Linear Unit (ReLU).
+where $H_i \in \mathbb{R}^d$ is the input vector, $W_1 \in \mathbb{R}^{d \times d_{\text{ff}}}$, $W_2 \in \mathbb{R}^{d_{\text{ff}} \times d}$, and $\sigma$ is an activation function such as Rectified Linear Unit (ReLU). The intermediate dimensionality $d_{\text{ff}}$ is usually set to $4d$ in the original Transformer model and in all experiments presented in this work.
 
 \paragraph{Layer Normalization}
 Layer normalization \parencite{ba_layer_2016} is applied after each sub-layer over the last (feature) dimension. The $\text{LayerNorm}$ function for a vector $v \in \mathbb{R}^d$ is defined as:
