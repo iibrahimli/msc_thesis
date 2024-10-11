@@ -1,4 +1,33 @@
 
+@misc{nogueira_investigating_2021,
+  title      = {Investigating the Limitations of Transformers with Simple Arithmetic Tasks},
+  url        = {http://arxiv.org/abs/2102.13019},
+  doi        = {10.48550/arXiv.2102.13019},
+  abstract   = {The ability to perform arithmetic tasks is a remarkable trait of human intelligence and might form a critical component of more complex reasoning tasks. In this work, we investigate if the surface form of a number has any influence on how sequence-to-sequence language models learn simple arithmetic tasks such as addition and subtraction across a wide range of values. We find that how a number is represented in its surface form has a strong influence on the model's accuracy. In particular, the model fails to learn addition of five-digit numbers when using subwords (e.g., "32"), and it struggles to learn with character-level representations (e.g., "3 2"). By introducing position tokens (e.g., "3 10e1 2"), the model learns to accurately add and subtract numbers up to 60 digits. We conclude that modern pretrained language models can easily learn arithmetic from very few examples, as long as we use the proper surface representation. This result bolsters evidence that subword tokenizers and positional encodings are components in current transformer designs that might need improvement. Moreover, we show that regardless of the number of parameters and training examples, models cannot learn addition rules that are independent of the length of the numbers seen during training. Code to reproduce our experiments is available at https://github.com/castorini/transformers-arithmetic},
+  number     = {{arXiv}:2102.13019},
+  publisher  = {{arXiv}},
+  author     = {Nogueira, Rodrigo and Jiang, Zhiying and Lin, Jimmy},
+  urldate    = {2024-10-11},
+  date       = {2021-04-12},
+  eprinttype = {arxiv},
+  eprint     = {2102.13019},
+  keywords   = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning},
+  file       = {Preprint PDF:/Users/imran/Zotero/storage/J55G8C72/Nogueira et al. - 2021 - Investigating the Limitations of Transformers with Simple Arithmetic Tasks.pdf:application/pdf;Snapshot:/Users/imran/Zotero/storage/M3RAIYUX/2102.html:text/html}
+}
+
+@inproceedings{ebrahimi_your_2024,
+  title      = {Your Context Is Not an Array: Unveiling Random Access Limitations in Transformers},
+  url        = {https://openreview.net/forum?id=MLD1cwfjUb#discussion},
+  shorttitle = {Your Context Is Not an Array},
+  abstract   = {Despite their recent successes, Transformer-based large language models show surprising failure modes. A well-known example of such failure modes is their inability to length-generalize: solving problem instances at inference time that are longer than those seen during training. In this work, we further explore the root cause of this failure by performing a detailed analysis of model behaviors on the simple parity task. Our analysis suggests that length generalization failures are intricately related to a model's inability to perform random memory accesses within its context window. We present supporting evidence for this hypothesis by demonstrating the effectiveness of methodologies that circumvent the need for indexing or that enable random token access indirectly, through content-based addressing. We further show where and how the failure to perform random memory access manifests through attention map visualizations.},
+  eventtitle = {First Conference on Language Modeling},
+  author     = {Ebrahimi, {MohammadReza} and Panchal, Sunny and Memisevic, Roland},
+  urldate    = {2024-10-11},
+  date       = {2024-08-26},
+  langid     = {english},
+  file       = {Full Text PDF:/Users/imran/Zotero/storage/YES8RVXM/Ebrahimi et al. - 2024 - Your Context Is Not an Array Unveiling Random Access Limitations in Transformers.pdf:application/pdf}
+}
+
 @inproceedings{wang_interpretability_2022,
   title      = {Interpretability in the Wild: a Circuit for Indirect Object Identification in {GPT}-2 Small},
   url        = {https://openreview.net/forum?id=NpsVSN6o4ul},
