@@ -157,7 +157,7 @@ def train(
             name=run_name,
             id=wandb_run_id,  # either a fresh one or previous run id
             save_dir=ROOT_DIR,
-            log_model=True,
+            log_model=False,
             entity=wandb_entity,
             resume="must" if full_resume_from_ckpt else "never",
         )
