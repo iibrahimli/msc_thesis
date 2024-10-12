@@ -162,7 +162,7 @@ def train(
             resume="must" if full_resume_from_ckpt else "never",
         )
         loggers.append(wandb_logger)
-        wandb_logger.watch(model, log_freq=grad_log_interval)
+        # wandb_logger.watch(model, log_freq=grad_log_interval)
 
         # sampler and LR monitor callbacks
         gen_params = dict(
