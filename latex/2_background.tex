@@ -183,7 +183,7 @@ Relative position representations \parencite{shaw_self-attention_2018} encode th
 where $\mathbf{q}_i$ and $\mathbf{k}_j$ are the query and key vectors for positions $i$ and $j$, respectively. Relative position encodings have been shown to improve performance on tasks requiring long-range dependencies \parencite{shaw_self-attention_2018}.
 
 \paragraph{Attention with Linear Biases (ALiBi)}\label{subsec:alibi}
-ALiBi \parencite{press_train_2021} introduces a linear bias to the attention scores based on the relative positions. For this additive method, the computation of the (pre-softmax) attention logits is modified as:
+ALiBi~\parencite{press_train_2021} introduces a linear bias to the attention scores based on the relative positions. For this additive method, the computation of the (pre-softmax) attention logits is modified as:
 \begin{equation*}
     A_{\text{ALiBi}}(X) = Q K^\top + B,
 \end{equation*}
