@@ -1,49 +1,111 @@
-\chapter{Approach}\label{approach}
+\chapter{Approach}
+\label{chap:approach}
 
-\section{Data Formatting and Preprocessing}
+\section{Overview}
+\label{sec:overview}
+Provide a concise overview of the experimental approach taken to address the research questions and test the hypotheses. Mention how the experiments are designed to explore the limitations of positional encodings, the impact of data formatting, and the role of sub-task learning in improving length generalization.
 
-To investigate the impact of data formatting on length generalization, we experimented with various input representations:
+\section{Data Formatting Strategies}
+\label{sec:data_formatting}
+Discuss the various data formatting techniques employed to facilitate digit alignment and examine their effects on model generalization.
 
-\begin{itemize}
-    \item \textbf{Standard Format}: Direct representation of numbers without any modifications.
-    \item \textbf{Reversed Operands}: Reversing the digits of the operands to test positional alignment (e.g., transforming ``123 + 456'' to ``321 + 654'').
-    \item \textbf{Random Spaces}: Introducing random spaces between digits to disrupt positional patterns and assess the model's robustness.
-    \item \textbf{Scratchpad}: Incorporating a chain-of-thought by including intermediate computational steps before the final answer.
-    \item \textbf{Sub-task Annotations}: Augmenting the data with labels for sub-tasks such as carry detection and digit alignment to encourage compositional learning.
-\end{itemize}
+\subsection{Standard Format}
+Describe the default representation of input sequences, such as how operands and the addition operator are arranged (e.g., "123+456").
 
-\section{Positional Encoding Schemes}
+\subsection{Reversing Operands}
+Explain the method of reversing the digits of operands (e.g., "321+654") to align least significant digits and its intended impact on learning and generalization.
 
-We evaluated multiple positional encoding methods to understand their effect on digit alignment and generalization:
+\subsection{Adding Random Spaces}
+Describe how random spaces are introduced between digits and symbols in the input sequence. Discuss how this aims to disrupt fixed positional patterns and encourage the model to learn position-invariant representations.
 
-\begin{itemize}
-    \item \textbf{Absolute Positional Encoding}: Both learned and sinusoidal encodings assigning unique positions to each token.
-    \item \textbf{Randomized Positional Encoding}: Randomly assigning positions to examine the model's reliance on position information.
-    \item \textbf{Relative Positional Encoding}: Encoding positions relative to each other to capture distance information.
-    \item \textbf{No Positional Encoding (NoPE)}: Omitting positional information to test the model's ability to infer positions implicitly.
-    \item \textbf{ALiBi Encoding}: Using attention linear biases to encode position without additional embeddings.
-    \item \textbf{Contextual Positional Encoding}: Incorporating context-dependent position information.
-    \item \textbf{FIRE Encoding}: A frequency-based encoding aiming to capture longer-range dependencies.
-    \item \textbf{Abacus Encoding}: Assigning positions based on digit indices within operands to enhance digit alignment.
-\end{itemize}
+\subsection{Zero Padding Operands}
+Explain zero-padding operands to a fixed length (e.g., "00123+00456") to align digits. Discuss the benefits and limitations of this approach, including the necessity of knowing the maximum sequence length in advance.
 
-\section{Model Architecture and Training Setup}
+\subsection{Scratchpad Technique}
+Introduce the use of a scratchpad (chain-of-thought) where the model generates intermediate computation steps before the final answer. Explain how this promotes step-by-step reasoning and its potential impact on length generalization.
 
-We utilized decoder-only transformer models with varying configurations:
+\subsection{Inclusion of Sub-Task Data}
+Discuss the incorporation of sub-task data such as carry detection, digit-wise modular addition, reversing, and digit alignment. Explain how these sub-tasks are formatted and integrated into the training data to enhance compositional learning.
 
-\begin{itemize}
-    \item \textbf{Model Dimensions}: Tested dimensions from 64 to 1536 in increments of 64 to assess the effect of model capacity.
-    \item \textbf{Number of Layers and Heads}: Fixed at six layers with standard attention head configurations.
-    \item \textbf{Training Data}: Generated datasets with sizes of 10K, 100K, 1M, and 10M examples, training on numbers with 1--7 and 9 digits to evaluate OOD generalization to unseen lengths.
-    \item \textbf{Sub-task Training}: Compared models trained on pure addition tasks versus those trained on mixed datasets including sub-tasks.
-\end{itemize}
+\section{Experimental Setup}
+\label{sec:experimental_setup}
+Provide details on how the experiments are structured to test the hypotheses, including references to the positional encodings and model architectures described in the Background chapter.
 
-\section{Mechanistic Interpretability Analysis}
+\subsection{Model Configurations}
+Briefly mention that transformer models are used as described in the Background chapter. Highlight any specific configurations pertinent to the experiments, such as variations in model dimensions or the use of looped transformer decoders.
 
-To understand \emph{why} certain positional encodings like Abacus lead to better generalization, we performed mechanistic interpretability studies:
+\subsection{Training Data Generation}
+Describe how the training and test datasets are generated, including the range of digit lengths and operand values. Specify how out-of-distribution (OOD) test sets are constructed to assess length generalization.
 
-\begin{itemize}
-    \item \textbf{Activation Pattern Analysis}: Examined neuron activations to identify patterns corresponding to digit alignment and carry operations.
-    \item \textbf{Attention Weight Visualization}: Analyzed attention distributions to see how models focus on relevant digits during computation.
-    \item \textbf{Comparative Studies}: Compared models trained with and without sub-task data to observe differences in internal representations.
-\end{itemize}
+\subsection{Training Parameters}
+Outline the training procedures, including optimization parameters, learning rate schedules, batch sizes, number of epochs, and any regularization techniques used.
+
+\subsection{Evaluation Metrics}
+Define the metrics used to evaluate model performance, such as accuracy on in-distribution (ID) and OOD test sets, cross-entropy loss, and any task-specific metrics like carry prediction accuracy.
+
+\section{Investigating the Limitations of Absolute Positional Encodings}
+\label{sec:absolute_positional_limitations}
+Assess the limitations of absolute positional encodings in enabling length generalization for integer addition tasks.
+
+\subsection{Baseline Length Generalization Assessment}
+Establish the baseline performance of models with absolute positional encodings on length generalization.
+
+Describe how models are trained on addition tasks with operands of certain digit lengths and tested on both seen and longer unseen digit lengths. Highlight the expectation that models will struggle with sequences longer than those seen during training, supporting the hypothesis that absolute positional encodings limit generalization.
+
+\subsection{Extending Observations to Longer Sequences}
+Expand the assessment to include training on a broader range of digit lengths and testing on even longer sequences.
+
+Explain how this reinforces the initial findings by demonstrating that even extensive training on a wide range of lengths does not enable generalization to unseen longer sequences.
+
+\subsection{Broad Range Length Assessment}
+Analyze the model's ability to generalize within and beyond the training length range when trained on a wide span of digit lengths excluding specific lengths.
+
+Discuss how this experiment emphasizes the limitations of absolute positional encodings and supports the need for alternative approaches.
+
+\section{Exploring Data Formatting Techniques for Improved Generalization}
+\label{sec:data_formatting_improvement}
+Investigate how different data formatting strategies impact the model's ability to generalize to longer sequences.
+
+\subsection{Impact of Adding Random Spaces}
+Examine the effect of introducing random spaces into input sequences on length generalization.
+
+Discuss the hypothesis that adding randomness in spacing disrupts positional patterns that the model might overfit to, thereby encouraging it to learn more robust representations.
+
+\subsection{Effect of Zero Padding Operands}
+Assess how zero-padding operands to a fixed length influences generalization performance.
+
+Highlight that while zero padding aligns digits and may improve performance on sequences up to the maximum padded length, it may not facilitate generalization to longer sequences without prior knowledge of maximum lengths.
+
+\section{Enhancing Compositionality through Sub-Task Learning}
+\label{sec:subtask_learning}
+Explore the role of incorporating sub-task data in improving the model's compositionality and length generalization capabilities.
+
+\subsection{Incorporating Sub-Task Data}
+Describe the methodology for integrating sub-task data into the training process.
+
+Explain how tasks such as carry detection, digit-wise modular addition, reversing, and digit alignment are formatted and prefixed in the training data to encourage the model to learn underlying algorithmic components.
+
+\subsection{Analysis Across Model Scales}
+Analyze the impact of sub-task learning across various model dimensions and dataset sizes.
+
+Discuss expectations that models trained with sub-task data will exhibit improved length generalization and compositional understanding, addressing the hypothesis that sub-task learning enhances model performance on longer sequences.
+
+\section{Mechanistic Interpretability Techniques}
+\label{sec:mechanistic_interpretability}
+Outline the application of mechanistic interpretability methods to understand the internal representations and failure modes of the models.
+
+\subsection{Interpretability Methods}
+Describe the specific techniques to be used, such as attention pattern analysis, probing individual neurons or layers, and circuit tracing.
+
+\subsection{Application to Model Analysis}
+Explain how these methods are applied to models from key experiments, particularly those with and without sub-task data.
+
+Discuss how analyzing models with contrasting performances can reveal insights into the mechanisms underlying length generalization.
+
+\subsection{Anticipated Insights}
+Outline the expected findings from the interpretability analysis.
+
+Suggest that this may reveal how different positional encoding schemes and data formatting strategies affect the model's ability to align digits and propagate carries, thereby influencing generalization performance.
+
+Conclude the chapter by summarizing how the experimental approach is designed to systematically investigate the research questions and hypotheses through targeted experiments and analyses.
+
