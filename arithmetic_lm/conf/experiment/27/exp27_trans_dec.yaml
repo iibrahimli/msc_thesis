@@ -24,7 +24,7 @@ training:
   accumulate_grad_batches: 1
   lr: 0.0003
   only_answer_loss: true
-  max_iters: 50000
+  max_iters: 32000
   limit_test_examples: 100 # since there are many test sets
   val_interval: 4000
   reload_dataloaders_every_n_epochs: 1
