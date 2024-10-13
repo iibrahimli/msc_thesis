@@ -12,7 +12,7 @@ Despite the widespread success of transformer models in various domains, their a
 
 The core issue lies in the transformer's difficulty in aligning digits of different operands based on their positional significance across different sequence lengths. In multi-digit addition, each digit must be correctly matched with its corresponding digit in the other operand, and the positional encoding must facilitate this alignment. Without correct position-based retrieval of the correct digit from the sequence, the model cannot learn the necessary compositional structure to generalize addition to longer sequences.
 
-This thesis seeks to investigate whether transformers can achieve length generalization in integer addition without resorting to task-specific positional encodings or architectural modifications. The goal is to understand the limitations of standard transformer models and identify principles that enable better generalization by exploring various positional encoding schemes and training datasets, while minimizing the architectural changes compared to the standard unsupervised language modeling with transformers.
+This thesis seeks to investigate whether transformers can achieve length generalization in integer addition without resorting to task-specific positional encodings or architectural modifications. The goal is to understand the limitations of standard transformer models and identify principles that enable better generalization by exploring various positional encoding schemes and training datasets, while minimizing the architectural changes to standard unsupervised language modeling with transformers.
 
 \section{Research Questions}
 
