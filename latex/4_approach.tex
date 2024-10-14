@@ -1,110 +1,254 @@
 \chapter{Approach}\label{approach}
 
-\section{Overview}
-\label{sec:overview}
-Provide a concise overview of the experimental approach taken to address the research questions and test the hypotheses. Mention how the experiments are designed to explore the limitations of positional encodings, the impact of data formatting, and the role of sub-task learning in improving length generalization.
+\section{Overview}\label{sec:overview}
+\TODO{overview}
 
-\section{Data Formatting Strategies}
-\label{sec:data_formatting}
-Discuss the various data formatting techniques employed to facilitate digit alignment and examine their effects on model generalization.
+\section{Experimental Setup}\label{sec:experimental_setup}
+This section details the experimental setup used to investigate the hypotheses outlined in Section~\ref{sec:research_questions}, including data formatting techniques, model configuration, training procedures, and evaluation metrics employed in the experiments. The experiments cover analysis of the effects of positional encodings, data formatting, and inclusion of sub-task data on the length generalization capabilities of transformer models in the multi-digit integer addition task.
 
-\subsection{Standard Format}
-Describe the default representation of input sequences, such as how operands and the addition operator are arranged (e.g., "123+456").
+\subsection{Data Formatting}\label{subsec:data_formatting}
+Various data formatting techniques are employed and their effects on model generalization is exampined. All experiments use character-level tokenization; every character (digit, letter, symbol such as ``\texttt{+}'', ``\texttt{=}'', or space) is treated as an individual token. The vocabulary consists of 100 printable ASCII characters, ensuring that each token is represented uniquely. While character tokenization as such is a simple and flexible method, it is worth noting that current state-of-the-art LLMs use other subword tokenization schemes such as Byte-Pair Encoding (BPE) \parencite{sennrich_neural_2016,brown_language_2020}. Table~\ref{tab:data_formatting_examples} summarizes the different data formatting techniques with examples.
 
-\subsection{Reversing Operands}
-Explain the method of reversing the digits of operands (e.g., "321+654") to align least significant digits and its intended impact on learning and generalization.
+\paragraph{Standard Format}
+In the standard format, input sequences are represented as ``\verb|$a+b=c$|'', where $a$ and $b$ are the operands, and $c$ is the sum. The dollar signs ``\verb|$|'' denote the start and end of the sequence; the final ``\verb|$|'' also serves as the end-of-sequence token during autoregressive generation, stopping the process once it is generated. The plus ``\verb|+|'' and equals ``\verb|=|'' symbols separate the operands and the answer, respectively. For example, adding 123 and 456 is formatted as:
+\begin{center}
+    \verb|$123+456=579$|
+\end{center}
+This format serves as the baseline, with other formatting methods building upon it.
 
-\subsection{Adding Random Spaces}
-Describe how random spaces are introduced between digits and symbols in the input sequence. Discuss how this aims to disrupt fixed positional patterns and encourage the model to learn position-invariant representations.
+\paragraph{Zero Padding}
+Zero padding involves aligning the digits by prepending operands and answers with leading zeros to match a fixed length $N_\text{pad}$. For instance, if $N_\text{pad}=5$, the addition of 123 and 456 becomes:
+\begin{center}
+    \verb|$00123+00456=00579$|
+\end{center}
+This method ensures that corresponding digits in different numbers always occupy the same absolute positions in the sequence, simplifying the learning of positional relationships. However, it does not actually solve the problem, since it requires prior knowledge of the maximum sequence length and can't be applied to sequences longer than $N_\text{pad}$.
 
-\subsection{Zero Padding Operands}
-Explain zero-padding operands to a fixed length (e.g., "00123+00456") to align digits. Discuss the benefits and limitations of this approach, including the necessity of knowing the maximum sequence length in advance.
+\paragraph{Reversing}
+Reversing the digits of operands and/or the answer switches the digit ordering to start with least significant digits, which follows the flow of operations like carry propogation. For example, reversing the operands yields:
+\begin{center}
+    \verb|$321+654=579$|
+\end{center}
+Reversing both operands and the answer gives:
+\begin{center}
+    \verb|$321+654=975$|
+\end{center}
+Reversing the operands alone, in principle, should not significantly impact performance, as the model can learn appropriate attention patterns to handle reversed sequences. However, reversing the answer theoretically simplifies the task by localizing carry propagation - since the model generates the output from left to right and can compute each digit independently instead of being forced to implicitly perform the carry propagation through the complete answer before generating the first answer digit.
 
-\subsection{Scratchpad Technique}
-Introduce the use of a scratchpad (chain-of-thought) where the model generates intermediate computation steps before the final answer. Explain how this promotes step-by-step reasoning and its potential impact on length generalization.
+\paragraph{Random Spaces}
+Random spaces are inserted between symbols in the input sequence to disrupt fixed positional patterns and encourage the model to learn position-invariant representations. The number of spaces inserted is controlled by a parameter $\rho$, representing the maximum ratio of random spaces to non-space tokens in the operands. The maximum number of random spaces is calculated as $n_{\text{max}} = \rho \times L$, where $L$ is the length of the sequence (excluding the start token \texttt{\$}). The actual number of spaces $n$ is sampled uniformly from the set $\{0, \dots, n_{\text{max}}\}$. For example, if $\rho = 0.5$ and $L = 10$, then $n_{\text{max}} = 5$, and $n$ is randomly chosen from $\{0, 1, 2, 3, 4, 5\}$. The spaces are inserted at random positions within the operands. In all presented experiments, $\rho = 0.5$ when random spaces are enabled. An example of an input sequence with random spaces is:
+\begin{center}
+    \verb|$1 23 +4  5 6=579$|
+\end{center}
 
-\subsection{Inclusion of Sub-Task Data}
-Discuss the incorporation of sub-task data such as carry detection, digit-wise modular addition, reversing, and digit alignment. Explain how these sub-tasks are formatted and integrated into the training data to enhance compositional learning.
+\paragraph{Scratchpad}
+A scratchpad, or chain-of-thought, includes intermediate computational steps before the final answer, promoting step-by-step reasoning. This format also allows for the evaluation of intermediate results and aids in understanding the model's reasoning process. However, it requires task-specific data and therefore is not a general method. The scratchpad consists of reversed operands, modular addition with carry notation separated by semicolons, and the final answer separated by a vertical bar. An example with comments describing the parts is given below (the line breaks are included for convenience and not part of the actual sequence):
+\begin{center}
+    \begin{tabular}{l l}
+        \verb|$567+789=7 6 5 + 9 8 7;| & \textit{Input equation and reversed operands}             \\
+        \verb|c=0,7+0+0=7,c=0;|        & \textit{Sum of units digit, no carry initially}           \\
+        \verb|6+9+0=5,c=1;|            & \textit{Sum of tens digit, carry generated}               \\
+        \verb|5+8+1=4,c=1;|            & \textit{Sum of hundreds digit and carry, carry generated} \\
+        \verb|0+7+1=8,c=0|             & \textit{Sum of thousands digit and previous carry}        \\
+        \texttt{|8457\$}               & \textit{Final result}
+    \end{tabular}
+\end{center}
 
-\section{Experimental Setup}
-\label{sec:experimental_setup}
-Provide details on how the experiments are structured to test the hypotheses, including references to the positional encodings and model architectures described in the Background chapter.
+This sequence represents the addition of 567 and 789 with detailed computation steps, where \texttt{c} denotes the carry variable.
 
-\subsection{Model Configurations}
-Briefly mention that transformer models are used as described in the Background chapter. Highlight any specific configurations pertinent to the experiments, such as variations in model dimensions or the use of looped transformer decoders.
 
-\subsection{Training Data Generation}
-Describe how the training and test datasets are generated, including the range of digit lengths and operand values. Specify how out-of-distribution (OOD) test sets are constructed to assess length generalization.
+\begin{table}[ht]
+    \centering
+    \caption{Examples of Data Formatting Techniques}
+    \label{tab:data_formatting_examples}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Format}                                        & \textbf{Example}                                           \\
+        \midrule
+        Plain                                                  & \verb|$123+456=579$|                                       \\
+        Zero Padding (to length 5)                             & \verb|$00123+00456=00579$|                                 \\
+        Reversed Operands                                      & \verb|$321+654=579$|                                       \\
+        Reversed Answer                                        & \verb|$123+456=975$|                                       \\
+        Reversed Operands and Answer                           & \verb|$321+654=975$|                                       \\
+        Random Spaces                                          & \verb|$12  3 +45 6=579$|                                   \\
+        Scratchpad                                             & \begin{tabular}[t]{@{}l@{}} \verb|$567+789=7 6 5 + 9 8 7;| \\
+                                                                     \verb|c=0,7+0+0=7,c=0;|                     \\
+                                                                     \verb|6+9+0=5,c=1;|                         \\
+                                                                     \verb|5+8+1=4,c=1;|                         \\
+                                                                     \verb|0+7+1=8,c=0|                          \\
+                                                                     \texttt{|8457\$}
+                                                                 \end{tabular} \\
+        Subtask Prefix (placeholder \texttt{xxx})\footnotemark & \verb|xxx$123+456=321+654$|                                \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\subsection{Training Parameters}
+\footnotetext{See Section~\ref{subsec:data_gen} for details on subtasks and corresponding prefixes.}
+
+
+\subsection{Data Generation}\label{subsec:data_gen}
+
+The training and test datasets for the experiments are systematically generated to evaluate the length generalization capabilities of transformer models on integer addition tasks. Each dataset consists of addition problems where both operands \( a \) and \( b \) are positive integers of equal number of digits, denoted as the \emph{digit length}. An addition problem involving operands of \( n \) digits is referred to as an \( n \)-digit or \( n \times n \) addition problem. For instance, a ``4-digit'' or ``4x4'' addition refers to both operands having exactly four digits.
+
+Multiple datasets are created, each encompassing a specific range of in-distribution (ID) digit lengths for training and corresponding out-of-distribution (OOD) digit lengths for testing. The datasets are designed to assess the models' ability to generalize to sequence lengths beyond those seen during training. In each case, the datasets are split into training, validation, and test sets. The training set contains a specified number of ID digit length samples, while separate validation and test datasets are generated for ID and OOD digit lengths. To prevent data contamination, all samples in the validation and test sets are unique and not present in the training set.
+
+The operand values are randomly sampled to ensure uniform coverage of possible combinations within the specified digit lengths. Numbers are generated such that they have exactly the specified number of digits (i.e., they do not start with zero). Unless specified otherwise, no attempt is made to balance the digit distribution nor the number of carries required in the addition operations across the samples.
+
+Following the methodology of \cite{lee_teaching_2023}, for 1-digit operands (1x1 addition), all possible 100 combinations (operands ranging from 0 to 9) are included in the training dataset and therefore excluded from the test sets to avoid overlap. For 2-digit operands, 900 samples are randomly selected, and for 3-digit operands, 9000 samples are used. For digit lengths of 4 and above, an equal number of samples per digit length are randomly generated to fill the remaining training set size.
+
+Out-of-distribution test sets are constructed by including digit lengths not present in the training data. Each OOD test set contains 1000 unique samples for each OOD digit length to evaluate the model's length generalization performance.
+
+\paragraph{Sub-Task Data}
+
+To enhance the compositional learning abilities of the models and investigate their impact on length generalization, various sub-task data was incorporated into some datasets. The sub-tasks include \emph{reversing}, \emph{carry detection}, \emph{digit-wise modular addition}, and \emph{digit alignment}. Each sub-task focuses on a specific aspect of the addition process, aiming to help the model learn underlying algorithmic components that could facilitate better generalization.
+
+In contrast to the scratchpad approach, where intermediate computations are appended sequentially (leading to potential compounding errors), the sub-task training treats each sub-task as an independent auxiliary task. This method allows the model to learn each sub-task simultaneously without relying on the outputs of other tasks. Conversely, sub-task training implicitly involves composing multiple algorithmic parts due to pressure from the complete addition problem included alongside sub-tasks, instead of enforcing composition in each sequence.
+
+To allow the model to differentiate between the sub-tasks each example includes a 3-letter task prefix, resulting in the format \texttt{xxx\$a+b=c\$}, where \texttt{xxx} denotes the sub-task identifier, and \texttt{c} represents the sub-task-specific output.
+
+The sub-tasks, their prefixes, and their formats are as follows:
+
+\begin{itemize}
+    \item \textbf{Digit Alignment} (\texttt{ali}): Focuses on aligning the digits of the two operands for position-wise operations. The model learns to output the corresponding digit pairs from each operand.
+
+          Example: \texttt{ali\$1234+4567=1+4,2+5,3+6,4+7\$}
+
+    \item \textbf{Reversing} (\texttt{rev}): Involves reversing the digits of each operand. This sub-task helps the model understand the reversal operation, which inverts the propagation order from least significant digit to most.
+
+          Example: \texttt{rev\$1234+4567=4321+7654\$}
+
+    \item \textbf{Carry Detection} (\texttt{car}): Requires the model to identify positions where a carry operation would occur during addition. This sub-task is essentially a lookup operation from 2 digits to a binary value. The output is a string of ``c''s and dashes, indicating positions with and without carries respectively.
+
+          Example: \texttt{car\$1234+4567=---c\$}
+
+    \item \textbf{Digit-wise Modular Addition} (\texttt{mad}): The model performs addition modulo 10 on each pair of corresponding digits without considering carries. This sub-task is also in principle a lookup operation, from 2 digits to another digit.
+
+          Example: \texttt{mad\$1234+4567=5791\$}
+
+    \item \textbf{Addition} (\texttt{add}): The standard addition task, where the model computes the sum of the two operands. This serves as the main task and is included alongside sub-tasks in the dataset to facilitate composition of their output.
+
+          Example: \texttt{add\$1234+4567=5801\$}
+\end{itemize}
+
+\paragraph{Datasets}
+
+Several datasets were generated to support different experiments, each tailored to investigate specific aspects of length generalization and compositional learning. Below, we detail each dataset and its composition:
+
+\begin{itemize}
+    \item \texttt{1-3\_digit}:
+          \begin{itemize}
+              \item \textbf{Training Set}: Contains 10,000 samples of addition problems where the operands have 1 to 3 digits. The dataset follows the methodology of \cite{lee_teaching_2023} and is used to replicate their baseline results.
+              \item \textbf{Test Sets}: Separate test sets are created for each digit length from 1 to 4 digits, including OOD length 4-digit addition problems not seen during training.
+          \end{itemize}
+
+    \item \texttt{1-7\_digit}:
+          \begin{itemize}
+              \item \textbf{Training Set}: Includes addition problems with operands ranging from 1 to 7 digits.
+              \item \textbf{Test Sets}: Comprises test samples for digit lengths 1 to 8, with 8-digit addition serving as the OOD evaluation.
+              \item \textbf{Purpose}: Replicates the extended baseline from \cite{lee_teaching_2023}, examining generalization to slightly longer sequences.
+          \end{itemize}
+
+    \item \texttt{generalize\_to\_longer}:
+          \begin{itemize}
+              \item \textbf{Training Set}: Consists of 1 million samples with digit lengths from 1 to 17 and 19 digits, intentionally excluding 18-digit problems to create an interpolation gap.
+              \item \textbf{Test Sets}: Includes OOD test sets for 18-digit (interpolation) and 20-digit (extrapolation) addition problems.
+              \item \textbf{Purpose}: Evaluates the model's ability to generalize to unseen lengths within (interpolation) and beyond (extrapolation) the training range.
+          \end{itemize}
+
+    \item \texttt{generalize\_to\_longer\_mini}:
+          \begin{itemize}
+              \item \textbf{Training Set}: Contains addition problems with digit lengths of 1 to 7 digits and 9 digits, deliberately omitting 8-digit problems.
+              \item \textbf{Test Sets}: OOD test sets for 8-, 10-, and 11-digit addition problems.
+              \item \textbf{Scales}: Training data is generated at multiple scales, with datasets of 10K, 100K, 1M, and 10M examples to study the impact of dataset size, where ``K'' denotes thousands and ``M'' denotes millions.
+              \item \textbf{Purpose}: Investigates length generalization across different data scales and the effect of missing intermediate digit lengths.
+          \end{itemize}
+
+    \item \texttt{generalize\_to\_longer\_mini\_multitask}:
+          \begin{itemize}
+              \item \textbf{Composition}: Similar to \texttt{generalize\_to\_longer\_mini}, but includes all five sub-tasks (addition, reversing, carry detection, digit-wise modular addition, digit alignment) in the training data. Contains 2 variants for each scale: addition-only and multi-task training (including sub-tasks).
+              \item \textbf{Scales}: Generated at the same data scales as above.
+              \item \textbf{Purpose}: Examines the effect of sub-task training on compositionality and length generalization as compared to addition-only training.
+          \end{itemize}
+
+    \item \texttt{generalize\_to\_longer\_mini\_gap}:
+          \begin{itemize}
+              \item \textbf{Training Set}: Comprises 100K addition problems with digit lengths of 1 to 7 digits and 11 digits, creating a larger ``gap'' in the training digit lengths.
+              \item \textbf{Test Sets}: OOD test sets for digit lengths 8, 9, 10 (interpolation), and 12, 13 (extrapolation).
+              \item \textbf{Purpose}: Designed to evaluate whether the model can generalize across a larger gap in sequence lengths.
+          \end{itemize}
+\end{itemize}
+
+\subsection{Model Configuration}
+Briefly mention that transformer models are used as described in the Background chapter. Vanilla transformer decoder
+
+\subsection{Training and Evaluation}
+\paragraph{Training Setup}
 Outline the training procedures, including optimization parameters, learning rate schedules, batch sizes, number of epochs, and any regularization techniques used.
 
-\subsection{Evaluation Metrics}
+\paragraph{Evaluation Metrics}
 Define the metrics used to evaluate model performance, such as accuracy on in-distribution (ID) and OOD test sets, cross-entropy loss, and any task-specific metrics like carry prediction accuracy.
 
-\section{Investigating the Limitations of Absolute Positional Encodings}
-\label{sec:absolute_positional_limitations}
+
+\section{Limitations of Absolute Positional Encodings}\label{sec:absolute_positional_limitations}
 Assess the limitations of absolute positional encodings in enabling length generalization for integer addition tasks.
 
-\subsection{Baseline Length Generalization Assessment}
+\TODO{summarize findings}
+
+\subsection{Length Generalization Baseline}
 Establish the baseline performance of models with absolute positional encodings on length generalization.
+
+Note: Experiment 1 is included here. It reproduces the baseline failure of length generalization by training models on 1 and 3-digit additions and testing on up to 4-digit additions.
 
 Describe how models are trained on addition tasks with operands of certain digit lengths and tested on both seen and longer unseen digit lengths. Highlight the expectation that models will struggle with sequences longer than those seen during training, supporting the hypothesis that absolute positional encodings limit generalization.
 
-\subsection{Extending Observations to Longer Sequences}
-Expand the assessment to include training on a broader range of digit lengths and testing on even longer sequences.
+\subsection{Longer Training Sequences}
+Expand the assessment to include training on a broader range of digit lengths and testing on even longer sequences. Still does not generalize well
 
-Explain how this reinforces the initial findings by demonstrating that even extensive training on a wide range of lengths does not enable generalization to unseen longer sequences.
+Note: Experiment 2 is discussed in this subsection. It extends the baseline observations by training on 1-7 digit additions and testing on 8-digit additions, reinforcing the limitations observed in Experiment 1. Also include generalize-to-longer, where even training on 1-17 and 19 digit additions does not enable generalization to 19-digit additions.
 
-\subsection{Broad Range Length Assessment}
-Analyze the model's ability to generalize within and beyond the training length range when trained on a wide span of digit lengths excluding specific lengths.
+\subsection{Interpolating and Extrapolating OOD Lengths}
+Discuss experiment 28, where there is a larger gap in in-distribution lengths: trained on 1-7 and 11 digits, tested on OOD 8, 9, 10, and 12, 13 digits.
 
-Discuss how this experiment emphasizes the limitations of absolute positional encodings and supports the need for alternative approaches.
+\subsection{Digit Alignment-focused PE Improves Generalization}
+Want to see if the hypothesis that digit alignment is the root issue is correct. Train models with absolute, absolute + random spaces, and abacus models in same setup (100k samples, 1-7 training, 8 and 10 OOD testing). Look at attention maps to see patterns, and look at mistakes (where they happen).
 
-\section{Exploring Data Formatting Techniques for Improved Generalization}
-\label{sec:data_formatting_improvement}
-Investigate how different data formatting strategies impact the model's ability to generalize to longer sequences.
 
-\subsection{Impact of Adding Random Spaces}
-Examine the effect of introducing random spaces into input sequences on length generalization.
+\section{Impact of Data Formatting on Length Generalization}\label{sec:data_formatting_improvement}
+Investigate how different data formatting strategies impact the model's ability to generalize to longer sequences. Reversing vs not reversing the answer/operands, random spaces (important), scratchpad, zero padding.
 
-Discuss the hypothesis that adding randomness in spacing disrupts positional patterns that the model might overfit to, thereby encouraging it to learn more robust representations.
+\TODO{summarize findings}
 
-\subsection{Effect of Zero Padding Operands}
+\subsection{Zero Padding}
 Assess how zero-padding operands to a fixed length influences generalization performance.
+
+Note: Findings from Experiments 7-9 (included in the Appendix) are summarized here. These experiments explore zero-padding but are not central to the main hypotheses.
 
 Highlight that while zero padding aligns digits and may improve performance on sequences up to the maximum padded length, it may not facilitate generalization to longer sequences without prior knowledge of maximum lengths.
 
-\section{Enhancing Compositionality through Sub-Task Learning}
-\label{sec:subtask_learning}
-Explore the role of incorporating sub-task data in improving the model's compositionality and length generalization capabilities.
+\subsection{Reversing}
+Examine the impact of reversing operands and the answer on model generalization. Theoretically, reversing operands should not matter and reversing answer should help. But, for Abacus pos encoding operands should be reversed. Reversing the answer theoretically makes the task simpler, and experimentally results in step-wise loss jumps. Interestingly, in both cases (whether answer reversed or not) i find that models start correctly predicting most significant digits, and over the training predict more and more digits right until the max in-distribution length. This happens even if answers are reversed, where model predicts incorrect then correct digits.
 
-\subsection{Incorporating Sub-Task Data}
-Describe the methodology for integrating sub-task data into the training process.
+\subsection{Scratchpad}
+
+\subsection{Random Spaces}
+Examine the effect of introducing random spaces into input sequences on length generalization.
+
+Note: Experiment 23 focuses on this aspect. It trains models on 1-7 and 9-digit additions with random spaces added to the input sequences and tests on 8 and 10-13 digits.
+
+Discuss the hypothesis that adding randomness in spacing disrupts positional patterns that the model might overfit to, thereby encouraging it to learn more robust representations.
+
+
+\section{Sub-task Learning for Compositionality}\label{sec:subtask_learning}
+Explore the role of incorporating sub-task data in improving the model's compositionality and length generalization capabilities.
 
 Explain how tasks such as carry detection, digit-wise modular addition, reversing, and digit alignment are formatted and prefixed in the training data to encourage the model to learn underlying algorithmic components.
 
-\subsection{Analysis Across Model Scales}
-Analyze the impact of sub-task learning across various model dimensions and dataset sizes.
+Note: Experiment 27 is discussed in this section. It provides a comprehensive analysis of sub-task learning across model dimensions ranging from 64 to 1536 and dataset sizes from 10K to 10M examples.
 
-Discuss expectations that models trained with sub-task data will exhibit improved length generalization and compositional understanding, addressing the hypothesis that sub-task learning enhances model performance on longer sequences.
+\TODO{summarize findings}
 
-\section{Mechanistic Interpretability Techniques}
-\label{sec:mechanistic_interpretability}
-Outline the application of mechanistic interpretability methods to understand the internal representations and failure modes of the models.
+\subsection{Inclusion of Sub-Tasks Improves Generalization}
+Analyze addition-only vs sub-task (mix) training across model dimensions and dataset sizes. Also look at plots of OOD val-loss vs ID val-loss, see if it helps overfitting.
 
-\subsection{Interpretability Methods}
-Describe the specific techniques to be used, such as attention pattern analysis, probing individual neurons or layers, and circuit tracing.
+\subsection{TODO subtasks are harder}
 
-\subsection{Application to Model Analysis}
-Explain how these methods are applied to models from key experiments, particularly those with and without sub-task data.
-
-Discuss how analyzing models with contrasting performances can reveal insights into the mechanisms underlying length generalization.
-
-\subsection{Anticipated Insights}
-Outline the expected findings from the interpretability analysis.
-
-Suggest that this may reveal how different positional encoding schemes and data formatting strategies affect the model's ability to align digits and propagate carries, thereby influencing generalization performance.
-
-Conclude the chapter by summarizing how the experimental approach is designed to systematically investigate the research questions and hypotheses through targeted experiments and analyses.
-
+\TODO{fill based on results}

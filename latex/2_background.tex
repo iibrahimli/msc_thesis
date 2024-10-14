@@ -201,7 +201,7 @@ RoPE \cite{su_roformer_2024} encodes positions using rotations of the query and 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{fig/training_and_inference.pdf}
-    \caption{Training and inference setup for Transformer models on the arithmetic task. During training (subfigure a), the padded input batch is passed through the model, and the loss is computed by comparing the predicted logits with the target sequence. Unlike regular unsupervised learning, the loss from non-answer tokens is masked out. During inference (subfigure b), the model generates outputs by greedily sampling tokens one by one until maximum output length is reached, or the end-of-sequence token \texttt{\$} is generated.}
+    \caption{Training and inference setup for Transformer models on the arithmetic task. During training (subfigure a), the padded input batch is passed through the model, and the loss is computed by comparing the predicted logits with the target sequence (\emph{teacher forcing}). Unlike regular unsupervised learning, the loss from non-answer tokens is masked out in experiments. During inference (subfigure b), the model generates outputs by greedily sampling tokens one by one until maximum output length is reached, or the end-of-sequence token \texttt{\$} is generated.}
     \label{fig:transformer_training_inference}
 \end{figure}
 
