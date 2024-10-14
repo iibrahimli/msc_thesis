@@ -895,6 +895,88 @@ def generate_generalize_to_longer_mini_multitask(out_dir: str | Path):
                 f.writelines(lines)
 
 
+def generate_generalize_to_longer_mini_gap(out_dir: str | Path):
+    """
+    Train on 1x1-7x7 and 11x11, test on 1x1-13x13 (8,9,10 digits are for
+    in-between OOD, 12,13 longer OOD generalization).
+    """
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print()
+    print(f" > Generating data for generalize-to-longer-mini-gap to {out_dir}")
+
+    # out of distribution
+    out_dist = {8, 9, 10, 12, 13}
+    in_dist = {1, 2, 3, 4, 5, 6, 7, 11}
+    train_sizes = [
+        10**5,  # 100k
+    ]
+    train_file_paths = []
+
+    for ts in train_sizes:
+        # generate train dataset
+        train_path = out_dir / f"train_add_1-7_and_11_{ts}.txt"
+        train_file_paths.append(train_path)
+        print(f"Generating {train_path}")
+
+        # 100 samples for 1x1, 9901 samples for 2x2
+        n_examples = {
+            1: 100,
+            2: 9901,
+        }
+        # if we don't have enough for other digits, take less from 1 and 2
+        if ts - sum(n_examples.values()) < 5000:
+            n_examples.update({1: 100, 2: 990})  # 10x less than usual
+        elif ts > 9_000_000:
+            n_examples.update({1: 100, 2: 990, 3: 99901})  # 10x less than usual
+        n_except_low_digits = ts - sum(n_examples.values())
+        n_examples.update(
+            {
+                i: min(
+                    n_except_low_digits // (len(in_dist) - 2),
+                    n_possible_examples(i),
+                )
+                for i in in_dist - set(n_examples.keys())
+            }
+        )
+        print(f"Number of examples: {n_examples}")
+        generate_balanced(
+            filepath=train_path,
+            num_examples=n_examples,
+            balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+        )
+
+    # train examples excluded from test
+    excluded = set()
+    for tf in train_file_paths:
+        excluded |= get_set_from_file(tf)
+
+    # generate test dataset with trained digit lengths (in distribution)
+    in_distribution_test_path = out_dir / "test_add_in_distribution_2000.txt"
+    print(f"Generating {in_distribution_test_path}")
+    generate_balanced(
+        filepath=in_distribution_test_path,
+        num_examples={
+            i: 2000 / len(in_dist) for i in in_dist if i not in (1, 2)
+        },  # exclude 1 and 2 since they're fully covered in training dataset
+        exclude=excluded,
+        balance_carries=False,  # too slow for large digit numbers, TODO: optimize
+    )
+
+    # generate test dataset with out of distribution digit lengths
+    for i in out_dist:
+        out_dist_test_path = out_dir / f"test_add_ood_{i}digit_100.txt"
+        print(f"Generating {out_dist_test_path}")
+        generate_only_digit(
+            out_dist_test_path,
+            num_digits=i,
+            num_examples=100,
+            exclude=excluded,
+            seed=i,
+        )
+
+
 def main():
     # generate_experiment_1(DATA_DIR / "addition")
     # generate_experiment_2(DATA_DIR / "addition")
@@ -909,11 +991,14 @@ def main():
     # generate_generalize_to_longer_20_nocarry(
     #     DATA_DIR / "addition" / "generalize_to_longer_20_nocarry"
     # )
-    generate_generalize_to_longer_mini(
-        DATA_DIR / "addition" / "generalize_to_longer_mini"
-    )
-    generate_generalize_to_longer_mini_multitask(
-        DATA_DIR / "addition" / "generalize_to_longer_mini_multitask"
+    # generate_generalize_to_longer_mini(
+    #     DATA_DIR / "addition" / "generalize_to_longer_mini"
+    # )
+    # generate_generalize_to_longer_mini_multitask(
+    #     DATA_DIR / "addition" / "generalize_to_longer_mini_multitask"
+    # )
+    generate_generalize_to_longer_mini_gap(
+        DATA_DIR / "addition" / "generalize_to_longer_mini_gap"
     )
 
 
