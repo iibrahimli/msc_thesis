@@ -178,14 +178,67 @@ Several datasets were generated to support different experiments, each tailored 
 \end{itemize}
 
 \subsection{Model Configuration}
-Briefly mention that transformer models are used as described in the Background chapter. Vanilla transformer decoder
+
+Transformer decoder models are used as described in the Background chapter (Section~\ref{subsec:types_transformers}). Unless specified otherwise, a standard transformer decoder architecture is employed. The models are varied along several dimensions to assess their impact on performance:
+
+\begin{itemize}
+    \item \textbf{Number of layers (depth)}: The number of decoder layers.
+    \item \textbf{Model dimension (width)}: The dimensionality of the model embeddings and hidden representations.
+    \item \textbf{Number of attention heads}: The number of attention heads $h$ is chosen such that $d$ is divisible by $h$, commonly set to powers of 2.
+    \item \textbf{Feed-forward layer dimension}: The hidden dimension of the feed-forward layers is set to $d_{\text{ff}} = 4 \times d$.
+    \item \textbf{Context length}: The maximum input sequence length, denoted as $L_{\text{max}}$, is set based on the task requirements and is only relevant for models with absolute positional encodings.
+\end{itemize}
+
+Unless otherwise noted, models use absolute positional encodings. For experiments involving different positional encoding schemes, the specific configurations are detailed in the respective sections.
 
 \subsection{Training and Evaluation}
+
 \paragraph{Training Setup}
-Outline the training procedures, including optimization parameters, learning rate schedules, batch sizes, number of epochs, and any regularization techniques used.
+The models are trained using the AdamW optimizer with hyperparameters as follows (see Table~\ref{tab:optimizer_hyperparameters}):
+
+\begin{table}[h]
+    \centering
+    \caption{Optimizer Hyperparameters}
+    \label{tab:optimizer_hyperparameters}
+    \begin{tabular}{lcc}
+        \toprule
+        Hyperparameter & Value              \\
+        \midrule
+        Optimizer      & AdamW              \\
+        Learning rate  & $3 \times 10^{-4}$ \\
+        Betas          & $(0.9, 0.999)$     \\
+        Epsilon        & $1 \times 10^{-8}$ \\
+        Weight decay   & $0.1$              \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+A learning rate scheduler with linear warm-up and cosine decay is used; for the first $T_{\text{w}} = 100$ iterations, the learning rate increases linearly from $0$ to the chosen learning rate. After warm-up, the learning rate at the current iteration $\eta(t)$ is cosine-annealed to a minimum learning rate of $\eta_{\text{min}} = 0.1 \times \eta$ over the course of training until maximum number of iteartions $T_{\text{max}}$ according to the formula:
+\[
+    \eta(t) =
+    \begin{cases}
+        \eta_{\text{max}} \times \dfrac{t}{T_{\text{w}}},                                                                                                                          & \text{if } t < T_{\text{w}}                        \\
+        \eta_{\text{min}} + \dfrac{1}{2} (\eta_{\text{max}} - \eta_{\text{min}}) \left[1 + \cos\left( \pi \dfrac{t - T_{\text{w}}}{T_{\text{max}} - T_{\text{w}}} \right) \right], & \text{if } T_{\text{w}} \leq t \leq T_{\text{max}} \\
+        \eta_{\text{min}},                                                                                                                                                         & \text{if } t > T_{\text{max}}
+    \end{cases}
+\]
+where $t$ is the current iteration.
+
+The batch size is selected based on the task, the model size and the sequence length to maximize GPU utilization while avoiding memory constraints. For large models or long sequences, gradient accumulation over multiple steps is employed to achieve an effective batch size. The number of training epochs is not set explicitly, rather the number of optimizer steps (iterations) is used. Answer loss masking (as described in Section~\ref{subsec:training_inference}) is applied during training unless specified otherwise. This means that the loss is computed only over the tokens corresponding to the answer part of the sequence, excluding any start tokens or padding tokens.
+
+\paragraph{Inference Procedure}
+During inference, top-$k$ sampling with $k=1$ is used, which corresponds to greedy decoding by selecting the token with the highest probability at each timestep. Although beam search was implemented and tested, it did not yield significant improvements due to the sharpness of the output distribution; the model's predictions are typically highly confident, with the softmax probabilities concentrated on a single token.
 
 \paragraph{Evaluation Metrics}
-Define the metrics used to evaluate model performance, such as accuracy on in-distribution (ID) and OOD test sets, cross-entropy loss, and any task-specific metrics like carry prediction accuracy.
+
+For all experiments, the models are evaluated using two primary metrics:
+
+\begin{itemize}
+    \item \textbf{Cross-Entropy Loss}: Calculated over the answer tokens only, providing a measure of the model's average log-likelihood of the correct answer tokens. Lower loss values indicate better performance. The loss is also related to the \emph{perplexity} of the model, which is the exponential of the loss and is often used as a metric in language modeling tasks. The perplexity represents the average number of choices the model has for the next token, with lower values indicating better performance.
+    \item \textbf{Accuracy}: Defined as the proportion of samples where all answer tokens are predicted correctly, also known as full match accuracy. A single incorrect digit in the answer results in the sample being marked as incorrect. The autoregressive inference is used to generate the full answer sequence one token at a time until the end-of-sequence token is predicted or the maximum sequence length is reached. Higher accuracy values indicate better performance. The cross-entropy loss can be used to compare model performance when the accuracy is the same, e.g. when models have been trained short of full convergence and task accuracy is 0.
+\end{itemize}
+
+During training, both training and validation losses are recorded to monitor the learning dynamics. Models are evaluated on validation sets corresponding to both in-distribution (ID) and out-of-distribution (OOD) digit lengths to assess their generalization capabilities.
 
 
 \section{Limitations of Absolute Positional Encodings}\label{sec:absolute_positional_limitations}
@@ -245,6 +298,15 @@ Explain how tasks such as carry detection, digit-wise modular addition, reversin
 Note: Experiment 27 is discussed in this section. It provides a comprehensive analysis of sub-task learning across model dimensions ranging from 64 to 1536 and dataset sizes from 10K to 10M examples.
 
 \TODO{summarize findings}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{fig/exp_27_val_loss_vs_n_embd.png}
+    \caption{TODO fix placeholder + caption, main idea: mix task training sometimes improves OOD loss, effect is especially pronounced for smaller models and smaller dataset sizes}
+    \label{fig:exp_27_val_loss_vs_n_embd}
+\end{figure}
+
 
 \subsection{Inclusion of Sub-Tasks Improves Generalization}
 Analyze addition-only vs sub-task (mix) training across model dimensions and dataset sizes. Also look at plots of OOD val-loss vs ID val-loss, see if it helps overfitting.
