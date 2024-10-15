@@ -95,6 +95,7 @@ def generate(
     top_k: int = 1,
     stop_token: int = None,
     n_beams: int = 0,
+    return_logits: bool = False,
 ) -> Tensor:
     """
     Take a conditioning sequence of indices idx (tensor of shape [batch, seq_len])
@@ -134,6 +135,10 @@ def generate(
     # keep track of where generated part starts to only return it
     gen_start_idx = idx.size(-1)
 
+    if return_logits:
+        # seq_len, vocab_size
+        token_logits = []
+
     # get hidden state from encoder
     if encoder_source is not None:
         # don't care about masks for now since only batch size = 1
@@ -157,6 +162,9 @@ def generate(
             logits = model.decode(idx_cond, memory)
         else:
             logits = model(idx_cond)
+
+        if return_logits:
+            token_logits.append(logits[:, -1, :].detach().cpu().numpy())
 
         # get logits at final step and apply temperature
         logits = logits[:, -1, :] / temperature
@@ -183,5 +191,8 @@ def generate(
         same_tok_tol = 20
         if i > same_tok_tol and (idx[:, -same_tok_tol:] == idx[:, -1]).all():
             break
+
+    if return_logits:
+        return idx[:, gen_start_idx:], token_logits
 
     return idx[:, gen_start_idx:]
