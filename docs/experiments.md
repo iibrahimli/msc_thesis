@@ -108,3 +108,6 @@ repeat for 3 seeds each
 
 ## [Experiment 28](../arithmetic_lm/conf/experiment/28)
 The models can usually close a gap of 1 digit between trained digits (e.g. trained on 1-7 and 9, 8 digit OOD works good). Similar to generalize-to-longer-mini, but use a dataset where training is on 1-7 and 11 digits, see if a larger gap (8,9,10) can also be closed. Test on OOD: 8, 9, 10, 12, 13.
+
+## [Experiment 29](../arithmetic_lm/conf/experiment/29)
+Different pos encodings on gen-to-longer-mini. Absolute, absolute + random spaces, abacus, fire + index hints, abs + index hints.

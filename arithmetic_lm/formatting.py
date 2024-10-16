@@ -4,10 +4,13 @@ Input formatting types for arithmetic tasks
 
 import random
 import re
+import string
 
 from arithmetic_lm.constants import TASK_PREFIX_LEN
 
 PLAIN_FORMAT_STR = "{a}{op}{b}={ans}\n"
+
+INDEX_HINTS = string.ascii_lowercase
 
 
 def add_random_spaces(text: str, amount: int | float = 0.1) -> str:
@@ -56,6 +59,7 @@ def format_line(
     scratchpad: bool = False,
     operand_random_spaces_amount: int | float = 0,
     answer_random_spaces_amount: int | float = 0,
+    index_hints: bool = False,
     generic: bool = False,
     use_task_prefix: bool = False,
 ) -> str:
@@ -69,6 +73,7 @@ def format_line(
     generic: whether to only apply pad, do not try to split numeric ops and answer.
     task_prefix: (for multi-task) if there are task prefixes in beginning of lines
     NOTE: task prefix assumed to be first 3 chars in each line.
+    index hints: "a1b2c3+a4b5c6"
     """
 
     task_prefix = ""
@@ -82,6 +87,7 @@ def format_line(
         return f"{task_prefix}{pad}{line.strip()}{pad}"
 
     ab, ans = line.split("=")
+    ans = ans.rstrip()
 
     if random_zero_padding:
         assert (
@@ -95,27 +101,45 @@ def format_line(
     if reverse_ops:
         a = a[::-1]
         b = b[::-1]
-
     if pad_ops_zero:
         # split by non-digit char and pad operands with zeros
         a = a.zfill(pad_ops_zero)
         b = b.zfill(pad_ops_zero)
 
+    if reverse_ans:
+        ans = ans[::-1]
+    if pad_ans_zero:
+        ans = ans.zfill(pad_ans_zero)
+
+    # add index hints to ops and ans
+    if index_hints:
+        # choose a random subsequence of index hints, but one that's enough for
+        n_hints = max(len(a), len(b), len(ans))
+        start_idx = random.randint(0, len(INDEX_HINTS) - n_hints)
+
+        # ans may be longer than ops by 1, so adjust start_idx
+        a = "".join(
+            [
+                f"{ih}{da}"
+                for da, ih in zip(a, INDEX_HINTS[start_idx + int(not reverse_ans) :])
+            ]
+        )
+        b = "".join(
+            [
+                f"{ih}{da}"
+                for da, ih in zip(b, INDEX_HINTS[start_idx + int(not reverse_ans) :])
+            ]
+        )
+        ans = "".join([f"{ih}{da}" for da, ih in zip(ans, INDEX_HINTS[start_idx:])])
+
     ab = f"{a}{op}{b}"
     ab = ab.lstrip()
-    ans = ans.rstrip()
 
     # add random spaces to operands
     ab = add_random_spaces(ab, operand_random_spaces_amount)
 
     # add random spaces to answer
     ans = add_random_spaces(ans, answer_random_spaces_amount)
-
-    if reverse_ans:
-        ans = ans[::-1]
-
-    if pad_ans_zero:
-        ans = ans.zfill(pad_ans_zero)
 
     filler_token = "."
     if filler_tokens_prompt:

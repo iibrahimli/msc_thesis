@@ -164,7 +164,7 @@ def generate(
             logits = model(idx_cond)
 
         if return_logits:
-            token_logits.append(logits[:, -1, :].detach().cpu().numpy())
+            token_logits.append(logits[0, -1, :].detach().cpu().numpy())
 
         # get logits at final step and apply temperature
         logits = logits[:, -1, :] / temperature

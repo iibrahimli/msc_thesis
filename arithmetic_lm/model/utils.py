@@ -40,6 +40,11 @@ def load_model(
         **ckpt["hyper_parameters"]["model_hparams"],
         # vocab_size=tokenizer.vocab_size,
     )
+    # TODO HACK remove transformer_encoder from prefix
+    ckpt["state_dict"] = {
+        k.replace("transformer_encoder.", ""): v for k, v in ckpt["state_dict"].items()
+    }
+
     # state dict has a prefix "model." in the key names
     model.load_state_dict(
         {k[6:]: v for k, v in ckpt["state_dict"].items() if k.startswith("model.")}
