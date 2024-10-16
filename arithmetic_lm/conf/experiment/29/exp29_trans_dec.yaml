@@ -38,10 +38,12 @@ model:
   args:
     n_layers: 4
     n_embd: 128
-    n_head: 8
+    n_head: 4
     context_len: 128
     pos_enc: abs
+    input_injection: false
+    # all with ii, except fire, which is without
 
 wandb:
   project: "experiment-29"
-  run_name: tdec_${model.args.n_embd}embd_${model.args.pos_enc}_s${training.seed}
+  run_name: tdec_${model.args.pos_enc}${wandb.suffix}_s${training.seed}
