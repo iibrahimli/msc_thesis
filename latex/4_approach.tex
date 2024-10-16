@@ -136,8 +136,8 @@ Several datasets were generated to support different experiments, each tailored 
 \begin{itemize}
     \item \texttt{1-3\_digit}:
           \begin{itemize}
-              \item \textbf{Training Set}: Contains 10,000 samples of addition problems where the operands have 1 to 3 digits. The dataset follows the methodology of \cite{lee_teaching_2023} and is used to replicate their baseline results.
-              \item \textbf{Test Sets}: Separate test sets are created for each digit length from 1 to 4 digits, including OOD length 4-digit addition problems not seen during training.
+              \item \textbf{Training Set}: Contains 10,000 samples of addition problems where the operands have 1 and 3 digits. The dataset follows the methodology of \cite{lee_teaching_2023} and is used to replicate their baseline results.
+              \item \textbf{Test Sets}: Separate test sets are created for each digit length from 1 to 4 digits, including OOD lengths of 2- and 4-digit addition problems not seen during training.
           \end{itemize}
 
     \item \texttt{1-7\_digit}:
@@ -194,7 +194,7 @@ Unless otherwise noted, models use absolute positional encodings. For experiment
 \subsection{Training and Evaluation}
 
 \paragraph{Training Setup}
-The models are trained using the AdamW optimizer with hyperparameters as follows (see Table~\ref{tab:optimizer_hyperparameters}):
+Overall, the training parameters from the NanoGPT \parencite{karpathy_nanogpt_2022} are used with modified number of steps, learning rates, and batch sizes. All models are trained using the AdamW optimizer with hyperparameters as follows (see Table~\ref{tab:optimizer_hyperparameters}):
 
 \begin{table}[h]
     \centering
@@ -230,12 +230,11 @@ The batch size is selected based on the task, the model size and the sequence le
 During inference, top-$k$ sampling with $k=1$ is used, which corresponds to greedy decoding by selecting the token with the highest probability at each timestep. Although beam search was implemented and tested, it did not yield significant improvements due to the sharpness of the output distribution; the model's predictions are typically highly confident, with the softmax probabilities concentrated on a single token.
 
 \paragraph{Evaluation Metrics}
-
 For all experiments, the models are evaluated using two primary metrics:
 
 \begin{itemize}
     \item \textbf{Cross-Entropy Loss}: Calculated over the answer tokens only, providing a measure of the model's average log-likelihood of the correct answer tokens. Lower loss values indicate better performance. The loss is also related to the \emph{perplexity} of the model, which is the exponential of the loss and is often used as a metric in language modeling tasks. The perplexity represents the average number of choices the model has for the next token, with lower values indicating better performance.
-    \item \textbf{Accuracy}: Defined as the proportion of samples where all answer tokens are predicted correctly, also known as full match accuracy. A single incorrect digit in the answer results in the sample being marked as incorrect. The autoregressive inference is used to generate the full answer sequence one token at a time until the end-of-sequence token is predicted or the maximum sequence length is reached. Higher accuracy values indicate better performance. The cross-entropy loss can be used to compare model performance when the accuracy is the same, e.g. when models have been trained short of full convergence and task accuracy is 0.
+    \item \textbf{Accuracy}: Defined as the proportion of samples where all answer tokens are predicted correctly, also known as full match accuracy. A single incorrect digit in the answer results in the sample being marked as incorrect. To compute the accuracy, autoregressive inference (as described in Section~\ref{subsec:training_inference}) is used to generate the full answer sequence one token at a time until the end-of-sequence token is predicted or the maximum sequence length is reached. Higher accuracy values indicate better performance. The cross-entropy loss can be used to compare model performance when the accuracy is the same, e.g. when models have been trained short of full convergence and task accuracy is 0.
 \end{itemize}
 
 During training, both training and validation losses are recorded to monitor the learning dynamics. Models are evaluated on validation sets corresponding to both in-distribution (ID) and out-of-distribution (OOD) digit lengths to assess their generalization capabilities.
@@ -244,25 +243,45 @@ During training, both training and validation losses are recorded to monitor the
 \section{Limitations of Absolute Positional Encodings}\label{sec:absolute_positional_limitations}
 Assess the limitations of absolute positional encodings in enabling length generalization for integer addition tasks.
 
-\TODO{summarize findings}
+summarize findings: by itself, absolute pos encoding is unable to generalize even to slightly longer sequences, and fails to interpolate or extrapolate to unseen lengths. Seems to be due to inability to continue attention patterns beyond training lengths (evidence: attention maps, where unlike absolute PE, abacus has crisp attn maps because it can precisely select correct digits based on position, abs with addition of random spaces smoothes attn maps, which helps it generalize a tiny bit). Also, next token entropy analysis shows that models trained on 1-7 and 9 digits are very confident in their predictions for in-distribution lengths, but become increasingly uncertain for OOD lengths, especially for longer sequences, trying to end the sequence and token distribution becomes smoother, prob of correct token goes to 0. So, aligning the correct digits is the main issue, consistent with literature that vanilla transformer struggles to perform index-addressing operations.
+If we fix the digit alignment part for the model (e.g. abacus embeddings) and don't change anything else, models can generalize to longer sequences well. But, how can we push absolute vanilla setup, without special embeddings, to generalize to longer sequences? -> random spaces added to sequence can help weakly generalize: generalizing to interpolating lengths and 1 digit longer sequences. In next section, effects of different data formatting (including random spaces) on length generalization are explored.
+
+\TODO{refer to string algo tasks in appendix that isolate indexing issues}
 
 \subsection{Length Generalization Baseline}
-Establish the baseline performance of models with absolute positional encodings on length generalization.
+Establish the baseline performance of models with absolute positional encodings on length generalization. The first subplot in figure in TODO will show how: when trained on 1 and 3 digits, the model fails 2 and 4 digits, and when trained on 1-7 digits, the model fails 8 digits.
 
-Note: Experiment 1 is included here. It reproduces the baseline failure of length generalization by training models on 1 and 3-digit additions and testing on up to 4-digit additions.
+Describe how models are trained on addition tasks with operands of certain digit lengths and tested on both seen and longer unseen digit lengths. Highlight the expectation that models will struggle with sequences longer than those seen during training, supporting the hypothesis that absolute positional encodings limit generalization. In this case, there is no generalization, neither in interpolation nor extrapolation OOD lengths.
 
-Describe how models are trained on addition tasks with operands of certain digit lengths and tested on both seen and longer unseen digit lengths. Highlight the expectation that models will struggle with sequences longer than those seen during training, supporting the hypothesis that absolute positional encodings limit generalization.
+\paragraph{Longer Training Sequences}
+want to test whether training on longer sequences changes this. The 2nd subplot referenced in figure placeholder shows where even training on 1-17 and 19 digit additions does not enable generalization to 18 and 20 digit additions in vanilla.
 
-\subsection{Longer Training Sequences}
-Expand the assessment to include training on a broader range of digit lengths and testing on even longer sequences. Still does not generalize well
+\TODO{PLOT 3x3 and 7x7 experiments, as well as 1-17 and 19 digit train, 18 and 20 OOD failures}
+\label{fig:baseline_and_longer}
 
-Note: Experiment 2 is discussed in this subsection. It extends the baseline observations by training on 1-7 digit additions and testing on 8-digit additions, reinforcing the limitations observed in Experiment 1. Also include generalize-to-longer, where even training on 1-17 and 19 digit additions does not enable generalization to 19-digit additions.
 
-\subsection{Interpolating and Extrapolating OOD Lengths}
-Discuss experiment 28, where there is a larger gap in in-distribution lengths: trained on 1-7 and 11 digits, tested on OOD 8, 9, 10, and 12, 13 digits.
+\paragraph{Next Token Uncertainty Analysis}
+
+\TODO{PLOT average plots for entropy for next token prediction distributions, probabilities of correct and EOS tokens over generated answe sequence. Given a model trained on 1-7 and 9 digit lengths, look at cases: in-dist lengths (everything fine), , and OOD lengths see how it goes nuts}
+\label{fig:next_token_entropy}
 
 \subsection{Digit Alignment-focused PE Improves Generalization}
-Want to see if the hypothesis that digit alignment is the root issue is correct. Train models with absolute, absolute + random spaces, and abacus models in same setup (100k samples, 1-7 training, 8 and 10 OOD testing). Look at attention maps to see patterns, and look at mistakes (where they happen).
+hypothesis: digit alignment is the root issue. Train models with absolute, absolute + random spaces, and abacus models in same setup (100k samples, 1-7 training, 8 and 10 OOD testing). Look at attention maps to see patterns, and look at mistakes (where they happen).
+
+\TODO{PLOT abacus vs abs results}
+\label{fig:digit_align_pe}
+
+\TODO{PLOT attn maps from above models, discuss differences}
+\label{fig:digit_align_attn_maps}
+
+
+\subsection{Breaking Positional Patterns in Absolute PE Allows Weak Generalization}
+Investigate the impact of introducing random spaces into input sequences on length generalization. The hypothesis is that random spaces disrupt fixed positional patterns that the model might overfit to, encouraging it to learn more robust representations. It does help a bit.
+
+\TODO{PLOT results for abs + randspaces vs abs without}
+
+\TODO{PLOT abs + randspaces vs abs without attn maps}
+\label{fig:rand_spaces_attn_maps}
 
 
 \section{Impact of Data Formatting on Length Generalization}\label{sec:data_formatting_improvement}
@@ -277,10 +296,12 @@ Note: Findings from Experiments 7-9 (included in the Appendix) are summarized he
 
 Highlight that while zero padding aligns digits and may improve performance on sequences up to the maximum padded length, it may not facilitate generalization to longer sequences without prior knowledge of maximum lengths.
 
+\TODO{plot zero padded exp 7x7 I think - need to check}
+
 \subsection{Reversing}
 Examine the impact of reversing operands and the answer on model generalization. Theoretically, reversing operands should not matter and reversing answer should help. But, for Abacus pos encoding operands should be reversed. Reversing the answer theoretically makes the task simpler, and experimentally results in step-wise loss jumps. Interestingly, in both cases (whether answer reversed or not) i find that models start correctly predicting most significant digits, and over the training predict more and more digits right until the max in-distribution length. This happens even if answers are reversed, where model predicts incorrect then correct digits.
 
-\subsection{Scratchpad}
+\TODO{PLOT abspe revans vs norev 128-dim, 4-layer from exp 30}
 
 \subsection{Random Spaces}
 Examine the effect of introducing random spaces into input sequences on length generalization.
@@ -289,28 +310,59 @@ Note: Experiment 23 focuses on this aspect. It trains models on 1-7 and 9-digit 
 
 Discuss the hypothesis that adding randomness in spacing disrupts positional patterns that the model might overfit to, thereby encouraging it to learn more robust representations.
 
+\paragraph{Interpolating OOD Digit Lengths}
+Now, question is whether a larger gap of interpolation OOD lengths can also be closed. Discuss experiment where there is a larger gap in in-distribution lengths: trained on 1-7 and 11 digits, tested on OOD 8, 9, 10, and 12, 13 digits.
+
+\TODO{PLOT larger gap experiment (abs and abs + random spaces), can also be closed with random spaces}
+\label{fig:larger_gap}
+
+
+\subsection{Scratchpad}
+Scratchpad by itself does not help generalization, but helps mistake analysis. Random spaces also work in the scratchpad setup. So overall, scratchpad is not practical for other tasks (need correct intermediate computations, not always available nor known in practice), but can help understand mistakes in intermediate tasks. In literature, scratchpad was shown to help large models generalize, so it seems that smaller models can't leverage it as much.
+\TODO{discuss results from scratchpad in text, accuracy and loss numbers}
+
+\TODO{PLOT scratchpad evaluation results (violin plots of intermediate task accuracies, etc)}
+\label{fig:scratchpad_eval}
+
 
 \section{Sub-task Learning for Compositionality}\label{sec:subtask_learning}
-Explore the role of incorporating sub-task data in improving the model's compositionality and length generalization capabilities.
-
-Explain how tasks such as carry detection, digit-wise modular addition, reversing, and digit alignment are formatted and prefixed in the training data to encourage the model to learn underlying algorithmic components.
-
-Note: Experiment 27 is discussed in this section. It provides a comprehensive analysis of sub-task learning across model dimensions ranging from 64 to 1536 and dataset sizes from 10K to 10M examples.
+Explore the hypothesis that incorporating sub-task data can improve the model's compositionality and length generalization capabilities by helping learn the underlying algorithmic components of the task.
+Experiment is a comprehensive analysis of sub-task learning across model dimensions (width) ranging from 64 to 1536 and dataset sizes 10K, 100K, 1M, 10M examples, each in addition-only and multi-task training settings. The main idea is that mix task training sometimes improves OOD loss, effect is especially pronounced for smaller models and smaller dataset sizes.
 
 \TODO{summarize findings}
 
 
+\subsection{Sub-Tasks Marginally Improve Length Generalization}
+Analyze addition-only vs sub-task (mix) training across model dimensions and dataset sizes. Also look at plots of OOD val-loss vs ID val-loss, see if it helps overfitting. Refer to Figure \ref{fig:exp_27_val_loss_vs_n_embd}. Interesting point to be made, how smaller models (64 dimensions and 8 heads means 8 dimensions per head, that is low compared to usually used models in literature for these tasks) benefit more (unintuitive). Now it is not explored why this is, but tentative hypothesis might be that large models overfit to the tasks, and have the capacity to overfit to multi-task as well and see no benefit (i.e. they just memorize the data, and since in mix the train data size is same as add-only, they can memorize it as well). But smaller models are even more forced to learn a generalizing algorithm, where subtasks help.
+
+\TODO{TABLE of results (also show difference between add-only and mix task training)}
+\label{tab:subtask_results}
+
+
+\TODO{PLOT replot val loss vs embd}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{fig/exp_27_val_loss_vs_n_embd.png}
-    \caption{TODO fix placeholder + caption, main idea: mix task training sometimes improves OOD loss, effect is especially pronounced for smaller models and smaller dataset sizes}
+    \caption{TODO fix placeholder + caption, main idea: mix task training sometimes improves OOD loss, effect is especially pronounced for smaller models and smaller dataset sizes, but no clear effect in mid- and large models (over lengths evaluated).}
     \label{fig:exp_27_val_loss_vs_n_embd}
 \end{figure}
 
 
-\subsection{Inclusion of Sub-Tasks Improves Generalization}
-Analyze addition-only vs sub-task (mix) training across model dimensions and dataset sizes. Also look at plots of OOD val-loss vs ID val-loss, see if it helps overfitting.
+\TODO{PLOT ID vs OOD losses to see if subtasks help overfitting. in some cases yes, can see a pareto improvement in OOD loss with no ID loss increase }
+\label{fig:subtask_overfitting}
 
-\subsection{TODO subtasks are harder}
+\subsection{Smaller Models Benefit More from Sub-Tasks}
+Discuss how smaller models have lower OOD losses compared to larger models (no significant difference). Top difference
 
-\TODO{fill based on results}
+\TODO{PLOT 64 dim model across data sizes, add vs mix performance bar plots}
+\label{fig:64_dim_performance}
+
+
+\subsection{Sub-Task Difficulty and Learning Order}
+Analysis of difficulty of subtasks and order in which they are learned. Also emphasize how some subtasks are unstable: could get 0 vs high accuracy after same number of training iterations depending on seed. Also look at learning order, some subtasks need to be learned first to help with others, that learning order is more or less consistent across different runs, as investigated using a similar method to \cite{lee_what_2022}.
+
+\TODO{PLOT subtask difficulty across model sizes violin plots}
+\label{fig:subtask_difficulty}
+
+\TODO{PLOT subtask learning order over training runs, some subtasks need to be learned first to help with others}
+\label{fig:subtask_order}
