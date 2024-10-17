@@ -12,11 +12,11 @@ format:
   filler_tokens_ans: null
   operand_random_spaces_amount: 0
   answer_random_spaces_amount: 0
-train: data/addition/generalize_to_longer_mini/train_add_1-7_and_11_${.train_size}.txt
+train: data/addition/generalize_to_longer_mini_gap/train_add_1-7_and_11_${.train_size}.txt
 test:
-  in_dist: data/addition/generalize_to_longer_mini/test_add_in_distribution_2000.txt
-  ood_8digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
-  ood_9digit: data/addition/generalize_to_longer_mini/test_add_ood_8digit_100.txt
-  ood_10digit: data/addition/generalize_to_longer_mini/test_add_ood_10digit_100.txt
-  ood_12digit: data/addition/generalize_to_longer_mini/test_add_ood_12digit_100.txt
-  ood_13digit: data/addition/generalize_to_longer_mini/test_add_ood_13digit_100.txt
+  in_dist: data/addition/generalize_to_longer_mini_gap/test_add_in_distribution_2000.txt
+  ood_8digit: data/addition/generalize_to_longer_mini_gap/test_add_ood_8digit_100.txt
+  ood_9digit: data/addition/generalize_to_longer_mini_gap/test_add_ood_9digit_100.txt
+  ood_10digit: data/addition/generalize_to_longer_mini_gap/test_add_ood_10digit_100.txt
+  ood_12digit: data/addition/generalize_to_longer_mini_gap/test_add_ood_12digit_100.txt
+  ood_13digit: data/addition/generalize_to_longer_mini_gap/test_add_ood_13digit_100.txt
