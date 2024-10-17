@@ -36,7 +36,7 @@ training:
 
 model:
   args:
-    n_layers: 4
+    n_layers: 3
     n_embd: 128
     n_head: 4
     context_len: 128
