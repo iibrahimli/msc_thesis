@@ -20,7 +20,7 @@ from arithmetic_lm.utils import get_carry_str, set_seed
 
 warnings.filterwarnings("ignore")
 
-plt.style.use("../figure.mplstyle")
+# plt.style.use("../figure.mplstyle")
 
 
 def eval_scratchpad_example(true: str, pred: str) -> dict:
@@ -208,6 +208,7 @@ def main():
         / f"{model_name}_scratchpad_eval_violin.csv"
     )
     results.to_csv(results_path, index=False)
+    print(f"Saved results to {results_path}")
 
     # Close the pool
     pool.close()
