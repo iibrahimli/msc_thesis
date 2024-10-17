@@ -125,7 +125,7 @@ def evaluate_config(config, model, tokenizer, device, reverse_ops, reverse_ans):
 
 def worker_init(ckpt_path, device):
     global model, tokenizer, hparams
-    model, hparams = load_model(ckpt_path, map_location=device)
+    model, hparams = load_model(ckpt_path, map_location=device, strict=False)
     model.to(device)
     model.eval()
     tokenizer = CharTokenizer()

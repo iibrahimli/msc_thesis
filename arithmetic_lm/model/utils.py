@@ -30,7 +30,10 @@ def init_weights(module: nn.Module):
 
 
 def load_model(
-    ckpt_path: str, model_class: str = "TransformerDecoder", map_location: str = "mps"
+    ckpt_path: str,
+    model_class: str = "TransformerDecoder",
+    map_location: str = "mps",
+    strict: bool = True,
 ) -> tuple[torch.nn.Module, dict]:
     from arithmetic_lm.model import MODELS
 
@@ -47,7 +50,8 @@ def load_model(
 
     # state dict has a prefix "model." in the key names
     model.load_state_dict(
-        {k[6:]: v for k, v in ckpt["state_dict"].items() if k.startswith("model.")}
+        {k[6:]: v for k, v in ckpt["state_dict"].items() if k.startswith("model.")},
+        strict=strict,
     )
     model.eval()
     return model, ckpt["hyper_parameters"]
