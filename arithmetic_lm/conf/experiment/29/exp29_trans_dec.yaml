@@ -46,4 +46,4 @@ model:
 
 wandb:
   project: "experiment-29"
-  run_name: tdec_${model.args.pos_enc}${wandb.suffix}_s${training.seed}
+  run_name: tdec_${model.args.pos_enc}_randsp${data.format.operand_random_spaces_amount}_revans${data.format.reverse_ans}_s${training.seed}

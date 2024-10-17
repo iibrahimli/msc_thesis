@@ -20,6 +20,8 @@ from arithmetic_lm.utils import get_carry_str, set_seed
 
 warnings.filterwarnings("ignore")
 
+plt.style.use("../figure.mplstyle")
+
 
 def eval_scratchpad_example(true: str, pred: str) -> dict:
     """
@@ -201,7 +203,9 @@ def main():
 
     # save results
     results_path = (
-        CHECKPOINTS_DIR / model_name / f"gen_to_longer_rand_spaces_{args.n_samples}.csv"
+        PLOTS_DIR
+        / "gen_to_longer_rand_spaces"
+        / f"{model_name}_scratchpad_eval_violin.csv"
     )
     results.to_csv(results_path, index=False)
 
@@ -275,9 +279,7 @@ def main():
     axs[-1].set_ylabel("Answer Accuracy")
     axs[-1].set_title("Answer Accuracy vs Carry Ratio")
 
-    fig.suptitle(
-        f"Scratchpad Evaluation on model {model_name} (n_samples={args.n_samples})"
-    )
+    fig.suptitle(f"Scratchpad Intermediate Steps Evaluation ({args.n_samples} samples)")
 
     plt.subplots_adjust(wspace=0.5)
 
