@@ -34,12 +34,12 @@ training:
 
 model:
   args:
-    n_layers: 6
-    n_embd: 256
-    n_head: 8
+    n_layers: 3
+    n_embd: 128
+    n_head: 4
     context_len: 128
     pos_enc: abs
 
 wandb:
   project: "experiment-28"
-  run_name: tdec_${model.args.n_embd}embd_${model.args.pos_enc}_s${training.seed}
+  run_name: tdec_${model.args.pos_enc}_randsp${data.format.operand_random_spaces_amount}_s${training.seed}
