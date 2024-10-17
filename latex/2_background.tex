@@ -1,7 +1,5 @@
 \chapter{Background}\label{background}
 
-\TODO{rewrite}
-
 This chapter provides an overview of the Transformer architecture, focusing on its core components, different variants, positional encoding schemes, and the processes of training and inference. It also discusses mechanistic interpretability and the deep double descent phenomenon.
 
 \section*{Notation}\label{sec:notation}
@@ -252,9 +250,10 @@ Circuits in Transformers are a set of elements (i.e. attention heads, feed-forwa
 
 In the context of Transformers, expressivity refers to whether a given task or behavior can be reliably implemented using the model's learned representations. One framework for analyzing this is \emph{RASP}, a restricted-access sequence processing language \parencite{weiss_thinking_2021} that mimics the operations of transformers in a more interpretable manner. Moreover, \cite{fan_looped_2024} show using RASP that looped transformers can generalize to longer sequence lengths for binary addition task, along with other algorithmic tasks.
 
-A key aspect of Transformers is their ability to generalize \emph{compositionally} in some tasks, as highlighted by \cite{hupkes_compositionality_2020}. This suggests that, under the right conditions, transformers are capable of learning systematic combinations of components, enabling them to generalize beyond seen examples in a structured manner. This compositional behavior is crucial for algorithmic tasks, where the model must apply learned rules consistently across different sequence lengths. However, it is not clear how it can be proven that a Transformer model of specific architecture and size can learn a particular task, especially for complex tasks like multi-digit integer addition.
+A key aspect of Transformers is their ability to generalize \emph{compositionally} in some tasks, as highlighted by \cite{hupkes_compositionality_2020}. This suggests that, under the right conditions, transformers are capable of learning systematic combinations of components, enabling them to generalize beyond seen examples in a structured manner. This compositional behavior is crucial for algorithmic tasks, where the model must apply learned rules consistently across different sequence lengths. Despite the theoretical results, there is no clear applied research about how it can be proven that a Transformer model of specific architecture and size can learn a particular task, like multi-digit integer addition.
 
-\TODO{discuss \cite{zhou_what_2023}, show addition algo in RASP-L, but with limits: index hints, padding ops to same digit length}
+\cite{zhou_what_2023} investigate the expressivity of Transformers on algorithmic tasks using RASP-L, and demonstrate the implementation of the addition algorithm within RASP-L but note certain limitations in their approach. Specifically, their result relies on the inclusion of index hints embedded within the input sequences to allow induction heads to perform the digit alignment and padding operands to the same digit length, sidestepping the issue of position-based digit alignment studied in this work.
+
 
 \section{Deep Double Descent}\label{sec:deep_double_descent}
 
