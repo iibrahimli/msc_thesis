@@ -48,6 +48,7 @@ class DatasetBase(Dataset):
         scratchpad: bool = False,
         operand_random_spaces_amount: int | float = 0,
         answer_random_spaces_amount: int | float = 0,
+        index_hints: bool = False,
         use_task_prefix: bool = False,
     ):
         self.txtfile = txtfile
@@ -64,6 +65,7 @@ class DatasetBase(Dataset):
             scratchpad=scratchpad,
             operand_random_spaces_amount=operand_random_spaces_amount,
             answer_random_spaces_amount=answer_random_spaces_amount,
+            index_hints=index_hints,
             use_task_prefix=use_task_prefix,
         )
         self.limit_examples = limit_examples

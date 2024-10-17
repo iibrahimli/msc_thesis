@@ -248,6 +248,7 @@ def main(cfg: omegaconf.DictConfig):
         "answer_random_spaces_amount": cfg.data.format.get(
             "answer_random_spaces_amount", 0
         ),
+        "index_hints": cfg.data.format.get("index_hints", False),
         "use_task_prefix": cfg.data.get("task") is not None,
     }
 
