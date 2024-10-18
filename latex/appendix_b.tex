@@ -1,13 +1,12 @@
 \chapter{Additional Results}\label{app:additional_results}
 
 
-\section{Intermediate Representation Analysis with Logit Lens}
-The logit lens method \parencite{nostalgebraist_interpreting_2020} involves inspecting the logits (pre-softmax outputs) of the model at various layers to interpret intermediate representations. By projecting the activations of each layer onto the output logits, it allows the predictions to be tracked as they are refined through the layers of the network.
-
-\section{Algorithmic String Tasks}
-To show that index-based addressing is the problem, simplified string tasks such as determining string length, or retrieving a character at given index, which vanilla transformers with absolute positional encodings also fail on OOD lengths.
-
 \section{Models Learn Most Significant Digits First}
 Interestingly, over the duration of training, first model gets the digit in most significant position right, and then gets more and more digits right towards the least significant. This is also seen in loss, which drops in steps. This is not because in sampling, the most significant digit is output first (left-to-right), since the effect also happens (in reverse) when the answer is reversed!
 
-\TODO{PLOT nanogpt training plot stepwise loss and number of digits correct}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/digitwise_loss.png}
+    \caption{Loss drops in NanoGPT decoder-only model with absolute position encoding training that correspond to the model learning the digit positions one by one from most significant to least significant. Accuracy is boosted after model learns all of the digit positions.}
+    \label{fig:digitwise_loss}
+\end{figure}

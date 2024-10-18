@@ -262,7 +262,15 @@
 \section*{Abstract}\label{sec:abstract}
 %\fancyhead[LE,RO]{\it Abstract}
 %\addcontentsline{toc}{chapter}{\numberline{}Abstract}
-Your English abstract here (mandatory if written in English and recommended otherwise).
+
+This thesis investigates length generalization in integer addition tasks using transformer model. Transformers with standard absolute positional encodings struggle to generalize to sequences longer than those seen during training due to difficulties in digit alignment. Digit alignment-focused positional encodings, such as the Abacus encoding, significantly improve length generalization, highlighting its critical role. Data formatting techniques like adding random spaces were explored and found to marginally enhance performance by disrupting fixed positional patterns.
+
+The inclusion of sub-task data—including carry detection, digit-wise modular addition, reversing, and digit alignment—was examined to enhance compositionality. This approach marginally improved length generalization, particularly in smaller models.
+
+Mechanistic interpretability techniques were applied to understand the internal representations and failure modes of the models. Attention map analyses revealed that models with digit alignment-focused encodings exhibit clear attention patterns consistent with the correct addition algorithm, whereas models with absolute positional encodings do not.
+
+The findings underscore the importance of digit alignment in achieving length generalization in integer addition tasks. While task-specific encodings like the Abacus encoding effectively address this issue, exploring data formatting techniques and sub-task learning offers alternative approaches without modifying the model architecture.
+
 
 % If the abstract ist not longer than half a page, then the German Zusammenfassung can be places on the same page
 %\cleardoublepage
