@@ -8,7 +8,7 @@
 % Suggestions for changes are always welcome.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Meta information:
-\newcommand{\trtitle}{Compositional Generalization in Transformers}
+\newcommand{\trtitle}{Length Generalization on Multi-Digit Integer Addition with Transformers}
 \newcommand{\trtype}{Masterthesis} %{Bachelorthesis} %{Diplomarbeit} %{Dissertation}
 \newcommand{\trcourseofstudies}{Intelligent Adaptive Systems} %{Bioinformatik} %{Intelligent Adaptive Systems} 
 \newcommand{\trauthor}{Imran Ibrahimli}
@@ -20,7 +20,7 @@
 %\newcommand{\trbetreuung}{\href{mailto:tbd@informatik.uni-hamburg.de}{Dipl.-Inform. To Be Defined}}
 \newcommand{\trfach}{Knowledge Technology, WTM}
 \newcommand{\trdate}{24.10.2024}
-\newcommand{\trkeywords}{Transformer, Algorithms, Mechanistic Interpretability}
+\newcommand{\trkeywords}{Transformer, Algorithms, Addition}
 %Optionally: it is also allowed to provide a street name on the
 %\newcommand{\trstrasse}{Streetname 42}
 %\newcommand{\trort}{22527 Hamburg}
@@ -263,13 +263,7 @@
 %\fancyhead[LE,RO]{\it Abstract}
 %\addcontentsline{toc}{chapter}{\numberline{}Abstract}
 
-This thesis investigates length generalization in integer addition tasks using transformer model. Transformers with standard absolute positional encodings struggle to generalize to sequences longer than those seen during training due to difficulties in digit alignment. Digit alignment-focused positional encodings, such as the Abacus encoding, significantly improve length generalization, highlighting its critical role. Data formatting techniques like adding random spaces were explored and found to marginally enhance performance by disrupting fixed positional patterns.
-
-The inclusion of sub-task data—including carry detection, digit-wise modular addition, reversing, and digit alignment—was examined to enhance compositionality. This approach marginally improved length generalization, particularly in smaller models.
-
-Mechanistic interpretability techniques were applied to understand the internal representations and failure modes of the models. Attention map analyses revealed that models with digit alignment-focused encodings exhibit clear attention patterns consistent with the correct addition algorithm, whereas models with absolute positional encodings do not.
-
-The findings underscore the importance of digit alignment in achieving length generalization in integer addition tasks. While task-specific encodings like the Abacus encoding effectively address this issue, exploring data formatting techniques and sub-task learning offers alternative approaches without modifying the model architecture.
+Transformer models have achieved significant success in natural language processing tasks but encounter challenges when generalizing to sequences longer than those seen during training, especially in algorithmic tasks. Multi-digit integer addition is an example of such algorithmic problems, it is easy for humans to perform on arbitrary digit lengths, yet transformer models fail to learn a general algorithm. With increasing use of transformers in different domains, length generalization remains an important open problem even for a simple task like integer addition despite substantial research literature. This work investigates why transformers with standard absolute positional encodings struggle with length generalization in integer addition and what minimal changes can be made to improve the out-of-distribution performance. The hypothesis that absolute positional encodings limit the model's ability to align digits is explored, as well as the impact of different data formatting techniques and multi-task training on length generalization.
 
 
 % If the abstract ist not longer than half a page, then the German Zusammenfassung can be places on the same page
@@ -277,10 +271,12 @@ The findings underscore the importance of digit alignment in achieving length ge
 \vfill
 \section*{Zusammenfassung}\label{sec:zusammenfassung}
 %\addcontentsline{toc}{chapter}{\numberline{}Zusammenfassung} %Add the Zusammenfassung to the TOC
-Hier die deutsche Zusammenfassung einf\"ugen (notwendig).
 \fancyhead[LE,RO]{\it Abstract}
 
+Transformer-Modelle haben bei der Verarbeitung natürlicher Sprache beachtliche Erfolge erzielt, stoßen aber auf Probleme, wenn sie auf Sequenzen verallgemeinert werden sollen, die länger sind als die beim Training gesehenen, insbesondere bei algorithmischen Aufgaben. Die mehrstellige ganzzahlige Addition ist ein Beispiel für ein solches algorithmisches Problem. Sie ist für den Menschen bei beliebigen Ziffernlängen leicht durchführbar, doch gelingt es Transformatorenmodellen nicht, einen allgemeinen Algorithmus zu erlernen. Mit zunehmendem Einsatz von Transformatoren in verschiedenen Bereichen bleibt die Längengeneralisierung trotz umfangreicher Forschungsliteratur ein wichtiges offenes Problem, selbst für eine einfache Aufgabe wie die ganzzahlige Addition. In dieser Arbeit wird untersucht, warum Transformatoren mit standardmäßigen absoluten Positionskodierungen bei der Längenverallgemeinerung in der ganzzahligen Addition Probleme haben und welche minimalen Änderungen vorgenommen werden können, um die Leistung außerhalb der Verteilung zu verbessern. Die Hypothese, dass absolute Positionskodierungen die Fähigkeit des Modells, Ziffern auszurichten, einschränken, wird ebenso untersucht wie die Auswirkungen verschiedener Datenformatierungstechniken und Multi-Task-Training auf die Längengeneralisierung.
+
 \cleardoublepage
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Lists:
