@@ -4,7 +4,7 @@
 
 This chapter outlines the experimental methodologies and analyses conducted to investigate the challenges of length generalization in integer addition task. The primary focus is on understanding the limitations of absolute positional encodings and exploring methods to enhance the models' ability to generalize to longer sequences.
 
-The initial experiments examine models trained with both absolute positional encodings and digit alignment-focused positional encodings, such as the Abacus encoding. Attention maps are analyzed to compare how these models process input sequences and to identify differences in digit alignment capabilities Subsequent sections explore various data formatting techniques, including zero padding, reversing the answer, introducing random spaces, and employing a scratchpad approach. The impact of these techniques on length generalization is evaluated to determine if they can improve performance without altering the model architecture.
+The initial experiments examine models trained with both absolute positional encodings and positional encodings focused on digit alignment, such as the Abacus encoding. Attention maps are analyzed to compare how these models process input sequences and to identify differences in digit alignment capabilities. Subsequent sections explore various data formatting techniques, including zero padding, reversing the answer, introducing random spaces, and employing a scratchpad approach. The impact of these techniques on length generalization is evaluated to determine if they can improve performance without altering the model architecture.
 
 Further analysis investigates the effect of incorporating sub-task data—such as carry detection, digit-wise modular addition, reversing, and digit alignment—on the models' compositionality and length generalization capabilities. Experiments are conducted across different model dimensions and dataset sizes, comparing addition-only training with mixed-task training.
 
@@ -15,7 +15,8 @@ The chapter concludes with an examination of sub-task difficulty and learning or
 This section details the experimental setup used to investigate the hypotheses outlined in Section~\ref{sec:research_questions}, including data formatting techniques, model configuration, training procedures, and evaluation metrics employed in the experiments. The experiments cover analysis of the effects of positional encodings, data formatting, and inclusion of sub-task data on the length generalization capabilities of transformer models in the multi-digit integer addition task.
 
 \subsection{Data Formatting}\label{subsec:data_formatting}
-Various data formatting techniques are employed and their effects on model generalization is exampined. All experiments use character-level tokenization; every character (digit, letter, symbol such as ``\texttt{+}'', ``\texttt{=}'', or space) is treated as an individual token. The vocabulary consists of 100 printable ASCII characters, ensuring that each token is represented uniquely. While character tokenization as such is a simple and flexible method, it is worth noting that current state-of-the-art LLMs use other subword tokenization schemes such as Byte-Pair Encoding (BPE) \parencite{sennrich_neural_2016,brown_language_2020}. Table~\ref{tab:data_formatting_examples} summarizes the different data formatting techniques with examples.
+Various data formatting techniques are employed and their effects on model generalization is exampined. All experiments use character-level tokenization; every character (digit, letter, symbol such as ``\texttt{+}'', ``\texttt{=}'', or space) is treated as an individual token. The vocabulary consists of 100 printable ASCII characters, ensuring that each token is represented uniquely. While character tokenization as such is a simple and flexible method, it is worth noting that current state-of-the-art LLMs use other subword tokenization schemes such as Byte-Pair Encoding (BPE) \parencite{sennrich_neural_2016,brown_language_2020}. Table~\ref{tab:data_formatting_examples} summarizes the different data formatting techniques with examples. Adding random spaces is particularly interesting as it applies a very simple and general idea to the integer addition problem and shows promise in improving length generalization.
+
 
 \paragraph{Standard Format}
 In the standard format, input sequences are represented as ``\verb|$a+b=c$|'', where $a$ and $b$ are the operands, and $c$ is the sum. The dollar signs ``\verb|$|'' denote the start and end of the sequence; the final ``\verb|$|'' also serves as the end-of-sequence token during autoregressive generation, stopping the process once it is generated. The plus ``\verb|+|'' and equals ``\verb|=|'' symbols separate the operands and the answer, respectively. For example, adding 123 and 456 is formatted as:
@@ -48,8 +49,8 @@ Random spaces are inserted between symbols in the input sequence to disrupt fixe
     \verb|$1 23 +4  5 6=579$|
 \end{center}
 
-\paragraph{Scratchpad}
-A scratchpad, or chain-of-thought, includes intermediate computational steps before the final answer, promoting step-by-step reasoning. This format also allows for the evaluation of intermediate results and aids in understanding the model's reasoning process. However, it requires task-specific data and therefore is not a general method. The scratchpad consists of reversed operands, modular addition with carry notation separated by semicolons, and the final answer separated by a vertical bar. An example with comments describing the parts is given below (the line breaks are included for convenience and not part of the actual sequence):
+\paragraph{Scratchpad}\label{par:scratchpad}
+A scratchpad, or chain-of-thought, includes intermediate computational steps before the final answer, promoting step-by-step reasoning. This format also allows for the evaluation of intermediate results and aids in understanding the model's reasoning process. However, it requires task-specific data and therefore is not a general method. The scratchpad consists of reversed operands (reversing), modular addition with carry notation separated by semicolons (partials), and the final answer separated by a vertical bar. An example with comments describing the parts is given below (the line breaks are included for convenience and not part of the actual sequence):
 \begin{center}
     \begin{tabular}{l l}
         \verb|$567+789=7 6 5 + 9 8 7;| & \textit{Input equation and reversed operands}             \\
@@ -139,7 +140,7 @@ The sub-tasks, their prefixes, and their formats are as follows:
 
 \paragraph{Datasets}
 
-Several datasets were generated to support different experiments, each tailored to investigate specific aspects of length generalization and compositional learning. Below, we detail each dataset and its composition:
+Several datasets were generated to support different experiments, each tailored to investigate specific aspects of length generalization and compositional learning. The datasets are described below:
 
 \begin{itemize}
     \item \texttt{1-3\_digit}:
@@ -192,7 +193,7 @@ Transformer decoder models are used as described in the Background chapter (Sect
 
 Unless otherwise noted, models use absolute positional encodings. For experiments involving different positional encoding schemes, the specific configurations are detailed in the respective sections.
 
-\subsection{Training and Evaluation}
+\subsection{Training and Evaluation}\label{subsec:training_evaluation}
 
 \paragraph{Training Setup}
 Overall, the training parameters from the NanoGPT \parencite{karpathy_nanogpt_2022} are used with modified number of steps, learning rates, and batch sizes. All models are trained using the AdamW optimizer with hyperparameters as shown in Table~\ref{tab:optimizer_hyperparameters}.
@@ -244,11 +245,25 @@ During training, both training and validation losses are recorded to monitor the
 
 \section{Limitations of Absolute Positional Encoding}\label{sec:absolute_positional_limitations}
 
-The limitations of absolute positional encoding become evident when evaluating length generalization in integer addition tasks. Models using absolute positional encodings are unable to generalize even to slightly longer sequences than those seen during training, failing to interpolate or extrapolate to unseen lengths. This failure appears to stem from the inability to extend learned attention patterns beyond the training lengths. Evidence from the analysis of the attention scores presented in Section~\ref{subsec:digit_alignment_pe} indicates that models with absolute positional encodings lack the sharp and well-formed attention patterns observed in models using digit alignment-focused positional encodings like the Abacus encoding. The absolute positional encoding struggles to precisely select the correct digits based on their positions, leading to misalignment in longer sequences. Introducing random spaces into the input sequences slightly smoothens the attention maps, which helps the model generalize in a limited way.
+The limitations of absolute positional encoding become evident when evaluating length generalization in integer addition tasks. Models using absolute positional encodings are unable to generalize even to slightly longer sequences than those seen during training, failing to interpolate or extrapolate to unseen lengths. This failure appears to stem from the inability to extend learned attention patterns beyond the training lengths. Evidence from the analysis of the attention scores presented in Section~\ref{subsec:digit_alignment_pe} indicates that models with absolute positional encodings lack the sharp and well-formed attention patterns observed in models using positional encodings like the Abacus encoding. The absolute positional encoding struggles to precisely select the correct digits based on their positions, leading to misalignment in longer sequences. Introducing random spaces into the input sequences slightly smoothens the attention maps, which helps the model generalize in a limited way.
 
 Furthermore, analysis of the next-token prediction uncertainty in Section~\ref{subsec:length_generalization_baseline} reveals that models exhibit high confidence in their predictions for in-distribution lengths but become increasingly uncertain for out-of-distribution lengths, especially for longer sequences. While for in-distribution digit positions the distribution over possible next tokens is usually collapsed, with all probability mass concentrated on the correct token. With OOD positions, on the other hand, next token distribution becomes more uniform and the probability of predicting the correct next token decreases towards zero. This suggests that extending the position addressing patterns to OOD lengths is the main issue, consistent with the literature indicating that vanilla Transformers struggle with index-based addressing operations.
 
 By addressing the digit alignment problem, for example through the use of specialized positional encodings like the Abacus encoding \parencite{mcleish_transformers_2024}, models can generalize well to longer sequences without any other modifications. However, the challenge remains to enhance the generalization capabilities of models using standard absolute positional encodings without task-specific modifications. Introducing random spaces into the sequences is a potential strategy to encourage generalization, allowing models to interpolate and extrapolate to slightly longer sequences. The effects of different data formatting strategies, including the addition of random spaces, on length generalization are explored in the subsequent section. First, the baselines for length generalization are established demonstrating complete failure to generalize to any unseen lengths. Then, experiments are described that investigate the hypotheses that digit alignment is the root cause of failure and adding random spaces is a solution that partially address it while requiring no changes to the architecture.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{fig/baseline_and_longer.png}
+    \caption{Baseline performance of Transformer decoder with absolute positional encodings over training. The model is a NanoGPT with 6 layers, 768 embedding dimension, and 4 attention heads. (Left) Model trained on 1 and 3-digit sequences fail to generalize to 2 and 4-digit sequences. (Middle) Same failure to generalize happens when trained on 1-7 digits and additionally tested on 8 digits. (Right) Model trained on 1--17 and 19-digit sequences fail to generalize to 18 and 20-digit sequences.}
+    \label{fig:baseline_and_longer}
+\end{figure}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/baseline_and_longer_ut.png}
+    \caption{Baseline performance of Universal Transformer with absolute positional encodings over training. The model has embedding dimension of 384, 6 attention heads, and 3 recurrent steps (in encoder and decoder each). Similar failure to generalize is observed as in decoder-only model in Figure~\ref{fig:baseline_and_longer}.}
+    \label{fig:baseline_and_longer_ut}
+\end{figure}
 
 \subsection{Length Generalization Baseline}\label{subsec:length_generalization_baseline}
 
@@ -259,55 +274,40 @@ In another experiment, models were trained on sequences of 1--7 digits and teste
 \paragraph{Longer Training Sequences}
 To investigate whether training on longer sequences could alleviate this issue, models were trained on sequences with operands of 1--17 and 19 digits and tested on sequences with operands of 18 and 20 digits. Despite the increased training sequence lengths, the models still failed to generalize to the unseen lengths in the vanilla setup with absolute positional encodings. This suggests that merely extending the training sequence lengths does not enable models with absolute positional encodings to generalize to longer sequences.
 
-Figure~\ref{fig:baseline_and_longer} illustrates the performance of models trained under these configurations, showing that absolute positional encodings inherently limit the model's ability to generalize to unseen sequence lengths.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{fig/baseline_and_longer.png}
-    \caption{Baseline performance of Transformer decoder with absolute positional encodings over training. The model is a NanoGPT with 6 layers, 768 embedding dimension, and 4 attention heads. (Left) Model trained on 1 and 3-digit sequences fail to generalize to 2 and 4-digit sequences. (Middle) Same failure to generalize happens when trained on 1-7 digits and additionally tested on 8 digits. (Right) Model trained on 1--17 and 19-digit sequences fail to generalize to 18 and 20-digit sequences.}
-    \label{fig:baseline_and_longer}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.9\textwidth]{fig/baseline_and_longer_ut.png}
-    \caption{Baseline performance of Universal Transformer with absolute positional encodings over training. The model has embedding dimension of 384, 6 attention heads, and 3 recurrent steps (in encoder and decoder each). Similar failure to generalize is observed as in decoder-only model in Figure~\ref{fig:baseline_and_longer}.}
-    \label{fig:baseline_and_longer_ut}
-\end{figure}
+Figure~\ref{fig:baseline_and_longer} illustrates the performance of models trained under these configurations, showing that absolute positional encodings inherently limit the model's ability to generalize to unseen sequence lengths. Moreover, just making architectural changes such as using Universal Transformer (UT) does not solve the issue, as shown in Figure~\ref{fig:baseline_and_longer_ut}. The UT model also fails to generalize to unseen lengths, indicating that the problem is not specific to the decoder-only architecture.
 
 \paragraph{Next-Token Uncertainty}
-Analysis of the next-token prediction uncertainties provides further insights into the limitations of absolute positional encodings. For in-distribution lengths, models exhibit high confidence in their predictions, with low entropy in the next-token distributions. However, for OOD lengths, the models become increasingly uncertain, entropy of the next-token distributions increases, and the probability of the correct token decreases towards zero. Moreover, the analysis suggests that models often omit digits from different positions in the answer and thus attempt to end the sequence prematurely. This is in line with findings from \cite{newman_eos_2020} that the EOS token is output prematurely. Even if EOS token probability is suppressed to let the model output more digits in the answer, the digits are also often incorrect. Figure~\ref{fig:next_token_entropy} shows the average entropy and probabilities of the correct and end-of-sequence (EOS) tokens over the generated answer sequences for models trained on 1--7 and 9-digit lengths, demonstrating the stark contrast between in-distribution and OOD length performances.
+Analysis of the next-token prediction uncertainties provides further insights into the limitations of absolute positional encodings. For in-distribution lengths, models exhibit high confidence in their predictions, with low entropy in the next-token distributions. However, for OOD lengths, the models become increasingly uncertain, entropy of the next-token distributions increases, and the probability of the correct token decreases towards zero. Moreover, the analysis suggests that models often omit digits from different positions in the answer and thus attempt to end the sequence prematurely. This is in line with findings from \cite{newman_eos_2020} that the EOS token is output prematurely. Even if EOS token probability is suppressed to let the model output more digits in the answer, the digits are also often incorrect. Figure~\ref{fig:next_token_entropy} shows the average entropy and probabilities of the correct and end-of-sequence (EOS) tokens over the generated answer sequences for models trained on 1--17 and 19-digit lengths, demonstrating the contrast between in-distribution and OOD lengths; in distribution the model is confident and correct, and increasingly uncertain and incorrect for OOD lengths. This also shows that there is no attempt to extend the algorithm to OOD lengths, since instead of continuing to be confident (low entropy) but incorrect, the probabilities of next token actually degenerate into more diffuse distributions.
 
-\begin{figure}[h!]
+\begin{figure}[!h]
     \centering
-    \includegraphics[width=0.9\textwidth]{fig/next_token_entropy_19.png}
-    \includegraphics[width=0.9\textwidth]{fig/next_token_entropy_25.png}
-    \caption{Next-token entropy analysis for a model trained on 1-17 and 19 digit lengths with random spaces. The blue, red, and green correspond to the mean entropy, mean probability of EOS token, and mean probability of the ground-truth answer token respectively, with shaded area showing the standard deviation over 100 different prompts. Top graph shows that for in-distribution lengths of up to 19, the entropy (uncertainty) of the next token is very low, and correct tokens are predicted. In the bottom graph, for 25 digit operands the absolute positions of the answer tokens after position 16 are already OOD, with more uncertainty and incorrect EOS prediction showing reliance on absolute positions.}
+    \includegraphics[width=0.9\textwidth]{fig/next_token_entropy.png}
+    \caption{Next-token entropy analysis for a model trained on 1-17 and 19 digit lengths with random spaces. The blue, red, and green correspond to the mean entropy, mean probability of EOS token, and mean probability of the ground-truth answer token respectively, with shaded area showing the standard deviation over 100 different prompts. Top graph shows that for in-distribution lengths of up to 19, the entropy (uncertainty) of the next token is very low, and correct tokens are predicted. In the bottom graph, for 25 digit operands the absolute positions of the answer tokens after position 16 are already OOD, with more uncertainty and incorrect EOS prediction showing reliance on absolute positions. This is evidence that the learned algorithm is confident in distribution, but completely breaks down for out of distribution lengths.}
     \label{fig:next_token_entropy}
 \end{figure}
 
-\subsection{Digit Alignment-Focused Positional Encodings Improve Generalization}\label{subsec:digit_alignment_pe}
+\subsection{Positional Encodings Focused on Digit Alignment Improve Generalization}\label{subsec:digit_alignment_pe}
 
-The inability of models with absolute positional encodings to generalize to longer sequences suggests that digit alignment is the root issue. To investigate this hypothesis, models were trained using both absolute positional encodings and digit alignment-focused positional encodings, such as the Abacus encoding, under the same setup. Specifically, models were trained on 100,000 samples with operand lengths of 1--7 digits and tested on OOD lengths of 8 and 10 digits.
+The inability of models with absolute positional encodings to generalize to longer sequences suggests that digit alignment is the root issue. To investigate this hypothesis, models were trained using both absolute positional encodings and positional encodings focused on digit alignment, such as the Abacus encoding, under the same setup. Specifically, models were trained on 100,000 samples with operand lengths of 1--7 digits and tested on OOD lengths of 8 and 10 digits.
 
-\begin{figure}[h!]
+\begin{figure}[!h]
     \centering
-    \includegraphics[width=0.9\textwidth]{fig/attn_map_abs_pe.png}
-    \includegraphics[width=0.9\textwidth]{fig/attn_map_abs_pe_random_spaces.png}
-    \includegraphics[width=0.9\textwidth]{fig/attn_map_abacus_pe.png}
-    \caption{Comparison of attention maps (maximum over heads) for models with (top) absolute positional encoding, (middle) absolute positional encoding with random spaces, and (bottom) digit alignment-focused Abacus positional encoding~\parencite{mcleish_transformers_2024}, on the prompt \texttt{\$12345+45678=}. It is expected to see orderly lines if the addition is performed according to the correct algorithm. The model with absolute positional encodings shows unclear attention patterns with some randomness, while the Abacus model is significantly less noisy. While random spaces do not fix the issue completely, the attention patterns are significantly more aligned. The differences are especially evident in Layer 2.}
+    \includegraphics[width=0.8\textwidth]{fig/attn_map_abs_pe.png}
+    \includegraphics[width=0.8\textwidth]{fig/attn_map_abs_pe_random_spaces.png}
+    \includegraphics[width=0.8\textwidth]{fig/attn_map_abacus_pe.png}
+    \caption{Comparison of attention maps (maximum over the 4 heads, after softmax) for models with (top) absolute positional encoding, (middle) absolute positional encoding with random spaces, and (bottom) Abacus positional encoding~\parencite{mcleish_transformers_2024}. The y and x axes are the target and source sequence, which are the same for the decoder-only model, color intensity shows how much a given target token ``attends'' to a source token. It is desirable to see orderly lines, since operations are done digit-wise and can be applied to longer sequences. The model with absolute positional encodings shows unclear attention patterns with some randomness, while the Abacus model is significantly less noisy. While random spaces do not fix the issue completely, the attention patterns are significantly more aligned. The differences are especially evident in Layer 2.}
     \label{fig:digit_align_attn_maps}
 \end{figure}
 
 Attention maps from these models reveal significant differences in how they process input sequences. Models with absolute positional encodings exhibit unclear and diffuse attention patterns that do not extend coherently to longer sequences. In contrast, models using the Abacus positional encoding display clearer attention maps, selecting the correct digits based on their positions, even for sequences longer than those seen during training.
 
-Figure~\ref{fig:digit_align_attn_maps} illustrates the attention maps for the different models. The attention patterns in the Abacus model suggest that aligning digits effectively is crucial for generalizing integer addition to longer sequences. This supports the hypothesis that digit alignment-focused positional encodings enhance the model's capacity to generalize by facilitating correct digit alignment.
+Figure~\ref{fig:digit_align_attn_maps} illustrates the attention maps for the different models. The attention patterns in the Abacus model suggest that aligning digits effectively is crucial for generalizing integer addition to longer sequences. This supports the hypothesis that positional encodings focused on digit alignment enhance the model's capacity to generalize by facilitating correct digit alignment.
 
-Furthermore, evaluation results, as shown in Figure~\ref{fig:pe_results}, demonstrate that models with digit alignment-focused positional encodings significantly outperform those with absolute positional encodings on OOD lengths. This underscores the importance of digit alignment in achieving length generalization in integer addition tasks.
+Furthermore, evaluation results, as shown in Figure~\ref{fig:pe_results}, demonstrate that models with positional encodings focused on digit alignment significantly outperform those with absolute positional encodings on OOD lengths. This underscores the importance of digit alignment in achieving length generalization in integer addition tasks.
 
-\begin{figure}[h!]
+\begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{fig/pe_results.png}
+    \includegraphics[width=0.9\textwidth]{fig/pe_results.png}
     \caption{Performance comparison of models with different positional encodings and data formatting methods on in-distribution (1--7 digits) and out-of-distribution (8, 10, 11, and 12 digits) lengths. Regular absolute positional encoding (APE) fails on all OOD lengths. Reversing the answer and scratchpad do not improve OOD accuracy. Zero-padding numbers to 13 digits improves interpolation (8-digit OOD length) but does not help extrapolation, while adding random spaces helps to partially extrapolate by one digit. Abacus encoding solves the underlying position alignment issue and generalizes to OOD lengths.}
     \label{fig:pe_results}
 \end{figure}
@@ -352,12 +352,12 @@ Experiments were conducted to evaluate the effectiveness of the scratchpad appro
 
 However, the scratchpad approach proved useful for mistake analysis. By examining the model's intermediate outputs, it was possible to identify specific points of failure in the computation process. This provided insights into which parts of the addition algorithm the model struggled with, such as carry propagation or digit-wise addition.
 
-The limited effectiveness of the scratchpad approach in improving generalization contrasts with findings in the literature, where scratchpad has been shown to aid in generalization~\parencite{lee_teaching_2023}. One possible explanation is that smaller models, as used in these experiments, may not have sufficient capacity to leverage the additional information provided by the scratchpad. Figure~\ref{fig:scratchpad_eval} presents the evaluation results for the scratchpad approach, including violin plots of intermediate task accuracies.
+The limited effectiveness of the scratchpad approach in improving generalization contrasts with findings in the literature, where scratchpad has been shown to aid in generalization~\parencite{lee_teaching_2023}. One possible explanation is that smaller models, as used in these experiments, may not have sufficient capacity to leverage the additional information provided by the scratchpad like in the aforementioned paper. Figure~\ref{fig:scratchpad_eval} presents the evaluation results for the scratchpad approach, with violin plots of accuracy and edit distance by intermediate computation steps, showing which intermediate steps are most error-prone.
 
-\begin{figure}[h!]
+\begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{fig/scratchpad_eval.png}
-    \caption{Evaluation results for a model trained with scratchpad on 1-17 and 19 digits. The violin plots depict the distribution of accuracies and edit distances by intermediate step. Most notably, for 18 digits OOD length, the accuracy of the answer with respect to scratchpad is very high (center bottom), and thus the main source of mistakes in that case is performing the intermediate calculations and not ``reading off'' the answer.}
+    \includegraphics[width=0.9\textwidth]{fig/scratchpad_eval.png}
+    \caption{Evaluation results for a model trained with scratchpad on 1-17 and 19 digits. The parts of the scratchpad format are described in Section~\ref{par:scratchpad}. The violin plots depict the distribution of accuracies and edit distances by intermediate steps. Most notably, for 18 and 20 digits OOD lengths, the accuracy of the answer with respect to scratchpad is very high (center bottom), and thus the main source of mistakes is performing the intermediate calculations and not ``reading off'' the answer, further hinting at the problem of digit alignment.}
     \label{fig:scratchpad_eval}
 \end{figure}
 
@@ -367,11 +367,16 @@ Overall, while the scratchpad approach did not enhance length generalization, it
 
 Incorporating sub-task data into the training process aims to enhance the model's compositionality and length generalization capabilities by explicitly teaching the underlying algorithmic components of integer addition. This section explores the hypothesis that training on sub-tasks, such as carry detection, digit-wise modular addition, reversing, and digit alignment, can improve the model's ability to compose these functions and generalize to sequences longer than those seen during training.
 
-A comprehensive analysis was conducted across various model dimensions, ranging from 64 to 1536, and dataset sizes of 10,000, 100,000, 1 million, and 10 million examples. Models were trained under two settings: addition-only and multi-task training, where the latter involved mixing addition tasks with sub-task data. The main finding is that mixed-task training sometimes improves OOD loss, with the effect being particularly pronounced for smaller models and smaller dataset sizes.
+\paragraph{Experimental Setup}
+A comprehensive analysis was conducted across various model dimensions, ranging from 64 to 1536, and training dataset sizes of 10,000, 100,000, 1 million, and 10 million examples. Models were trained under two settings: addition-only and multi-task training, where the latter involved mixing addition tasks with sub-task data while matching the total number of samples. In all cases, the model is a decoder-only transformer with 6 layers and 8 attention heads, with absolute positional encodings and random spaces in the input sequences (ratio of random spaces to prompt length $\rho = 0.5$), optimizer and learning rate scheduler as described in Section~\ref{subsec:training_evaluation}.
 
-\begin{table}[h!]
+The performance was evaluated over a range of different model widths due to the confounding phenomenon of \emph{deep double descent}, where increasing model capacity or training duration can initially lead to worse generalization before ultimately improving it. This was initially believed to challenge the traditional bias-variance tradeoff, where increasing model complexity was believed to always result in overfitting \parencite{belkin_reconciling_2019, nakkiran_deep_2021}. Deep double descent arises when models, especially overparameterized ones, first memorize the training data, but later discover more generalizable features, leading to improved performance on the test set and zero training loss. This phenomenon is still relevant in integer addition tasks, since the interpolation threshold — the point where the model transitions from memorization to generalization might change with respect to model and dataset size.
+
+The main finding is that mixed-task training sometimes improves OOD loss, with the effect being particularly pronounced for smaller models and smaller dataset sizes. Moreover, in mixed-task settings smaller models exhibit a Pareto improvement in OOD loss without an increase in in-distribution loss, suggesting that sub-task learning can help the model learn more generalizable representations and algorithms. Interestingly, the double descent phenomenon is not observed in the experiments, as the loss does not visibly drop with larger models, indicating that either the covered size range is not sufficient to see the full effect, or the scaling behavior is fundamentally different for this algorithmic task.
+
+\begin{table}[!h]
     \centering
-    \caption{Comparison of OOD accuracy for models trained with addition-only and sub-task training across dataset sizes. Smaller datasets show greater improvement with mixed-task training. Despite weak absolute performance, sub-task training can marginally improve length generalization.}
+    \caption{Comparison of OOD accuracy (in percentage) for models trained with addition-only and sub-task training across dataset sizes. Smaller datasets show greater improvement with mixed-task training. Despite weak absolute performance, sub-task training can marginally improve length generalization.}
     \label{tab:subtask_results}
     \begin{tabular}{lcccc}
         % \toprule
@@ -394,22 +399,18 @@ To evaluate the impact of sub-task learning on length generalization, models wer
 
 The results indicate that incorporating sub-task data marginally improves length generalization, particularly for smaller models and smaller dataset sizes. As shown in Figure~\ref{fig:exp_27_val_loss_vs_n_embd}, smaller models (e.g., with a dimension of 64 and 8 attention heads) benefit more from mixed-task training compared to larger models. The smaller models exhibit lower OOD validation losses when trained with sub-tasks, suggesting that they are better able to leverage the compositional learning provided by the sub-tasks.
 
-One possible explanation for this phenomenon is that larger models have sufficient capacity to memorize the training data, including the sub-tasks, without necessarily learning the underlying algorithms that facilitate generalization. In contrast, smaller models are constrained by their limited capacity and are thus compelled to learn more generalizable representations and algorithms, with the sub-tasks aiding in this process.
-
-Table~\ref{tab:subtask_results} summarizes the performance differences between addition-only and mixed-task training across different model dimensions and dataset sizes.
-
-Figure~\ref{fig:exp_27_val_loss_vs_n_embd} illustrates the validation loss versus model dimension for both in-distribution and OOD lengths, highlighting how mixed-task training impacts models of different sizes.
-
-\begin{figure}[h!]
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\textwidth]{fig/exp_27_val_loss_vs_n_embd.png}
-    \caption{Validation loss versus model dimension for addition-only (blue) and mixed-task training (orange). The effect of mixed-task training is more pronounced in smaller models and diminishes as model size increases.}
+    \caption{Validation loss versus model dimension for addition-only (red) and multi-task training (green). The x axis corresponds to different model widths (embedding dimension). The effect of multi-task training is more pronounced in smaller models and diminishes as model size increases.}
     \label{fig:exp_27_val_loss_vs_n_embd}
 \end{figure}
 
+One possible explanation for this observation that smaller models improve more from subtask data is that larger models have sufficient capacity to memorize the training data, including the sub-tasks, without necessarily learning the underlying algorithms that facilitate generalization. In contrast, smaller models are constrained by their limited capacity and are thus compelled to learn more generalizable representations and algorithms, with the sub-tasks aiding in this process. Table~\ref{tab:subtask_results} summarizes the performance differences between addition-only and mixed-task training across different model dimensions and dataset sizes. The difference is positive in all cases with larger improvements observed in smaller models and datasets. Figure~\ref{fig:exp_27_val_loss_vs_n_embd} illustrates the validation loss versus model dimension for both in-distribution and OOD lengths, highlighting how mixed-task training can improve out-of-distribution performance, especially for smaller models.
+
 Additionally, analyzing the in-distribution versus out-of-distribution losses reveals that in some cases, sub-task learning helps mitigate overfitting. As depicted in Figure~\ref{fig:subtask_overfitting}, smaller models (embedding dimension 64) achieve a Pareto improvement in OOD loss without an increase in in-distribution loss when trained with sub-tasks.
 
-\begin{figure}[h!]
+\begin{figure}[htb!]
     \centering
     \includegraphics[width=0.9\textwidth]{fig/subtask_overfitting.png}
     \caption{Comparison of in-distribution test loss and 10-digit out-of-distribution (OOD) test loss across different training sizes for models trained on addition only (circles) and sub-tasks (triangles). Colors represent the training dataset size (10K, 100K, 1M, and 10M), and the dashed line indicates the diagonal where in-distribution and OOD losses match. Models trained with sub-tasks can achieve a lower OOD loss by an order of magnitude compared to addition-only training.}
@@ -422,13 +423,13 @@ The experiments demonstrate that smaller models benefit more significantly from 
 
 For the smallest model configuration (64 dimensions), the incorporation of sub-task data leads to a notable improvement in length generalization. In contrast, larger models (e.g., with 1536 dimensions) show minimal differences in performance between addition-only and mixed-task training. This suggests that larger models may already have sufficient capacity to memorize the training data, including the addition task, without relying on compositional learning provided by the sub-tasks.
 
-The observed trend indicates that sub-task learning is particularly advantageous for models with limited capacity, as it encourages the learning of generalizable algorithms rather than memorization.
+The observed trend indicates that sub-task learning is particularly advantageous for models with limited capacity, as it encourages the learning of generalizable algorithms rather than memorization. This aligns with the idea of competing circuits for memorization and generalization in deep learning models as proposed by \cite{varma_explaining_2023}, where smaller models have less capacity for memorization and are thus more likely to learn generalizable features especially when trained with sub-tasks.
 
 \subsection{Sub-Task Difficulty}
 
 An analysis of the sub-tasks reveals variations in their relative difficulty and the order in which they are learned during training. Some sub-tasks, such as reversing and carry detection, are learned relatively quickly and consistently across different training runs. Other sub-tasks, like modular adition, exhibit instability, with models achieving either high or low accuracy after the same number of training iterations, depending on the random seed. Figure~\ref{fig:subtask_difficulty} presents plots of sub-task test accuracies and losses across different model sizes, highlighting the variability in sub-task difficulty.
 
-\begin{figure}[h!]
+\begin{figure}[htb!]
     \centering
     \includegraphics[width=0.9\textwidth]{fig/subtask_difficulty.png}
     \caption{Sub-task difficulty analysis. The bar plots show the mean and standard deviation of test loss (top row) and accuracy (bottom row) across in-distribution (ID) and out-of-distribution (OOD) datasets (8, 10, and 11 digits) and sub-tasks. Loss values across tasks are not directly comparable but can show ID-vs-OOD length deterioration in performance within a task. Based on the accuracy, modular addition and digit alignment are the most difficult sub-tasks, and their performance has the most variability across model sizes as well.}

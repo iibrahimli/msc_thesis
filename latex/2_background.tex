@@ -1,6 +1,6 @@
 \chapter{Background}\label{background}
 
-This chapter provides an overview of the Transformer architecture, focusing on its core components, different variants, positional encoding schemes, and the processes of training and inference. It also discusses mechanistic interpretability and the deep double descent phenomenon.
+This chapter provides an overview of the Transformer architecture, focusing on its core components, different variants, positional encoding schemes, training and inference, as well as interpretability.
 
 \section*{Notation}\label{sec:notation}
 
@@ -117,14 +117,14 @@ The original Transformer introduced in \cite{vaswani_attention_2017} consists of
 In this section, different Transformer architectures are summarized: encoder-decoder, encoder-only, and decoder-only models. The original Transformer~\parencite{vaswani_attention_2017} employs an encoder-decoder structure, where the encoder transforms input sequences into continuous representations, and the decoder generates output sequences based on these representations and previously generated tokens. Encoder-only models like BERT~\parencite{devlin_bert_2019} focus solely on encoding input sequences into contextual embeddings, making them well-suited for understanding tasks such as text classification and question answering. Decoder-only models, like GPT~\parencite{radford_improving_2018}, generate sequences by predicting the next token based on prior tokens, primarily used for text generation. While both encoder-decoder and decoder-only architectures can perform autoregressive sequence generation, decoder-only models are the focus of this work.
 
 \paragraph{Encoder-Decoder}
-The original Transformer model introduced by Vaswani et al.~\cite{vaswani_attention_2017} employs an encoder-decoder architecture. In this architecture, the encoder processes an input sequence $\mathbf{x} = (x_1, x_2, \dots, x_n)$ into a sequence of continuous representations $\mathbf{z} = (z_1, z_2, \dots, z_n)$. The decoder then generates an output sequence $\mathbf{y} = (y_1, y_2, \dots, y_m)$ by predicting the next token $y_t$ based on the encoder's output and the previously generated tokens.
+The original Transformer model introduced by \cite{vaswani_attention_2017} employs an encoder-decoder architecture. In this architecture, the encoder processes an input sequence $\mathbf{x} = (x_1, x_2, \dots, x_n)$ into a sequence of continuous representations $\mathbf{z} = (z_1, z_2, \dots, z_n)$. The decoder then generates an output sequence $\mathbf{y} = (y_1, y_2, \dots, y_m)$ by predicting the next token $y_t$ based on the encoder's output and the previously generated tokens.
 
 The encoder consists of a stack of $N$ identical layers, each containing two sub-layers: a multi-head self-attention mechanism and a position-wise fully connected feed-forward network. The decoder has a similar structure but includes a third sub-layer: the \emph{cross-attention}, also called \emph{encoder-decoder attention}, where the queries come from the previous decoder layer, and the keys and values come from the output of the encoder. Hence, the difference between the self-attention and cross-attention mechanisms is that self-attention is usually applied to the same sequence, while cross-attention is applied between two different sequences (e.g. one from the encoder, and one from the decoder). Moreover, the self-attention mechanism in the decoder has a causal mask to prevent attending to ``future tokens'', ensuring output is generated autoregressively. The T5 model \parencite{raffel_exploring_2020} is an example of a large encoder-decoder Transformer model capable of performing many NLP tasks such as translation, summarization, and question answering.
 
 \paragraph{Encoder-only}
 Encoder-only models focus exclusively on encoding the input sequence into a contextual representation without a decoder component. BERT (Bidirectional Encoder Representations from Transformers)~\cite{devlin_bert_2019} is a prominent example of this architecture. BERT utilizes a stack of Transformer encoder layers to produce deep bidirectional representations by jointly conditioning on both left and right context. This makes encoder-only models particularly well-suited for tasks that require a comprehensive understanding of the input, such as text classification, named entity recognition, and question answering.
 
-These models are typically pre-trained on large unlabeled text corpora using self-supervised objectives like masked language modeling (MLM) and next sentence prediction (NSP). The pre-trained models can then be fine-tuned on specific downstream tasks.
+These models are typically pre-trained on large unlabeled text corpora using self-supervised objectives like masked language modeling and next sentence prediction. The pre-trained models can then be fine-tuned on specific downstream tasks.
 
 \paragraph{Decoder-only}
 Decoder-only models generate sequences based on prior tokens and are designed primarily for autoregressive language modeling and text generation tasks. GPT (Generative Pre-trained Transformer)~\cite{radford_improving_2018} is a canonical example of a decoder-only architecture. In these models, the Transformer decoder predicts the next token in a sequence by attending to the previous tokens without an encoder component. The encoder is not needed since in a decoder-only Transformer, the input sequence $\mathbf{x}$ is prepended to the decoder input sequence $\mathbf{y}$, and only passed through the decoder layers to autoregressively generate the output sequence. Recent research on language modeling has mostly focused decoder-only models, since they can also be used on other language tasks through prompting, few-shot learning, and fine-tuning. In particular, majority of the latest state-of-the-art large language models (LLMs) are decoder-only transformers pre-trained on large text corpora.
@@ -146,7 +146,7 @@ The Universal Transformer \parencite{dehghani_universal_2018} introduces recurre
 \begin{equation*}
     H^{(t+1)} = \text{TransformerLayer}(H^{(t)}),
 \end{equation*}
-where $t$ denotes the iteration step. An adaptive computation time (ACT) mechanism is used to dynamically adjust the number of iterations based on the input sequence. The Universal Transformer has been shown to achieve better performance on algorithmic tasks compared to the original Transformer. It is also an interesting extension of the Transformer architecture from theoretical point of view, since it makes the model Turing-complete under certain conditions \parencite{dehghani_universal_2018}.
+where $t$ denotes the iteration step. An adaptive computation time mechanism is used to dynamically adjust the number of iterations based on the input sequence. The Universal Transformer has been shown to achieve better performance on algorithmic tasks compared to the original Transformer. It is also an interesting extension of the Transformer architecture from theoretical point of view, since it makes the model Turing-complete under certain conditions \parencite{dehghani_universal_2018}.
 
 \begin{figure}[h!]
     \centering
@@ -172,6 +172,9 @@ for position in the sequence $i$ and dimension $k$. In \cite{vaswani_attention_2
 
 \paragraph{Randomized Positional Encodings}\label{subsec:random_pos_enc}
 Randomized positional encodings \cite{ruoss_randomized_2023} aim to improve length generalization by simulating longer sequences during training. Similarly to absolute positional encodings, they are added to the input embeddings, and have separate vectors for each position in the sequence. However, instead of using sequential positions $1, 2, \dots, n$, the positions are randomly sampled (keeping order) from a range $[1, n_{\text{max}}]$, where $n_{\text{max}}$ is the maximum sequence length. Thus, the model is exposed to a wider range of positional encodings during training, which helps improve generalization to longer sequences. A related method is to randomly insert spaces between tokens in the input sequence (e.g. \texttt{123 + 456} might become \texttt{12 3  + 45 6}), which disrupts the model's dependence on absolute position information and encourages it to learn more robust representations \parencite{shen_positional_2023}. It is important to distinguish this method from the one introduced by \cite{shen_positional_2023} named Random Embedding, where a random Gaussian ``tag'' is added to a subset of embedding dimensions.
+
+\paragraph{Abacus Encoding}\label{subsec:abacus_enc}
+The Abacus encoding \parencite{mcleish_transformers_2024} is a positional encoding scheme designed to improve digit alignment and improve performance on arithmetic tasks. Like the absolute positional encoding, it adds a vector to the input embeddings for each position. However, it differs in the way it encodes numbers, where the positions in the Abacus encoding are based on the digit position in a number rather than the absolute token position in the sequence. Thus, all numbers must be reversed before encoding. For example, the prompt \texttt{\$123+456=} would become \texttt{\$321+654=} and the digits \texttt{3} and \texttt{6} would get index 0, \texttt{2} and \texttt{5} index 1, and so on.
 
 \paragraph{Relative Position Encoding}\label{subsec:relative_pos_enc}
 Relative position representations \parencite{shaw_self-attention_2018} encode the relative distances between sequence elements directly into the attention mechanism. In RPE, a vector $\mathbf{a}_{i, j} \in \mathbb{R}^d$ is learned for each pair of positions $(i, j)$, and added to the keys before computing the attention scores:
@@ -216,7 +219,6 @@ For tasks like integer addition, the loss is modified to focus only on the answe
 \begin{equation*}
     \mathcal{L}_{\text{answer-only}} = -\frac{1}{b} \sum_{i=1}^{b} \sum_{j=1}^{n} m_{i,j} \log p(x_{i,j} | x_{i,<j}),
 \end{equation*}
-
 where $b$ is the batch size, $n$ is the sequence length, $m_{i,j} = 1$ if token \( x_{i,j} \) is an answer token, otherwise \( m_{i,j} = 0 \), and \( p(x_{i,j} | x_{i,<j}) \) is the predicted probability of token \( x_{i,j} \) given the preceding tokens \( x_{i,<j} \).
 
 This formulation ensures that the loss is computed only over the answer tokens, with non-answer tokens effectively ignored (since \( m_{i,j} = 0 \) for those positions). Without answer loss masking, the cross-entropy loss would penalize the model for incorrectly predicting randomly generated operands as well (which are not possible to predict in the first place), thus adding noise to the training process never reaching 0 loss.
@@ -233,9 +235,12 @@ where $\mathcal{V}$ is the vocabulary, $p_{\theta}(x | x_{<j})$ are the logits c
 The sampling process continues until a predefined stopping criterion is met, such as reaching a maximum sequence length or generating a special end-of-sequence token. Greedy sampling is computationally efficient but does not explore alternative sequences. However, it is sufficient for tasks like integer addition, where the output is deterministic.
 
 
-\section{Mechanistic Interpretability}\label{sec:mech_interp}
+\section{Transformer Interpretability}\label{sec:mech_interp}
 
-Understanding how Transformers make decisions is crucial for interpretability and debugging. Relevant concepts include the \emph{residual stream}, \emph{activation patching}, and the \emph{logit lens}, which provide insights into the model's internal representations and decision-making processes.
+Understanding how Transformers make decisions is crucial for interpretability and debugging. Relevant concepts include the \emph{attention maps}, \emph{residual stream} and \emph{circuits}, which provide insights into the model's internal representations and decision-making processes.
+
+\paragraph{Attention Maps}
+Attention maps visualize the attention weights between tokens in the input sequence, showing how much each token attends to other tokens. Attention maps can be visualized as heatmaps, where the rows and columns correspond to the sequence (for decoder-only models), and the intensity of the color represents the attention weight. Attention maps can be used to identify patterns in the model's behavior, such as which tokens are important for a given output token, or which tokens are being copied from the input. For instance, in the context of multi-digit integer addition, attention maps can reveal how the model aligns the digits to perform digit-wise sums, resulting in diagonal lines.
 
 \paragraph{Residual Stream}
 The residual stream in a Transformer is enabled by the residual connections around operations (as described in Subsection \ref{subsec:elements_transformers}) and serves as a shared memory, accumulating information across layers via residual connections. Both attention heads and feedforward layers read from and write to this stream, which ensures the propagation of information throughout the model. Since each layer can only read from earlier layers, analyzing this stream is essential for understanding how information is transformed and stored across layers \parencite{elhage2021mathematical}. The residual stream can be studied by techniques such as activation patching to trace information flow.
@@ -253,10 +258,3 @@ In the context of Transformers, expressivity refers to whether a given task or b
 A key aspect of Transformers is their ability to generalize \emph{compositionally} in some tasks, as highlighted by \cite{hupkes_compositionality_2020}. This suggests that, under the right conditions, transformers are capable of learning systematic combinations of components, enabling them to generalize beyond seen examples in a structured manner. This compositional behavior is crucial for algorithmic tasks, where the model must apply learned rules consistently across different sequence lengths. Despite the theoretical results, there is no clear applied research about how it can be proven that a Transformer model of specific architecture and size can learn a particular task, like multi-digit integer addition.
 
 \cite{zhou_what_2023} investigate the expressivity of Transformers on algorithmic tasks using RASP-L, and demonstrate the implementation of the addition algorithm within RASP-L but note certain limitations in their approach. Specifically, their result relies on the inclusion of index hints embedded within the input sequences to allow induction heads to perform the digit alignment and padding operands to the same digit length, sidestepping the issue of position-based digit alignment studied in this work.
-
-
-\section{Deep Double Descent}\label{sec:deep_double_descent}
-
-The phenomenon of \emph{deep double descent} describes how increasing model capacity or training duration can initially lead to worse generalization before ultimately improving it. This was initially believed to challenge the traditional bias-variance tradeoff, where increasing model complexity was believed to always result in overfitting \parencite{belkin_reconciling_2019, nakkiran_deep_2021}. Deep double descent arises when models, especially overparameterized ones, first memorize the training data, but later discover more generalizable features, leading to improved performance on the test set and zero training loss.
-
-This phenomenon is still relevant in integer addition tasks, since the interpolation threshold — the point where the model transitions from memorization to generalization might change with respect to model and dataset size.
