@@ -1,5 +1,5 @@
 
-@article{varma_explaining_2023,
+@misc{varma_explaining_2023,
   title    = {Explaining grokking through circuit efficiency},
   url      = {https://openreview.net/forum?id=7Zbg38nA0J},
   abstract = {We present a theory of grokking in neural networks which explains grokking in terms of the relative efficiency of competing emergent sub-networks (circuits). Grokking is an important generalisation phenomenon where continuing to train a network which already achieves nearly perfect training loss can still dramatically improve the test loss. Our theory explains why generalising circuits gradually out-compete memorising circuits. This is because memorising circuits are inefficient for compressing large datasets---the per-example cost is high---while generalising circuits have a larger fixed cost but better per-example efficiency. Strikingly, our theory is precise enough to produce novel predictions of previously unobserved phenomena: ungrokking and semi-grokking.},
@@ -69,15 +69,12 @@
   file       = {Full Text PDF:/Users/imran/Zotero/storage/5WUFDNZ7/Sennrich et al. - 2016 - Neural Machine Translation of Rare Words with Subword Units.pdf:application/pdf}
 }
 
-@article{saxton_analysing_2019,
-  title        = {Analysing Mathematical Reasoning Abilities of Neural Models},
-  url          = {https://www.semanticscholar.org/paper/Analysing-Mathematical-Reasoning-Abilities-of-Saxton-Grefenstette/afed6dc6900d3b37e528b9086661bba583d60bf6},
-  abstract     = {Mathematical reasoning---a core ability within human intelligence---presents some unique challenges as a domain: we do not come to understand and solve mathematical problems primarily on the back of experience and evidence, but on the basis of inferring, learning, and exploiting laws, axioms, and symbol manipulation rules. In this paper, we present a new challenge for the evaluation (and eventually the design) of neural architectures and similar system, developing a task suite of mathematics problems involving sequential questions and answers in a free-form textual input/output format. The structured nature of the mathematics domain, covering arithmetic, algebra, probability and calculus, enables the construction of training and test splits designed to clearly illuminate the capabilities and failure-modes of different architectures, as well as evaluate their ability to compose and relate knowledge and learned processes. Having described the data generation process and its potential future expansions, we conduct a comprehensive analysis of models from two broad classes of the most powerful sequence-to-sequence architectures and find notable differences in their ability to resolve mathematical problems and generalize their knowledge.},
-  journaltitle = {{ArXiv}},
-  author       = {Saxton, D. and Grefenstette, Edward and Hill, Felix and Kohli, Pushmeet},
-  urldate      = {2024-10-12},
-  date         = {2019-04-02},
-  file         = {Full Text PDF:/Users/imran/Zotero/storage/CXFNPVDF/Saxton et al. - 2019 - Analysing Mathematical Reasoning Abilities of Neural Models.pdf:application/pdf}
+@inproceedings{saxton_analysing_2019,
+  title     = {Analysing Mathematical Reasoning Abilities of Neural Models},
+  author    = {David Saxton and Edward Grefenstette and Felix Hill and Pushmeet Kohli},
+  booktitle = {International Conference on Learning Representations},
+  year      = {2019},
+  url       = {https://openreview.net/forum?id=H1gR5iR5FX}
 }
 
 @inproceedings{newman_eos_2020,
@@ -278,15 +275,17 @@
   file       = {Full Text PDF:/Users/imran/Zotero/storage/3IXHP5EA/Bansal et al. - 2022 - End-to-end Algorithm Synthesis with Recurrent Networks Extrapolation without Overthinking.pdf:application/pdf}
 }
 
-@inproceedings{radford_improving_2018,
-  title    = {Improving Language Understanding by Generative Pre-Training},
-  url      = {https://www.semanticscholar.org/paper/Improving-Language-Understanding-by-Generative-Radford-Narasimhan/cd18800a0fe0b668a1cc19f2ec95b5003d0a5035},
-  abstract = {Natural language understanding comprises a wide range of diverse tasks such as textual entailment, question answering, semantic similarity assessment, and document classiﬁcation. Although large unlabeled text corpora are abundant, labeled data for learning these speciﬁc tasks is scarce, making it challenging for discriminatively trained models to perform adequately. We demonstrate that large gains on these tasks can be realized by generative pre-training of a language model on a diverse corpus of unlabeled text, followed by discriminative ﬁne-tuning on each speciﬁc task. In contrast to previous approaches, we make use of task-aware input transformations during ﬁne-tuning to achieve effective transfer while requiring minimal changes to the model architecture. We demonstrate the effectiveness of our approach on a wide range of benchmarks for natural language understanding. Our general task-agnostic model outperforms discriminatively trained models that use architectures speciﬁcally crafted for each task, signiﬁcantly improving upon the state of the art in 9 out of the 12 tasks studied. For instance, we achieve absolute improvements of 8.9\% on commonsense reasoning (Stories Cloze Test), 5.7\% on question answering ({RACE}), and 1.5\% on textual entailment ({MultiNLI}).},
-  author   = {Radford, Alec and Narasimhan, Karthik},
-  urldate  = {2024-10-05},
-  date     = {2018},
-  file     = {Full Text PDF:/Users/imran/Zotero/storage/IEFBSG99/Radford and Narasimhan - 2018 - Improving Language Understanding by Generative Pre-Training.pdf:application/pdf}
+@misc{radford_improving_2018,
+  abstract  = {Natural language understanding comprises a wide range of diverse tasks such as textual entailment, question answering, semantic similarity assessment, and document classiﬁcation. Although large unlabeled text corpora are abundant, labeled data for learning these speciﬁc tasks is scarce, making it challenging for discriminatively trained models to perform adequately. We demonstrate that large gains on these tasks can be realized by generative pre-training of a language model on a diverse corpus of unlabeled text, followed by discriminative ﬁne-tuning on each speciﬁc task. In contrast to previous approaches, we make use of task-aware input transformations during ﬁne-tuning to achieve effective transfer while requiring minimal changes to the model architecture. We demonstrate the effectiveness of our approach on a wide range of benchmarks for natural language understanding. Our general task-agnostic model outperforms discriminatively trained models that use architectures speciﬁcally crafted for each task, signiﬁcantly improving upon the state of the art in 9 out of the 12 tasks studied. For instance, we achieve absolute improvements of 8.9\% on commonsense reasoning (Stories Cloze Test), 5.7\% on question answering (RACE), and 1.5\% on textual entailment (MultiNLI).},
+  author    = {Radford, Alec and Narasimhan, Karthik and Salimans, Tim and Sutskever, Ilya},
+  keywords  = {chatgpt codefreeze llms openai reinforcement-learning},
+  timestamp = {2024-01-07T20:57:58.000+0100},
+  title     = {Improving language understanding by generative pre-training},
+  url       = {https://www.mikecaptain.com/resources/pdf/GPT-1.pdf},
+  urldate   = {2023-01-06},
+  year      = 2018
 }
+
 
 @article{he_deep_2016,
   title        = {Deep Residual Learning for Image Recognition},
@@ -527,27 +526,22 @@
 }
 
 
-@inproceedings{dziri_faith_2023,
-  title      = {Faith and {Fate}: {Limits} of {Transformers} on {Compositionality}},
-  shorttitle = {Faith and {Fate}},
-  url        = {https://openreview.net/forum?id=Fkckkr3ya8},
-  language   = {en},
-  urldate    = {2024-02-17},
-  author     = {Dziri, Nouha and Lu, Ximing and Sclar, Melanie and Li, Xiang Lorraine and Jiang, Liwei and Lin, Bill Yuchen and Welleck, Sean and West, Peter and Bhagavatula, Chandra and Bras, Ronan Le and Hwang, Jena D. and Sanyal, Soumya and Ren, Xiang and Ettinger, Allyson and Harchaoui, Zaid and Choi, Yejin},
-  month      = nov,
-  year       = {2023},
-  file       = {Full Text PDF:/Users/imran/Zotero/storage/487IGXRD/Dziri et al. - 2023 - Faith and Fate Limits of Transformers on Composit.pdf:application/pdf}
+@article{dziri_faith_2023,
+  title   = {Faith and Fate: Limits of Transformers on Compositionality},
+  author  = {Dziri, Nouha and Lu, Ximing and Sclar, Melanie and Li, Xiang Lorraine and Jian, Liwei and Lin, Bill Yuchen and West, Peter and Bhagavatula, Chandra and Bras, Ronan Le and Hwang, Jena D and others},
+  journal = {arXiv preprint arXiv:2305.18654},
+  year    = {2023}
 }
 
-@inproceedings{dehghani_universal_2018,
-  title    = {Universal {Transformers}},
-  url      = {https://openreview.net/forum?id=HyzdRiR9Y7},
-  language = {en},
-  urldate  = {2024-02-17},
-  author   = {Dehghani, Mostafa and Gouws, Stephan and Vinyals, Oriol and Uszkoreit, Jakob and Kaiser, Lukasz},
-  month    = sep,
-  year     = {2018},
-  file     = {Full Text PDF:/Users/imran/Zotero/storage/NSQKNVF4/Dehghani et al. - 2018 - Universal Transformers.pdf:application/pdf}
+@article{dehghani_universal_2018,
+  title        = {Universal Transformers},
+  url          = {https://www.semanticscholar.org/paper/Universal-Transformers-Dehghani-Gouws/ac4dafdef1d2b685b7f28a11837414573d39ff4e},
+  abstract     = {Recurrent neural networks ({RNNs}) sequentially process data by updating their state with each new data point, and have long been the de facto choice for sequence modeling tasks. However, their inherently sequential computation makes them slow to train. Feed-forward and convolutional architectures have recently been shown to achieve superior results on some sequence modeling tasks such as machine translation, with the added advantage that they concurrently process all inputs in the sequence, leading to easy parallelization and faster training times. Despite these successes, however, popular feed-forward sequence models like the Transformer fail to generalize in many simple tasks that recurrent models handle with ease, e.g. copying strings or even simple logical inference when the string or formula lengths exceed those observed at training time. We propose the Universal Transformer ({UT}), a parallel-in-time self-attentive recurrent sequence model which can be cast as a generalization of the Transformer model and which addresses these issues. {UTs} combine the parallelizability and global receptive field of feed-forward sequence models like the Transformer with the recurrent inductive bias of {RNNs}. We also add a dynamic per-position halting mechanism and find that it improves accuracy on several tasks. In contrast to the standard Transformer, under certain assumptions, {UTs} can be shown to be Turing-complete. Our experiments show that {UTs} outperform standard Transformers on a wide range of algorithmic and language understanding tasks, including the challenging {LAMBADA} language modeling task where {UTs} achieve a new state of the art, and machine translation where {UTs} achieve a 0.9 {BLEU} improvement over Transformers on the {WMT}14 En-De dataset.},
+  journaltitle = {{ArXiv}},
+  author       = {Dehghani, Mostafa and Gouws, Stephan and Vinyals, O. and Uszkoreit, Jakob and Kaiser, Lukasz},
+  urldate      = {2024-10-22},
+  date         = {2018-07-10},
+  file         = {Full Text PDF:/Users/imran/Zotero/storage/DVL3N7PM/Dehghani et al. - 2018 - Universal Transformers.pdf:application/pdf}
 }
 
 @inproceedings{jaegle_perceiver_2021,
@@ -567,26 +561,25 @@
 }
 
 @inproceedings{lee_teaching_2023,
-  title    = {Teaching {Arithmetic} to {Small} {Transformers}},
-  url      = {https://openreview.net/forum?id=YfhuG7xHQ8&referrer=%5Bthe%20profile%20of%20Jason%20D.%20Lee%5D(%2Fprofile%3Fid%3D~Jason_D._Lee1)},
-  language = {en},
-  urldate  = {2024-02-17},
-  author   = {Lee, Nayoung and Sreenivasan, Kartik and Lee, Jason and Lee, Kangwook and Papailiopoulos, Dimitris},
-  month    = oct,
-  year     = {2023},
-  file     = {arXiv Fulltext PDF:/Users/imran/Zotero/storage/HHYDQNLM/Lee et al. - 2023 - Teaching Arithmetic to Small Transformers.pdf:application/pdf;Snapshot:/Users/imran/Zotero/storage/3WKE2A4U/forum.html:text/html}
+  title     = {Teaching Arithmetic to Small Transformers},
+  author    = {Nayoung Lee and Kartik Sreenivasan and Jason D. Lee and Kangwook Lee and Dimitris Papailiopoulos},
+  booktitle = {The Twelfth International Conference on Learning Representations},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=dsUB4bst9S}
 }
 
 @inproceedings{kazemnejad_impact_2023,
-  title    = {The {Impact} of {Positional} {Encoding} on {Length} {Generalization} in {Transformers}},
-  url      = {https://openreview.net/forum?id=Drrl2gcjzl},
-  language = {en},
-  urldate  = {2024-02-17},
-  author   = {Kazemnejad, Amirhossein and Padhi, Inkit and Natesan, Karthikeyan and Das, Payel and Reddy, Siva},
-  month    = nov,
-  year     = {2023},
-  file     = {Full Text PDF:/Users/imran/Zotero/storage/9477TW63/Kazemnejad et al. - 2023 - The Impact of Positional Encoding on Length Genera.pdf:application/pdf}
+  title      = {The Impact of Positional Encoding on Length Generalization in Transformers},
+  url        = {https://openreview.net/forum?id=Drrl2gcjzl},
+  abstract   = {Length generalization, the ability to generalize from small training context sizes to larger ones, is a critical challenge in the development of Transformer-based language models. Positional encoding ({PE}) has been identified as a major factor influencing length generalization, but the exact impact of different {PE} schemes on extrapolation in downstream tasks remains unclear. In this paper, we conduct a systematic empirical study comparing the length generalization performance of decoder-only Transformers with five different position encoding approaches including Absolute Position Embedding ({APE}), T5's Relative {PE}, {ALiBi}, and Rotary, in addition to Transformers without positional encoding ({NoPE}). Our evaluation encompasses a battery of reasoning and mathematical tasks. Our findings reveal that the most commonly used positional encoding methods, such as {ALiBi}, Rotary, and {APE}, are not well suited for length generalization in downstream tasks. More importantly, {NoPE} outperforms other explicit positional encoding methods while requiring no additional computation. We theoretically demonstrate that {NoPE} can represent both absolute and relative {PEs}, but when trained with {SGD}, it mostly resembles T5's relative {PE} attention patterns. Finally, we find that scratchpad is not always helpful to solve length generalization and its format highly impacts the model's performance. Overall, our work suggests that explicit position embeddings are not essential for decoder-only Transformers to generalize well to longer sequences.},
+  eventtitle = {Thirty-seventh Conference on Neural Information Processing Systems},
+  author     = {Kazemnejad, Amirhossein and Padhi, Inkit and Natesan, Karthikeyan and Das, Payel and Reddy, Siva},
+  urldate    = {2024-02-17},
+  date       = {2023-11-02},
+  langid     = {english},
+  file       = {Full Text PDF:/Users/imran/Zotero/storage/9477TW63/Kazemnejad et al. - 2023 - The Impact of Positional Encoding on Length Genera.pdf:application/pdf}
 }
+
 
 @misc{jelassi_length_2023,
   title     = {Length {Generalization} in {Arithmetic} {Transformers}},
@@ -743,14 +736,11 @@
 }
 
 @inproceedings{quirke_understanding_2023,
-  title    = {Understanding {Addition} in {Transformers}},
-  url      = {https://openreview.net/forum?id=rIx1YXVWZb},
-  language = {en},
-  urldate  = {2024-03-11},
-  author   = {Quirke, Philip and Barez, Fazl},
-  month    = oct,
-  year     = {2023},
-  file     = {Full Text PDF:/Users/imran/Zotero/storage/NJIS3P76/Quirke and Barez - 2023 - Understanding Addition in Transformers.pdf:application/pdf}
+  title     = {Understanding Addition in Transformers},
+  author    = {Philip Quirke and Fazl Barez},
+  booktitle = {The Twelfth International Conference on Learning Representations},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=rIx1YXVWZb}
 }
 
 @misc{huang_music_2018,
@@ -799,14 +789,11 @@
 }
 
 @inproceedings{nanda_progress_2022,
-  title    = {Progress measures for grokking via mechanistic interpretability},
-  url      = {https://openreview.net/forum?id=9XFSbDPmdW},
-  language = {en},
-  urldate  = {2024-04-09},
-  author   = {Nanda, Neel and Chan, Lawrence and Lieberum, Tom and Smith, Jess and Steinhardt, Jacob},
-  month    = sep,
-  year     = {2022},
-  file     = {Full Text PDF:/Users/imran/Zotero/storage/2YJWPRGB/Nanda et al. - 2022 - Progress measures for grokking via mechanistic interpretability.pdf:application/pdf}
+  title     = {Progress measures for grokking via mechanistic interpretability},
+  author    = {Neel Nanda and Lawrence Chan and Tom Lieberum and Jess Smith and Jacob Steinhardt},
+  booktitle = {The Eleventh International Conference on Learning Representations },
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=9XFSbDPmdW}
 }
 
 @misc{burtsev_memory_2021,
@@ -861,7 +848,7 @@
   file      = {arXiv Fulltext PDF:/Users/imran/Zotero/storage/PTUTVIW2/Ferrando et al. - 2024 - A Primer on the Inner Workings of Transformer-based Language Models.pdf:application/pdf;arXiv.org Snapshot:/Users/imran/Zotero/storage/4MRV79CY/2405.html:text/html}
 }
 
-@article{csordas_systematic_2023,
+@phdthesis{csordas_systematic_2023,
   title   = {Systematic generalization in connectionist models},
   url     = {https://sonar.ch/global/documents/326205},
   urldate = {2024-05-13},
@@ -983,7 +970,7 @@
   file      = {Li et al. - 2024 - Functional Interpolation for Relative Positions Improves Long Context Transformers.pdf:/Users/imran/Zotero/storage/SH4FTD4F/Li et al. - 2024 - Functional Interpolation for Relative Positions Improves Long Context Transformers.pdf:application/pdf}
 }
 
-@inproceedings{dave_investigating_2024,
+@misc{dave_investigating_2024,
   title   = {Investigating {Symbolic} {Capabilities} of {Large} {Language} {Models}},
   url     = {https://www.semanticscholar.org/paper/Investigating-Symbolic-Capabilities-of-Large-Models-Dave-Kifer/cb1addf9cefe4e96763d28437f72a3d3cbfa7225},
   urldate = {2024-06-15},
@@ -1140,14 +1127,11 @@
 }
 
 @inproceedings{krubinski_basic_2023,
-  title    = {Basic {Arithmetic} {Properties} in the {Space} of {Language} {Model} {Prompts}},
-  url      = {https://openreview.net/forum?id=RCiRtdERCW},
-  language = {en},
-  urldate  = {2024-09-09},
-  author   = {Krubiński, Mateusz},
-  month    = oct,
-  year     = {2023},
-  file     = {24.pdf:/Users/imran/Zotero/storage/GIP7WIBB/24.pdf:application/pdf;Snapshot:/Users/imran/Zotero/storage/JNWMLC89/forum.html:text/html}
+  title     = {Basic Arithmetic Properties in the Space of Language Model Prompts},
+  author    = {Mateusz Krubi{\'n}ski},
+  booktitle = {The 3rd Workshop on Mathematical Reasoning and AI at NeurIPS'23},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=RCiRtdERCW}
 }
 
 @inproceedings{press_measuring_2023,
