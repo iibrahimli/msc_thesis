@@ -1,0 +1,381 @@
+\documentclass[14pt,aspectratio=169]{beamer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Meta informations:
+\newcommand{\trauthor}{Imran Ibrahimli}
+\newcommand{\trcourse}{Intelligent Adaptive Systems}
+\newcommand{\trtitle}{Length Generalization on Multi-Digit Integer Addition with Transformers}
+\newcommand{\trmatrikelnummer}{7486484}
+\newcommand{\tremail}{imran.ibrahimli@studium.uni-hamburg.de}
+\newcommand{\trinstitute}{Dept. Informatik -- Knowledge Technology, WTM}
+\newcommand{\trwebsiteordate}{{https://www.informatik.uni-hamburg.de/WTM/}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Languages:
+\usepackage[english]{babel}
+\selectlanguage{english}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bind packages:
+\usepackage{beamerthemesplit}
+\usetheme{Boadilla}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Frankfurt}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Madrid}
+%\usetheme{Warsaw }
+%\usecolortheme{dolphin}
+%\setbeamertemplate{sections/subsections in toc}[sections numbered]
+%\beamertemplatenavigationsymbolsempty
+%\setbeamertemplate{headline}[default] 	% deaktiviert die Kopfzeile
+\setbeamertemplate{navigation symbols}{}% deaktiviert Navigationssymbole
+%\useinnertheme{rounded}
+
+\usepackage{acronym}                    % Acronyms
+\usepackage{algorithmic}								% Algorithms and Pseudocode
+\usepackage{algorithm}									% Algorithms and Pseudocode
+\usepackage{amsfonts}                   % AMS Math Packet (Fonts)
+\usepackage{amsmath}                    % AMS Math Packet
+\usepackage{amssymb}                    % Additional mathematical symbols
+\usepackage{amsthm}
+\usepackage{color}                      % Enables defining of colors via \definecolor
+\usepackage{fancybox}                   % Gleichungen einrahmen
+\usepackage{fancyhdr}										% Paket zur schickeren der Gestaltung der 
+\usepackage{graphicx}                   % Inclusion of graphics
+%\usepackage{latexsym}                  % Special symbols
+\usepackage{longtable}									% Allow tables over several parges
+\usepackage{listings}                   % Nicer source code listings
+\usepackage{lmodern}
+\usepackage{multicol}										% Content of a table over several columns
+\usepackage{multirow}										% Content of a table over several rows
+\usepackage{rotating}										% Alows to rotate text and objects
+\usepackage[section]{placeins}          % Ermoeglich \Floatbarrier fuer Gleitobj. 
+\usepackage[hang]{subfigure}            % Allows to use multiple (partial) figures in a fig
+%\usepackage[font=footnotesize,labelfont=rm]{subfig}	% Pictures in a floating environment
+\usepackage{tabularx}										% Tables with fixed width but variable rows
+\usepackage{url,xspace,boxedminipage}   % Accurate display of URLs
+
+
+\definecolor{uhhRed}{RGB}{226,0,26}     % Official Uni Hamburg Red
+\definecolor{uhhGrey}{RGB}{136,136,136} % Official Uni Hamburg Grey
+\definecolor{uhhLightGrey}{RGB}{220, 220, 220}
+\setbeamertemplate{itemize items}[ball]
+\setbeamercolor{title}{fg=uhhRed,bg=white}
+\setbeamercolor{title in head/foot}{bg=uhhRed}
+\setbeamercolor{block title}{bg=uhhGrey,fg=white}
+\setbeamercolor{block body}{bg=uhhLightGrey,fg=black}
+\setbeamercolor{section in head/foot}{bg=black}
+\setbeamercolor{frametitle}{bg=white,fg=uhhRed}
+\setbeamercolor{author in head/foot}{bg=black,fg=white}
+\setbeamercolor{author in footline}{bg=white,fg=black}
+\setbeamercolor*{item}{fg=uhhRed}
+\setbeamercolor*{section in toc}{fg=black}
+\setbeamercolor*{separation line}{bg=black}
+\setbeamerfont*{author in footline}{size=\scriptsize,series=\mdseries}
+\setbeamerfont*{institute}{size=\footnotesize}
+
+\newcommand{\opticalseperator}{0.0025\paperwidth}
+
+\institute{Universit\"at Hamburg\\\trinstitute}
+\title{\trtitle}
+\author{\trauthor}
+\date{}
+\logo{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Configurationen:
+%\hypersetup{pdfpagemode=FullScreen}
+
+\hyphenation{whe-ther} 									% Manually use: "\-" in a word: Staats\-ver\-trag
+
+%\lstloadlanguages{C}                   % Set the default language for listings
+\DeclareGraphicsExtensions{.pdf,.svg,.jpg,.png,.eps} % first try pdf, then eps, png and jpg
+\graphicspath{{./img/}} 								% Path to a folder where all pictures are located
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Costom Definitions:
+\setbeamertemplate{title page}
+{
+  \vbox{}
+	\vspace{0.4cm}
+  \begin{centering}
+    \begin{beamercolorbox}[sep=8pt,center,colsep=-4bp]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.20em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%     
+    \end{beamercolorbox}%
+		\vskip0.4em
+    \begin{beamercolorbox}[sep=8pt,center,colsep=-4bp,rounded=true,shadow=true]{author}
+      \usebeamerfont{author}\insertauthor \\ \insertinstitute
+    \end{beamercolorbox}
+
+	  \vfill
+	  \begin{beamercolorbox}[ht=10ex,center]{}
+		  \includegraphics[width=0.175\paperwidth]{wtmIcon.pdf}
+	  \end{beamercolorbox}%
+    \begin{beamercolorbox}[sep=8pt,center,colsep=-4bp,rounded=true,shadow=true]{institute}
+      \usebeamerfont{institute}\trwebsiteordate
+    \end{beamercolorbox}
+		\vspace{-0.1cm}
+  \end{centering}
+}
+
+\setbeamertemplate{frametitle}
+{
+\begin{beamercolorbox}[wd=\paperwidth,ht=3.8ex,dp=1.2ex,leftskip=0pt,rightskip=4.0ex]{frametitle}%
+		\usebeamerfont*{frametitle}\centerline{\insertframetitle}
+	\end{beamercolorbox}
+	\vspace{0.0cm}
+}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+	\vspace{-0.05cm}
+  \hbox{
+	  \begin{beamercolorbox}[wd=.32\paperwidth,ht=4.8ex,dp=2.7ex,center]{author in footline}
+	    \hspace*{2ex}\usebeamerfont*{author in footline}\trauthor
+	  \end{beamercolorbox}%
+	  \begin{beamercolorbox}[wd=.60\paperwidth,ht=4.8ex,dp=2.7ex,center]{author in footline}
+	    \usebeamerfont*{author in footline}\trtitle
+	  \end{beamercolorbox}%
+	  \begin{beamercolorbox}[wd=.07\paperwidth,ht=4.8ex,dp=2.7ex,center]{author in footline}
+	    \usebeamerfont*{author in footline}\insertframenumber{}
+	  \end{beamercolorbox}
+  }
+	\vspace{0.15cm}
+}
+\renewcommand{\footnotesize}{\fontsize{12.4pt}{12.4pt}\selectfont}
+\renewcommand{\small}{\fontsize{13.8pt}{13.8pt}\selectfont}
+\renewcommand{\normalsize}{\fontsize{15.15pt}{15.15pt}\selectfont}
+\renewcommand{\large}{\fontsize{17.7pt}{17.7pt}\selectfont}
+\renewcommand{\Large}{\fontsize{21.3pt}{21.3pt}\selectfont}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Additional 'theorem' and 'definition' blocks:
+\newtheorem{axiom}{Axiom}[section] 	
+%\newtheorem{axiom}{Fakt}[section]			% Wenn in Deutsch geschrieben wird.
+%Usage:%\begin{axiom}[optional description]%Main part%\end{fakt}
+
+%Additional types of axioms:
+\newtheorem{observation}[axiom]{Observation}
+
+%Additional types of definitions:
+\theoremstyle{remark}
+%\newtheorem{remark}[section]{Bemerkung} % Wenn in Deutsch geschrieben wird.
+\newtheorem{remark}[section]{Remark} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Provides TODOs within the margin:
+\newcommand{\TODO}[1]{\marginpar{\emph{\small{{\bf TODO: } #1}}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abbreviations and mathematical symbols
+\newcommand{\modd}{\text{ mod }}
+\newcommand{\RS}{\mathbb{R}}
+\newcommand{\NS}{\mathbb{N}}
+\newcommand{\ZS}{\mathbb{Z}}
+\newcommand{\dnormal}{\mathit{N}}
+\newcommand{\duniform}{\mathit{U}}
+
+\newcommand{\erdos}{Erd\H{o}s}
+\newcommand{\renyi}{-R\'{e}nyi}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Display of TOCs:
+\AtBeginSection[]
+{
+	\setcounter{tocdepth}{2}  
+	\frame
+	{
+	  \frametitle{Outline}
+		\tableofcontents[currentsection]
+	}
+}
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document:
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+\frame{
+    \frametitle{Outline}
+    \tableofcontents
+}
+
+\section{Introduction}
+
+\begin{frame}
+    \frametitle{Introduction}
+    \begin{itemize}
+        \item Overview of length generalization challenges in sequence tasks
+        \item Importance of transformers for AI applications
+    \end{itemize}
+\end{frame}
+
+\section{Motivation}
+
+\begin{frame}
+    \frametitle{Motivation}
+    \begin{itemize}
+        \item Challenges with transformers in multi-digit addition
+        \item Real-world implications of length generalization issues
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problem Statement}
+    \begin{itemize}
+        \item Transformers struggle with sequences longer than seen in training
+        \item Importance of positional encoding for accurate digit alignment
+    \end{itemize}
+\end{frame}
+
+\section{Research Questions}
+
+\begin{frame}
+    \frametitle{Research Questions}
+    \begin{itemize}
+        \item \textbf{RQ1}: Why do transformers with standard positional encodings fail in length generalization?
+        \item \textbf{RQ2}: How do sub-task data influence length generalization?
+        \item \textbf{RQ3}: How can interpretability techniques reveal transformer mechanisms?
+    \end{itemize}
+\end{frame}
+
+\section{Background}
+
+\begin{frame}
+    \frametitle{Background - Transformers}
+    \begin{itemize}
+        \item Key transformer components: self-attention, feed-forward networks
+        \item Encoder-decoder vs. decoder-only models
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Background - Positional Encoding}
+    \begin{itemize}
+        \item Absolute, relative, and random encoding methods
+        \item Importance of positional encoding in handling sequence tasks
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Related Work}
+    \begin{itemize}
+        \item Overview of research on length generalization and transformers in arithmetic tasks
+    \end{itemize}
+\end{frame}
+
+\section{Approach}
+
+\begin{frame}
+    \frametitle{Approach - Overview}
+    \begin{itemize}
+        \item Focus on minimal architectural changes and positional encoding
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Experimental Setup}
+    \begin{itemize}
+        \item Model configurations and evaluation metrics
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Data Formatting}
+    \begin{itemize}
+        \item Techniques: zero padding, reversing answer, etc.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Limitations of Absolute Positional Encoding}
+    \begin{itemize}
+        \item Issues with absolute encoding and digit alignment
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Random Spaces Technique}
+    \begin{itemize}
+        \item Description and impact on model generalization
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results - Baseline Model Performance}
+    \begin{itemize}
+        \item Baseline results with standard positional encoding
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Attention Map Analysis}
+    \begin{itemize}
+        \item Visual analysis of attention patterns
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impact of Data Formatting}
+    \begin{itemize}
+        \item Comparing results across different formatting methods
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Sub-task Learning}
+    \begin{itemize}
+        \item Role of sub-tasks in improving length generalization
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Discussion - Length Generalization}
+    \begin{itemize}
+        \item Key findings on generalization capabilities
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Challenges and Limitations}
+    \begin{itemize}
+        \item Limitations of random spaces and Abacus encoding
+    \end{itemize}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \begin{itemize}
+        \item Summary of findings and contributions
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Future Work}
+    \begin{itemize}
+        \item Suggestions for further research in encoding methods and model interpretability
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The End}
+    \begin{center}
+        Thank you for your attention. \\[1ex]
+        Any questions?
+    \end{center}
+\end{frame}
+
+\end{document}
