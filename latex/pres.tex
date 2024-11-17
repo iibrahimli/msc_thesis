@@ -485,96 +485,21 @@
 \begin{frame}
     \frametitle{Data Formatting Techniques}
     \begin{itemize}
-        \item Standard Format
-        \item Zero Padding
-        \item Reversing
-        \item Random Spaces
-        \item Scratchpad
+        \item Standard Format \\
+              \texttt{\$123+456=579\$}
+        \item Zero Padding \\
+              \texttt{\$00123+00456=00579\$} ($N_{\text{pad}} = 5$)
+        \item Reversing \\
+              \texttt{\$321+654=975\$}
+        \item Random Spaces \\
+              \texttt{\$1 23 +4  5 6=579\$}
+        \item Scratchpad \\
+              \texttt{\$567+789=7 6 5 + 9 8 7;
+                  c=0,7+0+0=7,c=0;
+                  6+9+0=5,c=1;
+                  5+8+1=4,c=1;
+                  0+7+1=8,c=0|8457\$}
     \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Standard Format}
-    \begin{itemize}
-        \item Input sequences are represented as \texttt{\$a+b=c\$}
-        \item \texttt{a} and \texttt{b} are operands; \texttt{c} is the sum
-        \item Symbols:
-              \begin{itemize}
-                  \item \texttt{\$}: Start and end of sequence (also serves as EOS token)
-                  \item \texttt{+}, \texttt{=}: Separate operands and answer
-              \end{itemize}
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Example:}
-    \begin{center}
-        \texttt{\$123+456=579\$}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Zero Padding}
-    \begin{itemize}
-        \item Aligns digits by prepending operands and answers with zeros
-        \item Fixed length $N_{\text{pad}}$
-        \item Simplifies learning of positional relationships
-        \item Limitations:
-              \begin{itemize}
-                  \item Requires prior knowledge of maximum sequence length
-              \end{itemize}
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Example ($N_{\text{pad}} = 5$):}
-    \begin{center}
-        \texttt{\$00123+00456=00579\$}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Reversing}
-    \begin{itemize}
-        \item Reverses digits of operands and the answer
-        \item Aims to match the flow of operations (least significant digit first)
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Example:}
-    \begin{center}
-        \item \texttt{\$321+654=975\$}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Random Spaces}
-    \begin{itemize}
-        \item Randomly insert spaces between symbols in the input sequence
-        \item Disrupts fixed positional patterns
-        \item Encourages the model to learn position-invariant representations
-        \item Controlled by parameter $\rho$ (ratio of random spaces to non-space tokens)
-        \item In experiments, $\rho = 0.5$
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Example:}
-    \begin{center}
-        \texttt{\$1 23 +4  5 6=579\$}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Scratchpad}
-    \begin{itemize}
-        \item Includes intermediate computational steps before the final answer
-        \item Promotes step-by-step reasoning
-        \item Requires task-specific data
-        \item Format includes reversed operands, partial sums, and the final answer
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Example:}
-    \begin{footnotesize}
-        \texttt{\$567+789=7 6 5 + 9 8 7;
-            c=0,7+0+0=7,c=0;
-            6+9+0=5,c=1;
-            5+8+1=4,c=1;
-            0+7+1=8,c=0|8457\$}
-    \end{footnotesize}
 \end{frame}
 
 \begin{frame}
@@ -592,6 +517,7 @@
         \item Random spaces weakly improve generalization (x1.125).
         \item Other methods do not help generalization.
         \item Random spaces smooth attention patterns.
+        \item Abacus generalizes well.
     \end{itemize}
 \end{frame}
 
