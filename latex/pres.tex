@@ -349,9 +349,10 @@
 \begin{frame}
     \frametitle{Challenges in Length Generalization}
     \begin{itemize}
-        \item Positional encoding plays a significant role.
-        \item Kazemnejad et al. (2023) find even models without positional encodings can length generalize somewhat.
-        \item Experiments in this thesis do not support these findings.
+        \item Easy to grok addition for in-distribution lengths.
+        \item Transformers struggle with sequences longer than seen in training.
+        \item Addition requires accurate \emph{digit alignment} for all lengths.
+        \item Positional encodings are crucial for digit alignment.
     \end{itemize}
 \end{frame}
 
@@ -359,8 +360,8 @@
     \frametitle{Issues with Positional Encodings}
     \begin{itemize}
         \item Models struggle to select relevant tokens based on position in longer sequences.
-        \item Failure to \textbf{align digits} without explicit positional cues.
-        \item Confirmed by multiple studies (Shen et al. 2023; Zhao et al. 2024).
+        \item Failure to align digits without explicit positional cues.
+        \item Research focuses on easing digit alignment.
     \end{itemize}
 \end{frame}
 
@@ -369,7 +370,7 @@
     \begin{itemize}
         \item Reversing answer and training with scratchpad (Lee et al. 2024).
         \item Randomized PEs (Ruoss et al. 2023).
-        \item Inclusion of random spaces in input (Shen et al. 2023).
+        \item Random spaces and scratchpad (Shen et al. 2023).
         \item Index hints \texttt{a1b2c3+a4b5c6=a5b7c9} (Y. Zhou et al. 2024)
         \item Task-specific PEs, e.g. Abacus (McLeish et al. 2024).
     \end{itemize}
@@ -379,19 +380,20 @@
     \frametitle{Length Generalization Ratio}
     \begin{itemize}
         \item Ratio of the length of solved test problems to training lengths.
-        \item 1.1x ratio achieved by Shen et al. (2023).
-        \item 1.125x by Kazemnejad et al. (2023).
-        \item 1.5x by H. Zhou et al. (2023).
+        \item 1x with data formatting (Lee et al. 2024).
+        \item 1.1x with Random PE (Shen et al. 2023).
+        \item 1.125x with NoPE (Kazemnejad et al. 2023).
+        \item 1.5x with index hints and special setup (H. Zhou et al. 2023).
         \item 2.5x with FIRE and index hints (Y. Zhou et al. 2024).
         \item \textbf{6x} achieved with Abacus encoding (McLeish et al. 2024).
     \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Abacus Encoding}
+    \frametitle{SOTA: Abacus Encoding}
     \begin{itemize}
         \item Encode digit position relative to the start of the number.
-        \item Need to reverse integers
+        \item Task specific and requires reversing numbers.
         \item Use sinusoidal PE with indices specified by the Abacus encoding.
         \item Combined with architectural modifications like input injection and recurrent layers.
         \item Trained on up to 20 digits, generalizes to 120 digits.
@@ -399,14 +401,14 @@
     \begin{figure}
         \centering
         \includegraphics[width=0.7\textwidth]{fig/abacus.png}
-        \caption{Source: McLeish et al. (2024)}
+        \caption{Source: McLeish et al. 2024}
     \end{figure}
 \end{frame}
 
 \begin{frame}
     \frametitle{Conclusions from Related Work}
     \begin{itemize}
-        \item No common benchmark $\rightarrow$ hard to compare methods.
+        \item No common dataset $\rightarrow$ hard to compare methods.
         \item Positional encodings and data formatting significantly impact length generalization.
         \item Task-specific design can boost generalization to unseen lengths.
         \item Some diverge from standard decoder unsupervised training.
@@ -419,7 +421,8 @@
         \item Some successful methods lose sight of the original task:\\
               It's not about addition, but about model capabilities.
         \item Task-specific modifications are not always feasible.
-        \item For the same reason e.g. adding index hints is "hacky."
+        \item For the same reason e.g. index hints or scratchpad are "hacky."
+        \item No common benchmark datasets or setups.
         \item Desire for simpler methods without altering model architecture.
     \end{itemize}
 \end{frame}
@@ -429,180 +432,292 @@
 \begin{frame}
     \frametitle{Overview of Approach}
     \begin{itemize}
-        \item Investigate various positional encodings and data formatting.
-        \item Examine the impact of sub-task data on compositionality.
-        \item Apply mechanistic interpretability to analyze models.
+        \item Baseline performance (Lee et al. 2023).
+        \item Fixed positional patterns in absolute PE.
+        \item Length generalization with different data formats.
+        \item Weak generalization by breaking positional patterns.
+        \item Sub-task data to improve compositionality.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Baseline with Absolute Positional Encoding}
+    \begin{itemize}
+        \item High accuracy on training lengths (1 and 3 digits).
+        \item No generalization on unseen lengths (2 and 4 digits).
+    \end{itemize}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\textwidth]{fig/baseline_and_longer.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Next-Token Uncertainty Analysis}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.65\linewidth]{fig/next_token_entropy.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Next-Token Uncertainty Analysis}
+    \begin{itemize}
+        \item For in-distribution lengths (1--17 and 19), models are confident in predictions (low entropy)
+        \item For any OOD lengths (18 and 20+), entropy increases and model becomes uncertain.
+        \item Next-token distribution $\approx$uniform for extreme OOD lengths.
+        \item Predictions are not ``confident and wrong'' but ``uncertain and wrong.''
+        \item Indicates that learned algorithm ``hardcodes'' positional patterns.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Limitations of Absolute Positional Encoding}
+    \begin{itemize}
+        \item No generalization to unseen lengths.
+        \item Neither in-between lengths (e.g. 18) nor longer lengths (20+).
+        \item Learned algorithm completely breaks for OOD lengths.
+        \item Literature suggests aligning digits is the key challenge.
+        \item Next: try to break positional patterns with data formatting.
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Data Formatting Techniques}
+    \begin{itemize}
+        \item Standard Format
+        \item Zero Padding
+        \item Reversing
+        \item Random Spaces
+        \item Scratchpad
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Standard Format}
+    \begin{itemize}
+        \item Input sequences are represented as \texttt{\$a+b=c\$}
+        \item \texttt{a} and \texttt{b} are operands; \texttt{c} is the sum
+        \item Symbols:
+              \begin{itemize}
+                  \item \texttt{\$}: Start and end of sequence (also serves as EOS token)
+                  \item \texttt{+}, \texttt{=}: Separate operands and answer
+              \end{itemize}
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{\$123+456=579\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Zero Padding}
+    \begin{itemize}
+        \item Aligns digits by prepending operands and answers with zeros
+        \item Fixed length $N_{\text{pad}}$
+        \item Simplifies learning of positional relationships
+        \item Limitations:
+              \begin{itemize}
+                  \item Requires prior knowledge of maximum sequence length
+              \end{itemize}
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example ($N_{\text{pad}} = 5$):}
+    \begin{center}
+        \texttt{\$00123+00456=00579\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Reversing}
+    \begin{itemize}
+        \item Reverses digits of operands and the answer
+        \item Aims to match the flow of operations (least significant digit first)
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \item \texttt{\$321+654=975\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Random Spaces}
+    \begin{itemize}
+        \item Randomly insert spaces between symbols in the input sequence
+        \item Disrupts fixed positional patterns
+        \item Encourages the model to learn position-invariant representations
+        \item Controlled by parameter $\rho$ (ratio of random spaces to non-space tokens)
+        \item In experiments, $\rho = 0.5$
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{\$1 23 +4  5 6=579\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Scratchpad}
+    \begin{itemize}
+        \item Includes intermediate computational steps before the final answer
+        \item Promotes step-by-step reasoning
+        \item Requires task-specific data
+        \item Format includes reversed operands, partial sums, and the final answer
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{footnotesize}
+        \texttt{\$567+789=7 6 5 + 9 8 7;
+            c=0,7+0+0=7,c=0;
+            6+9+0=5,c=1;
+            5+8+1=4,c=1;
+            0+7+1=8,c=0|8457\$}
+    \end{footnotesize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Data Formatting Results}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\linewidth]{fig/pe_results.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Data Formats Summary}
+    \begin{itemize}
+        \item Zero padding can ``close the gap'' in OOD lengths (7, \textbf{8}, 9 digits).
+        \item Random spaces weakly improve generalization (x1.125).
+        \item Other methods do not help generalization.
+        \item Random spaces smooth attention patterns.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Sub-tasks for Compositionality}
+    \begin{itemize}
+        \item A different direction to improve generalization.
+        \item Encourage model to learn an \emph{algorithm}.
+        \item Include \emph{sub-task} data in training.
+        \item Sub-tasks can be composed to perform addition.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Sub-task Data}
+    \begin{itemize}
+        \item Parts of the addition process broken down into sub-tasks.
+        \item Sub-tasks include:
+              \begin{itemize}
+                  \item Digit Alignment
+                  \item Reversing
+                  \item Carry Detection
+                  \item Digit-wise Modular Addition
+                  \item Addition
+              \end{itemize}
+        \item Each sub-task has a specific format.
+        \item Add a prefix to the input sequence to indicate the sub-task.
+              \texttt{\$pre123+456=}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Experiment Setup}
+    \begin{itemize}
+        \item 1-7 digits in-distribution, 8 and 10 digits OOD.
+        \item Model dimension: 64--1536 (increments of 64).
+        \item Dataset sizes: 10K, 100K, 1M, 10M samples.
+        \item Addition-only and mixed-task for each.
+        \item 3 seeds per run.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impact of Sub-task Learning}
     \begin{table}
         \centering
-        \begin{tabular}{ll}
+        \begin{tabular}{lccccc}
             \toprule
-            Technique         & Example                     \\
+                    & \multicolumn{2}{c}{8 Digits} & \multicolumn{2}{c}{10 Digits}                                          \\
+            Dataset & Add                          & Mix                           & Add   & Mix           & Diff           \\
             \midrule
-            Standard format   & \texttt{123+456=}           \\
-            Reversed operands & \texttt{321+654=}           \\
-            Random spaces     & \texttt{1 23 +4  5 6=}      \\
-            Zero-padding      & \texttt{00123+00456=}       \\
-            Scratchpad        & \texttt{\$567+789=765+987;} \\
-                              & \texttt{c=0,7+0+0=7,c=0;}   \\
-                              & \texttt{6+9+0=5,c=1;}       \\
-                              & \texttt{5+8+1=4,c=1;}       \\
-                              & \texttt{0+7+1=8,c=0|8457\$} \\
+            10K     & 7.0 ± 22.7                   & 35.4 ± 39.6                   & 0 ± 0 & 2.4 ± 8.4     & \textbf{+15.4} \\
+            100K    & 21.5 ± 29.7                  & 41.8 ± 36.5                   & 0 ± 0 & 1.0 ± 5.2     & \textbf{+10.6} \\
+            1M      & 16.1 ± 24.8                  & 39.5 ± 36.3                   & 0 ± 0 & 1.5 ± 7.6     & \textbf{+12.4} \\
+            10M     & 18.6 ± 33.1                  & 37.3 ± 37.2                   & 0 ± 0 & 3.1 ± 10.1    & \textbf{+10.9} \\
+            \midrule
+            Diff    &                              & \textbf{+22.7}                &       & \textbf{+2.0} &                \\
             \bottomrule
         \end{tabular}
     \end{table}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Reproducing Baseline Failure: Results}
-    \begin{itemize}
-        \item High accuracy on training lengths (1 and 3 digits).
-        \item Significant drop in accuracy on unseen lengths (2 and 4 digits).
-    \end{itemize}
+    \frametitle{Test Loss vs. Model Dimension}
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\textwidth]{fig/baseline_and_longer.png}
-        \caption{Baseline performance over training epochs.}
+        \includegraphics[width=0.6\linewidth]{fig/exp_27_test_loss_vs_n_embd.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Reproducing Baseline Failure: Analysis}
+    \frametitle{Test Loss vs. Model Dimension}
     \begin{itemize}
-        \item Model relies on absolute positions seen during training.
-        \item Fails to align digits correctly for unseen lengths.
-        \item Highlights limitations of absolute positional encoding.
+        \item Smaller models benefit more from mixed-task training.
+        \item Effect diminishes as model size increases.
+        \item Mixed-task training never hurts performance.
     \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Extending Baseline Observations}
-    \begin{itemize}
-        \item Trained on 1-7 digit additions.
-        \item Tested on 8-digit additions.
-        \item Consistent failure to generalize to longer sequences.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Assessing Generalization Across Lengths}
-    \begin{itemize}
-        \item Trained on 1-19 digit additions (excluding 18-digit cases).
-        \item Tested on 1-20 digit additions.
-        \item No significant generalization to unseen lengths.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Impact of Data Formatting and Dataset Size}
-    \begin{itemize}
-        \item Introduced random spaces in input sequences.
-        \item Trained on 1-7 and 9-digit additions.
-        \item Tested on 8 and 10-13 digits.
-        \item Slight improvement in length generalization observed.
-    \end{itemize}
+    \frametitle{In-Distribution vs. OOD Test Loss}
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\textwidth]{fig/attn_map_abacus_pe.png}
-        \caption{Attention maps with random spaces in input sequences.}
+        \includegraphics[width=0.8\linewidth]{fig/subtask_overfitting.png}
     \end{figure}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Introducing Sub-Task Data}
-    \begin{itemize}
-        \item Sub-tasks: carry detection, modular addition, reversing, digit alignment.
-        \item Used task-specific prefixes to distinguish tasks.
-        \item Trained models on combined data.
-    \end{itemize}
-    \begin{table}
-        \centering
-        \caption{Examples of Sub-Task Data}
-        \begin{tabular}{ll}
-            \toprule
-            Sub-Task         & Example                       \\
-            \midrule
-            Modular Addition & \texttt{mod\_add: 7 + 8 = 5}  \\
-            Carry Detection  & \texttt{carry: 7 + 8 = 1}     \\
-            Reversing        & \texttt{reverse: 123 = 321}   \\
-            Digit Alignment  & \texttt{align:  123}          \\
-                             & \hspace{1.2cm} \texttt{+ 456} \\
-            \bottomrule
-        \end{tabular}
-    \end{table}
-\end{frame}
 
 \begin{frame}
-    \frametitle{Effect on Compositionality}
+    \frametitle{In-Distribution vs. OOD Test Loss}
     \begin{itemize}
-        \item Analyzed the model's ability to compose functions.
-        \item Marginal improvements in length generalization observed.
-        \item Smaller models benefited more from sub-task training.
-    \end{itemize}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{fig/exp_27_val_loss_vs_n_embd.png}
-        \caption{Test loss vs. model dimension for addition-only and multi-task training.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Comprehensive Analysis Across Scales}
-    \begin{itemize}
-        \item Explored model dimensions from 64 to 1536.
-        \item Dataset sizes from 10K to 10M examples.
-        \item Compared models trained with and without sub-task data.
+        \item Mixed-task can be a Pareto-improvement.
+        \item Allows to reduce OOD loss without increasing in-distribution loss.
     \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Sub-Task Difficulty Analysis}
-    \begin{itemize}
-        \item Evaluated test loss and accuracy for sub-tasks.
-        \item Modular addition and digit alignment were most challenging.
-        \item Significant variability in performance across sub-tasks.
-    \end{itemize}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{fig/subtask_difficulty.png}
-        \caption{Sub-task difficulty analysis.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Mechanistic Interpretability}
-    \begin{itemize}
-        \item Analyzed attention maps of models.
-        \item Models with Abacus encoding showed crisp attention patterns.
-        \item Models with absolute positional encoding had diffuse attention.
-        \item Indicates challenges in digit alignment and carry propagation.
-    \end{itemize}
-\end{frame}
 
 \section{Conclusion}
 
 \begin{frame}
     \frametitle{Summary of Findings}
     \begin{itemize}
-        \item Transformer models with absolute positional encodings fail to generalize due to rigid digit alignment.
-        \item Abacus positional encoding significantly improves length generalization.
-        \item Data formatting techniques offer marginal improvements.
-        \item Sub-task data enhances compositionality, especially in smaller models.
-        \item Mechanistic interpretability reveals differences in internal representations.
+        \item Absolute positional encodings fail to generalize.
+        \item Generalization possible without architecture changes.
+        \item Random spaces can improve generalization.
+        \item Sub-task data improves generalization, especially for smaller models and datasets.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Limitations}
+    \begin{itemize}
+        \item Focused on small models trained from scratch; applicability to large language models (LLMs) is unclear.
+        \item Other positional encodings were not explored; alternative solutions might exist.
+        \item Sub-task experiments may be under-trained due to limited training steps.
+        \item Lack of mechanistic interpretability.
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Future Work}
     \begin{itemize}
-        \item Develop positional encodings that generalize without task-specific modifications.
-        \item Explore other data augmentation techniques to improve generalization.
-        \item Apply mechanistic interpretability to more complex tasks.
-        \item Investigate the impact of model architecture variations on length generalization.
+        \item Develop mechanistic interpretability methods for algorithmic tasks.
+        \item Apply to fine-tuning pre-trained LLMs and data curation.
+        \item Experiment more with smaller models for sub-task learning.
+        \item Explore active learning and curriculum learning.
     \end{itemize}
 \end{frame}
 
@@ -615,7 +730,11 @@
 \end{frame}
 
 
+
+
 % Appendix
+
+\section{Appendix}
 
 \begin{frame}
     \frametitle{Appendix: Counting Failure}
@@ -637,7 +756,26 @@
 
 
 \begin{frame}
-    \frametitle{Self-Attention Mechanism}
+    \frametitle{Appendix: Data Generation Process}
+    \begin{itemize}
+        \item Operands are randomly sampled positive integers
+        \item Each operand has exactly the specified number of digits (no leading zeros)
+        \item For digit lengths 1 to 3:
+              \begin{itemize}
+                  \item 1-digit operands: All 100 combinations (0 to 9)
+                  \item 2-digit operands: 900 samples randomly selected
+                  \item 3-digit operands: 9,000 samples randomly selected
+              \end{itemize}
+        \item For digit lengths 4 and above:
+              \begin{itemize}
+                  \item Equal number of samples per digit length to fill the dataset size
+              \end{itemize}
+        \item Test sets contain unique samples not present in the training set
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Self-Attention Mechanism}
     \begin{itemize}
         \item Computes attention weights between all token pairs.
         \item Allows the model to focus on relevant parts of the sequence.
@@ -650,11 +788,133 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Training and Inference}
+    \frametitle{Appendix: Training and Inference}
     \begin{figure}
         \centering
         \includegraphics[width=0.45\textwidth]{fig/training_and_inference.pdf}
     \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Attention Maps: Absolute PE}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{fig/attn_map_abs_pe.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Attention Maps: Absolute PE with Random Spaces}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{fig/attn_map_abs_pe_random_spaces.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Attention Maps: Abacus PE}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{fig/attn_map_abacus_pe.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Scratchpad Evaluation}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\linewidth]{fig/scratchpad_eval.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task Prefix}
+    \begin{itemize}
+        \item Includes a 3-letter task prefix to differentiate sub-tasks
+        \item Format: \texttt{xxx\$a+b=c\$}, where \texttt{xxx} is the sub-task identifier
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example (Reversing sub-task):}
+    \begin{center}
+        \texttt{rev\$123+456=321+654\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task: Digit Alignment (\texttt{ali})}
+    \begin{itemize}
+        \item Focuses on aligning digits of the operands
+        \item Model outputs corresponding digit pairs from each operand
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{ali\$1234+4567=1+4,2+5,3+6,4+7\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task: Reversing (\texttt{rev})}
+    \begin{itemize}
+        \item Involves reversing the digits of each operand
+        \item Helps model understand the reversal operation
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{rev\$1234+4567=4321+7654\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task: Carry Detection (\texttt{car})}
+    \begin{itemize}
+        \item Model identifies positions where a carry operation occurs
+        \item Output is a string of 'c's and dashes indicating carries
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{car\$1234+4567=---c\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task: Modular Addition (\texttt{mad})}
+    \begin{itemize}
+        \item Model performs addition modulo 10 on each pair of corresponding digits
+        \item Does not consider carries
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{mad\$1234+4567=5791\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Sub-task: Addition (\texttt{add})}
+    \begin{itemize}
+        \item Standard addition task
+        \item Model computes the sum of the two operands
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{center}
+        \texttt{add\$1234+4567=5801\$}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Sub-task Difficulty Analysis}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{fig/subtask_difficulty.png}
+    \end{figure}
+    \begin{itemize}
+        \item Modular addition and digit alignment are the most challenging sub-tasks
+        \item Significant variability in performance across different sub-tasks
+    \end{itemize}
 \end{frame}
 
 \end{document}
