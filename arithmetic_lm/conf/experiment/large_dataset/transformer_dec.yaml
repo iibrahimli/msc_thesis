@@ -1,0 +1,48 @@
+# @package _global_
+
+defaults:
+  - override /tokenizer: char
+  - override /sampling: default
+  - override /data: add_generalize_to_longer_large
+  - override /training: default
+  - override /wandb: default
+  - override /model: transformer_dec
+  - _self_
+
+data:
+  train_ds_class: ArithmeticLMSequenceDataset
+  train_size: 100000
+  format:
+    pad: $
+    reverse_ans: false
+    scratchpad: false
+    index_hints: false
+    operand_random_spaces_amount: 0
+
+training:
+  batch_size: 256
+  accumulate_grad_batches: 1
+  lr: 0.0003
+  only_answer_loss: true
+  max_iters: 100000
+  limit_test_examples: 100 # since there are many test sets
+  val_interval: 4000
+  reload_dataloaders_every_n_epochs: 1
+  devices: [0]
+  eval_func: string_match_exact
+  num_dl_workers: 0
+  num_threads: 4 # 32 cores / 8 runs = 4 threads per run
+  seed: 1
+
+model:
+  args:
+    n_layers: 20
+    n_embd: 128
+    n_head: 4
+    context_len: 64
+    pos_enc: abs
+    input_injection: false
+
+wandb:
+  project: "large_dataset"
+  run_name: tdec_${model.args.n_layers}l_{model.args.n_embd}e_{model.args.n_head}h
