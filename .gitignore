@@ -45,6 +45,8 @@ latex/**/*.fdb_latexmk
 latex/**/*.fls
 latex/**/*.lof
 latex/**/*.lot
+latex/**/*.nav
+latex/**/*.snm
 
 # drawio backup
 *.drawio.bkp
