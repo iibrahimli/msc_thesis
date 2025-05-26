@@ -120,9 +120,12 @@ def plot_attn_maps(
     n_heads = attn_maps[module_names[0]].shape[1]
     figsize = (n_heads * fig_scale, len(attn_maps) * fig_scale)
     fig = plt.figure(layout="constrained", figsize=figsize)
+    prompt_to_show = repr(prompt_str).replace("$", "\$")
+    answer_to_show = repr(pred_answer_str).replace("$", "\$")
     fig.suptitle(
-        f"{figtitle_prefix} Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}"
-        f"\n predicted answer: {repr(pred_answer_str).replace('$', '\$')} ({'correct' if pred_answer_str == true_ans else 'incorrect, true: ' + true_ans})",
+        f"{figtitle_prefix} Attention maps for prompt: {prompt_to_show}"
+        f"\n predicted answer: {answer_to_show} ({'correct' if pred_answer_str == true_ans else 'incorrect, true: ' + true_ans})",
+        
     )
 
     subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
@@ -208,9 +211,11 @@ def plot_attn_maps_addition(
     n_heads = attn_maps[module_names[0]].shape[1]
     figsize = (n_heads * fig_scale, len(attn_maps) * fig_scale)
     fig = plt.figure(layout="constrained", figsize=figsize)
+    prompt_to_show = repr(prompt_str).replace("$", "\$")
+    answer_to_show = repr(pred_answer_str).replace("$", "\$")
     fig.suptitle(
-        f"{figtitle_prefix} Attention maps for prompt: {repr(prompt_str).replace('$', '\$')}, [{len(astr)}+{len(bstr)}]"
-        f"\n predicted answer: {repr(pred_answer_str).replace('$', '\$')} ({'correct' if pred_answer_num == true_ans else 'incorrect, true: ' + true_ans})",
+        f"{figtitle_prefix} Attention maps for prompt: {prompt_to_show}, [{len(astr)}+{len(bstr)}]"
+        f"\n predicted answer: {answer_to_show} ({'correct' if pred_answer_num == true_ans else 'incorrect, true: ' + true_ans})",
     )
 
     subfigs = fig.subfigures(len(attn_maps), 1, hspace=0, wspace=0)
