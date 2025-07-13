@@ -28,6 +28,7 @@ class TransformerDecoder(nn.Module):
             "cope",
             "alibi",
             "random",
+            "binary",
         ] = "abs",
         pos_enc_max_shift: int = 0,
         emb_type: Literal["learned", "sinusoidal"] = "learned",
@@ -88,6 +89,12 @@ class TransformerDecoder(nn.Module):
             )
         elif self.pos_enc == "random":
             self.pos_encoder = RandomizedPositionalEncoding(
+                d_model=n_embd,
+                max_len=context_len,
+                dropout=dropout,
+            )
+        elif self.pos_enc == "binary":
+            self.pos_encoder = BinaryPositionalEncoding(
                 d_model=n_embd,
                 max_len=context_len,
                 dropout=dropout,

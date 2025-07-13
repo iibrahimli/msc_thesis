@@ -8,3 +8,4 @@ from .learned import LearnedPositionalEncoding
 from .randomized import RandomizedPositionalEncoding
 from .relative import RelativeMultiheadAttention
 from .rotary import RotaryEmbedding, RotaryMultiheadAttention
+from .binary import BinaryPositionalEncoding
