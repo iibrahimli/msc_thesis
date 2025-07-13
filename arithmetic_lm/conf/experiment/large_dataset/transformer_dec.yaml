@@ -20,8 +20,8 @@ data:
     operand_random_spaces_amount: 0
 
 training:
-  batch_size: 256
-  accumulate_grad_batches: 1
+  batch_size: 128
+  accumulate_grad_batches: 2
   lr: 0.0003
   only_answer_loss: true
   max_iters: 100000
@@ -45,4 +45,4 @@ model:
 
 wandb:
   project: "large_dataset"
-  run_name: tdec_${model.args.n_layers}l_{model.args.n_embd}e_{model.args.n_head}h
+  run_name: tdec_${model.args.n_layers}l_{model.args.n_embd}e_{model.args.n_head}h_binary
